@@ -38,7 +38,7 @@ class HydrawiseController extends IPSModule
         $this->RegisterPropertyBoolean('with_message', true);
         $this->RegisterPropertyBoolean('with_status_box', false);
 
-		/*
+        /*
         $this->CreateVarProfile('Hydrawise.Temperatur', IPS_FLOAT, ' °C', -10, 30, 0, 1, 'Temperature');
         $this->CreateVarProfile('Hydrawise.Humidity', IPS_FLOAT, ' %', 10, 100, 0, 0, 'Drops');
         $this->CreateVarProfile('Hydrawise.absHumidity', IPS_FLOAT, ' g/m³', 10, 100, 0, 0, 'Drops');
@@ -93,7 +93,7 @@ class HydrawiseController extends IPSModule
         $associations[] = ['Wert' => 4, 'Name' => $this->battery_status2text(4), 'Farbe' => 0x228B22];
         $associations[] = ['Wert' => 5, 'Name' => $this->battery_status2text(5), 'Farbe' => 0x228B22];
         $this->CreateVarProfile('Hydrawise.Battery', IPS_INTEGER, '', 0, 0, 0, 1, 'Intensity', $associations);
-		*/
+        */
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
 
@@ -121,35 +121,35 @@ class HydrawiseController extends IPSModule
 
         $vpos = 1;
 
-		$this->RegisterVariableBoolean('Status', $this->Translate('State'), '~Alert.Reversed', $vpos);
-		$vpos++;
+        $this->RegisterVariableBoolean('Status', $this->Translate('State'), '~Alert.Reversed', $vpos);
+        $vpos++;
 
-		if ($with_last_contact) {
-			$this->RegisterVariableString('Message', $this->Translate('last message'), '', $vpos);
-		} else {
-			$this->UnregisterVariable('Message');
-		}
-		$vpos++;
+        if ($with_last_contact) {
+            $this->RegisterVariableString('Message', $this->Translate('last message'), '', $vpos);
+        } else {
+            $this->UnregisterVariable('Message');
+        }
+        $vpos++;
 
-		if ($with_last_contact) {
-			$this->RegisterVariableString('LastContact', $this->Translate('last transmission'), '', $vpos);
-		} else {
-			$this->UnregisterVariable('LastContact');
-		}
-		$vpos++;
+        if ($with_last_contact) {
+            $this->RegisterVariableString('LastContact', $this->Translate('last transmission'), '', $vpos);
+        } else {
+            $this->UnregisterVariable('LastContact');
+        }
+        $vpos++;
 
-		if ($with_status_box) {
-			$this->RegisterVariableString('StatusBox', $this->Translate('State of controller and zones'), '~HTMLBox', $vpos);
-		} else {
-			$this->UnregisterVariable('StatusBox');
-		}
-		$vpos++;
+        if ($with_status_box) {
+            $this->RegisterVariableString('StatusBox', $this->Translate('State of controller and zones'), '~HTMLBox', $vpos);
+        } else {
+            $this->UnregisterVariable('StatusBox');
+        }
+        $vpos++;
 
-		// Inspired by module SymconTest/HookServe
-		// Only call this in READY state. On startup the WebHook instance might not be available yet
-		if (IPS_GetKernelRunlevel() == KR_READY) {
-			$this->RegisterHook('/hook/HydrawiseWeather');
-		}
+        // Inspired by module SymconTest/HookServe
+        // Only call this in READY state. On startup the WebHook instance might not be available yet
+        if (IPS_GetKernelRunlevel() == KR_READY) {
+            $this->RegisterHook('/hook/HydrawiseWeather');
+        }
 
         $this->SetStatus(102);
     }
@@ -157,11 +157,11 @@ class HydrawiseController extends IPSModule
     public function GetConfigurationForm()
     {
         $formElements = [];
-		$formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Controller'];
-		$formElements[] = ['type' => 'Label', 'label' => 'optional controller data'];
-		$formElements[] = ['type' => 'CheckBox', 'name' => 'with_last_contact', 'caption' => ' ... last transmission to Hydrawise'];
-		$formElements[] = ['type' => 'CheckBox', 'name' => 'with_messages', 'caption' => ' ... last message'];
-		$formElements[] = ['type' => 'CheckBox', 'name' => 'with_status_box', 'caption' => ' ... html-box with state of controller and zones'];
+        $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Controller'];
+        $formElements[] = ['type' => 'Label', 'label' => 'optional controller data'];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_last_contact', 'caption' => ' ... last transmission to Hydrawise'];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_messages', 'caption' => ' ... last message'];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_status_box', 'caption' => ' ... html-box with state of controller and zones'];
 
         $formStatus = [];
         $formStatus[] = ['code' => '101', 'icon' => 'inactive', 'caption' => 'Instance getting created'];
@@ -225,7 +225,7 @@ class HydrawiseController extends IPSModule
             $this->SendDebug(__FUNCTION__, $err, 0);
             $this->SetStatus($statuscode);
 
-			$this->SetValue('Status', false);
+            $this->SetValue('Status', false);
             return -1;
         }
 
@@ -235,26 +235,27 @@ class HydrawiseController extends IPSModule
 
         $controller_name = $controller['name'];
 
-		$last_contact = $controller['last_contact'];
-               $ts = strtotime($last_contact);
-                if ( $ts ) {
-						$sec = $now - $ts;
-                        $s = $this->seconds2duration($sec);
-                        if ( $s != "" )
-                                $contact = "vor " . $s;
-                        else
-                                $contact = "jetzt";
+        $last_contact = $controller['last_contact'];
+        $ts = strtotime($last_contact);
+        if ($ts) {
+            $sec = $now - $ts;
+            $s = $this->seconds2duration($sec);
+            if ($s != '') {
+                $contact = 'vor ' . $s;
+            } else {
+                $contact = 'jetzt';
+            }
 
-						$s = $this->seconds2duration($sec);
-						$min = floor($sec / 60);
-						if ($min > $minutes2fail) {
-							$controller_status = false;
-						}
-                } else {
-                        $contact = $last_contact;
-                }
+            $s = $this->seconds2duration($sec);
+            $min = floor($sec / 60);
+            if ($min > $minutes2fail) {
+                $controller_status = false;
+            }
+        } else {
+            $contact = $last_contact;
+        }
 
-		$message = $controller['message'];
+        $message = $controller['message'];
 
         $msg = "controller \"$controller_name\": last_contact=$contact";
         $this->SendDebug(__FUNCTION__, utf8_decode($msg), 0);
@@ -267,7 +268,7 @@ class HydrawiseController extends IPSModule
             $this->SetValue('LastMessages', $message);
         }
 
-		$controller_data=[];
+        $controller_data = [];
         $this->SetBuffer('Data', json_encode($controller_data));
 
         $this->SetValue('Status', $controller_status);
