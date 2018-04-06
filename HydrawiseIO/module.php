@@ -17,7 +17,7 @@ class HydrawiseIO extends IPSModule
 
         $this->RegisterPropertyInteger('UpdateDataInterval', '5');
 
-        $this->RegisterTimer('UpdateData', 0, 'HydrawiseIO_UpdateData(' . $this->InstanceID . ');');
+        $this->RegisterTimer('UpdateData', 0, 'HydrawiseIO_UpdateData('.$this->InstanceID.');');
     }
 
     public function ApplyChanges()
@@ -65,14 +65,15 @@ class HydrawiseIO extends IPSModule
 
     protected function SendData($data)
     {
-        $this->SendDebug(__FUNCTION__, 'SendData(): data=' . print_r($data, true), 0);
+        $this->SendDebug(__FUNCTION__, 'SendData(): data='.print_r($data, true), 0);
         $this->SendDataToChildren(json_encode(['DataID' => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}', 'Buffer' => $data]));
     }
 
     public function ForwardData($JSONString)
     {
         $data = $this->GetBuffer('LastData');
-        $this->SendDebug(__FUNCTION__, 'ForwardData(): data=' . print_r($data, true), 0);
+        $this->SendDebug(__FUNCTION__, 'ForwardData(): data='.print_r($data, true), 0);
+
         return $data;
     }
 
@@ -80,7 +81,7 @@ class HydrawiseIO extends IPSModule
     {
         $api_key = $this->ReadPropertyString('api_key');
 
-		$url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key=' . $api_key . '&tag=hydrawise_all';
+        $url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key='.$api_key.'&tag=hydrawise_all';
 
         $do_abort = false;
         $data = $this->do_HttpRequest($url);
@@ -91,6 +92,7 @@ class HydrawiseIO extends IPSModule
         if ($do_abort) {
             $this->SendData('');
             $this->SetBuffer('LastData', '');
+
             return -1;
         }
 

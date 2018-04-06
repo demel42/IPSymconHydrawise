@@ -73,7 +73,8 @@ class HydrawiseConfig extends IPSModule
         if ($instID == '') {
             $instID = IPS_CreateInstance($guid);
             if ($instID == '') {
-                echo 'unablte to create instance "' . $module_name . '"';
+                echo 'unablte to create instance "'.$module_name.'"';
+
                 return $instID;
             }
             IPS_SetProperty($instID, 'module_id', $module_id);
@@ -103,10 +104,10 @@ class HydrawiseConfig extends IPSModule
 
         if ($data != '') {
             $controllers = json_decode($data, true);
-            $this->SendDebug(__FUNCTION__, 'controllers=' . print_r($controllers, true), 0);
+            $this->SendDebug(__FUNCTION__, 'controllers='.print_r($controllers, true), 0);
 
             $controllers = $netatmo['body']['controllers'];
-            $this->SendDebug(__FUNCTION__, 'controllers=' . print_r($controllers, true), 0);
+            $this->SendDebug(__FUNCTION__, 'controllers='.print_r($controllers, true), 0);
 
             if ($controller_id != '') {
                 $controller_found = false;
@@ -157,9 +158,9 @@ class HydrawiseConfig extends IPSModule
 
         $this->SetStatus(102);
 
-		// Instanzen anlegen
-		// HydrawiseController: '{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}'
-		// HydrawiseZone: '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}'
-		// HydrawiseSensor: '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}'
+        // Instanzen anlegen
+        // HydrawiseController: '{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}'
+        // HydrawiseZone: '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}'
+        // HydrawiseSensor: '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}'
     }
 }
