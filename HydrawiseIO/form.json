@@ -2,7 +2,7 @@
 	"elements":
 			[
 				{ "type": "Label", "label": "Hydrawise Access-Details" },
-				{ "type": "Label", "label": "API-Key from https://app.hydrawise.com/config/account"},
+				{ "type": "Label", "label": "API-Key from https://app.hydrawise.com/config/account" },
 				{ "type": "ValidationTextBox", "name": "api_key", "caption": "API-Key" },
 
 				{ "type": "Label", "label": "" },
@@ -22,6 +22,6 @@
 				{ "code": 201, "icon": "error", "caption": "Instance is inactive (unauthorized)" },
 				{ "code": 202, "icon": "error", "caption": "Instance is inactive (server error)" },
 				{ "code": 203, "icon": "error", "caption": "Instance is inactive (http error)" },
-				{ "code": 204, "icon": "error", "caption": "Instance is inactive (invalid data)" },
+				{ "code": 204, "icon": "error", "caption": "Instance is inactive (invalid data)" }
 			]
 }

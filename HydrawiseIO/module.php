@@ -85,7 +85,15 @@ class HydrawiseIO extends IPSModule
 
         $do_abort = false;
         $data = $this->do_HttpRequest($url);
-        if ($data == '') {
+        if ($data != '') {
+			$jdata = json_decode($data);
+			// wenn man mehrere Controller hat, ist es ein array, wenn es nur einen Controller gibt, leider nicht
+			if (!is_array($jdata)) {
+				$controllers = [];
+				$controllers[] = $jdata;
+				$data = json_encode($controllers);
+			}
+		} else {
             $do_abort = true;
         }
 
@@ -113,6 +121,8 @@ class HydrawiseIO extends IPSModule
         $cdata = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
+
+		$this->SendDebug(__FUNCTION__, "url=$url, httpcode=$httpcode", 0);
 
         $statuscode = 0;
         $err = '';
