@@ -1,0 +1,24 @@
+{
+	"translations": {
+		"de": {
+			"Hydrawise Access-Details": "Hydrawise Zugangsdaten",
+			"API-Key from https://app.hydrawise.com/config/account":
+				"API-Key von https://app.hydrawise.com/config/account",
+			"API-Key": "API-Key",
+
+			"Update data every X minutes": "Aktualisiere Daten alle X Minuten",
+			"Minutes": "Minuten",
+
+			"Update Data": "Aktualisiere Daten",
+
+			"Instance getting created": "Instanz wird erstellt",
+			"Instance is active": "Instanz ist aktiv",
+			"Instance is inactive": "Instanz ist inaktiv",
+
+			"Instance is inactive (unauthorized)": "Instanz ist inaktiv (Authorisierung fehlerhaft)",
+			"Instance is inactive (server error)": "Instanz ist inaktiv (Serverfehler)",
+			"Instance is inactive (http error)": "Instanz ist inaktiv (HTTP-Fehler)",
+			"Instance is inactive (invalid data)": "Instanz ist inaktiv (ungültige Daten)",
+		}
+	}
+}
