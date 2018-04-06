@@ -73,7 +73,7 @@ class HydrawiseConfig extends IPSModule
         if ($instID == '') {
             $instID = IPS_CreateInstance($guid);
             if ($instID == '') {
-                echo 'unable to create instance "'. $module_name . '"';
+                echo 'unable to create instance "' . $module_name . '"';
 
                 return $instID;
             }
@@ -153,7 +153,7 @@ class HydrawiseConfig extends IPSModule
 
         $this->SetStatus(102);
 
-		$this->SendDebug(__FUNCTION__, 'controller='.print_r($controller, true), 0);
+        $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
 
         // Instanzen anlegen
         // HydrawiseController: '{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}'

@@ -17,7 +17,7 @@ class HydrawiseIO extends IPSModule
 
         $this->RegisterPropertyInteger('UpdateDataInterval', '5');
 
-        $this->RegisterTimer('UpdateData', 0, 'HydrawiseIO_UpdateData('.$this->InstanceID.');');
+        $this->RegisterTimer('UpdateData', 0, 'HydrawiseIO_UpdateData(' . $this->InstanceID . ');');
     }
 
     public function ApplyChanges()
@@ -65,14 +65,14 @@ class HydrawiseIO extends IPSModule
 
     protected function SendData($data)
     {
-        $this->SendDebug(__FUNCTION__, 'SendData(): data='.print_r($data, true), 0);
+        $this->SendDebug(__FUNCTION__, 'SendData(): data=' . print_r($data, true), 0);
         $this->SendDataToChildren(json_encode(['DataID' => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}', 'Buffer' => $data]));
     }
 
     public function ForwardData($JSONString)
     {
         $data = $this->GetBuffer('LastData');
-        $this->SendDebug(__FUNCTION__, 'ForwardData(): data='.print_r($data, true), 0);
+        $this->SendDebug(__FUNCTION__, 'ForwardData(): data=' . print_r($data, true), 0);
 
         return $data;
     }
@@ -81,19 +81,19 @@ class HydrawiseIO extends IPSModule
     {
         $api_key = $this->ReadPropertyString('api_key');
 
-        $url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key='.$api_key.'&tag=hydrawise_all';
+        $url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key=' . $api_key . '&tag=hydrawise_all';
 
         $do_abort = false;
         $data = $this->do_HttpRequest($url);
         if ($data != '') {
-			$jdata = json_decode($data);
-			// wenn man mehrere Controller hat, ist es ein array, wenn es nur einen Controller gibt, leider nicht
-			if (!is_array($jdata)) {
-				$controllers = [];
-				$controllers[] = $jdata;
-				$data = json_encode($controllers);
-			}
-		} else {
+            $jdata = json_decode($data);
+            // wenn man mehrere Controller hat, ist es ein array, wenn es nur einen Controller gibt, leider nicht
+            if (!is_array($jdata)) {
+                $controllers = [];
+                $controllers[] = $jdata;
+                $data = json_encode($controllers);
+            }
+        } else {
             $do_abort = true;
         }
 
@@ -122,7 +122,7 @@ class HydrawiseIO extends IPSModule
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-		$this->SendDebug(__FUNCTION__, "url=$url, httpcode=$httpcode", 0);
+        $this->SendDebug(__FUNCTION__, "url=$url, httpcode=$httpcode", 0);
 
         $statuscode = 0;
         $err = '';
