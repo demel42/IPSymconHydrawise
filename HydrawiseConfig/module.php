@@ -6,7 +6,7 @@ class HydrawiseConfig extends IPSModule
     {
         parent::Create();
 
-        $this->ConnectParent('{26A55798-5CBC-88F6-5C7B-370B043B24F9}');
+        $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
     }
 
     public function ApplyChanges()
@@ -73,7 +73,7 @@ class HydrawiseConfig extends IPSModule
         if ($instID == '') {
             $instID = IPS_CreateInstance($guid);
             if ($instID == '') {
-                echo 'unablte to create instance "'.$module_name.'"';
+                echo 'unable to create instance "'. $module_name . '"';
 
                 return $instID;
             }
@@ -104,11 +104,6 @@ class HydrawiseConfig extends IPSModule
 
         if ($data != '') {
             $controllers = json_decode($data, true);
-            $this->SendDebug(__FUNCTION__, 'controllers='.print_r($controllers, true), 0);
-
-            $controllers = $netatmo['body']['controllers'];
-            $this->SendDebug(__FUNCTION__, 'controllers='.print_r($controllers, true), 0);
-
             if ($controller_id != '') {
                 $controller_found = false;
                 foreach ($controllers as $controller) {
@@ -157,6 +152,8 @@ class HydrawiseConfig extends IPSModule
         }
 
         $this->SetStatus(102);
+
+		$this->SendDebug(__FUNCTION__, 'controller='.print_r($controller, true), 0);
 
         // Instanzen anlegen
         // HydrawiseController: '{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}'
