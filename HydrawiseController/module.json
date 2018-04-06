@@ -1,0 +1,11 @@
+{
+	"id": "{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}",
+	"name": "HydrawiseController",
+	"type": 3,
+	"vendor": "Hydrawise",
+	"aliases": ["HydrawiseController"],
+	"parentRequirements": ["{B54B579C-3992-4C1D-B7A8-4A129A78ED03}"],
+	"childRequirements": [],
+	"implemented": ["{B54B579C-3992-4C1D-B7A8-4A129A78ED03}"],
+	"prefix": "HydrawiseController"
+}
