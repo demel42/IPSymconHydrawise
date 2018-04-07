@@ -65,10 +65,10 @@ class HydrawiseConfig extends IPSModule
                 continue;
             }
             if ($jcfg['controller_id'] == $controller_id) {
-				if ($channel == '' || jcfg['channel'] == $channel) {
-					$instID = $id;
-					break;
-				}
+                if ($channel == '' || jcfg['channel'] == $channel) {
+                    $instID = $id;
+                    break;
+                }
             }
         }
 
@@ -79,9 +79,9 @@ class HydrawiseConfig extends IPSModule
                 return $instID;
             }
             IPS_SetProperty($instID, 'controller_id', $controller_id);
-			if (is_numeric($channel)) {
-				IPS_SetProperty($instID, 'channel', $channel);
-			}
+            if (is_numeric($channel)) {
+                IPS_SetProperty($instID, 'channel', $channel);
+            }
             foreach ($properties as $key => $property) {
                 IPS_SetProperty($instID, $key, $property);
             }
@@ -158,54 +158,54 @@ class HydrawiseConfig extends IPSModule
         $this->SetStatus(102);
 
         $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
-		
-        // HydrawiseController: '{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}'
-		$name = $controller['name'];
-		$info = 'Controller (' . $name . ')';
-		$properties = [];
 
-		$pos = 1000;
-		$instID = $this->FindOrCreateInstance('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}', $controller_id, '', $name, $info, $properties, $pos++);
+        // HydrawiseController: '{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}'
+        $name = $controller['name'];
+        $info = 'Controller (' . $name . ')';
+        $properties = [];
+
+        $pos = 1000;
+        $instID = $this->FindOrCreateInstance('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}', $controller_id, '', $name, $info, $properties, $pos++);
 
         // Instanzen anlegen
         // HydrawiseZone: '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}'
 
         // HydrawiseSensor: '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}'
-		$pos = 1100;
-		$sensors = $controller['sensors'];
-		if (count($sensors) > 0) {
-			foreach ($sensors as $i => $value) {
-				$sensor = $sensors[$i];
-				$channel = $sensor['input'];
-				$name = $sensor['name'];
-				$type = $sensor['type'];
-				$mode = $sensor['mode'];
+        $pos = 1100;
+        $sensors = $controller['sensors'];
+        if (count($sensors) > 0) {
+            foreach ($sensors as $i => $value) {
+                $sensor = $sensors[$i];
+                $channel = $sensor['input'];
+                $name = $sensor['name'];
+                $type = $sensor['type'];
+                $mode = $sensor['mode'];
 
-				// type=1, mode=1 => normally close - start
-				// type=1, mode=2 => normally open - stop
-				// type=1, mode=3 => normally close - stop
-				// type=1, mode=4 => normally open - start
-				// type=3, mode=0 => flow meter
+                // type=1, mode=1 => normally close - start
+                // type=1, mode=2 => normally open - stop
+                // type=1, mode=3 => normally close - stop
+                // type=1, mode=4 => normally open - start
+                // type=3, mode=0 => flow meter
 
-				if ($type == 1 && $mode == 1) {
-					$sensor_mode = 11; // normally close - start
-				} else if ($type == 1 && $mode == 2) {
-					$sensor_mode = 12; // normally open - stop
-				} else if ($type == 1 && $mode == 3) {
-					$sensor_mode = 13; // normally close - stop
-				} else if ($type == 1 && $mode == 4) {
-					$sensor_mode = 14; // normally close - start
-				} else if ($type == 3 && $mode == 0) {
-					$sensor_mode = 30; // flow meter
-				} else {
-					$sensor_mode = '';
-				}
+                if ($type == 1 && $mode == 1) {
+                    $sensor_mode = 11; // normally close - start
+                } elseif ($type == 1 && $mode == 2) {
+                    $sensor_mode = 12; // normally open - stop
+                } elseif ($type == 1 && $mode == 3) {
+                    $sensor_mode = 13; // normally close - stop
+                } elseif ($type == 1 && $mode == 4) {
+                    $sensor_mode = 14; // normally close - start
+                } elseif ($type == 3 && $mode == 0) {
+                    $sensor_mode = 30; // flow meter
+                } else {
+                    $sensor_mode = '';
+                }
 
-				if ($sensor_mode != '') {
-					$properties = ['mode' => $sensor_mode];
-					$instID = $this->FindOrCreateInstance('{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}', $controller_id, $channel, $name, $info, $properties, $pos++);
-				}
-			}
-		}
+                if ($sensor_mode != '') {
+                    $properties = ['mode' => $sensor_mode];
+                    $instID = $this->FindOrCreateInstance('{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}', $controller_id, $channel, $name, $info, $properties, $pos++);
+                }
+            }
+        }
     }
 }

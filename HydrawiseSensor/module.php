@@ -31,7 +31,7 @@ class HydrawiseSensor extends IPSModule
         $this->RegisterPropertyInteger('channel', -1);
         $this->RegisterPropertyInteger('mode', -1);
 
-		$this->CreateVarProfile('Hydrawise.Flowmeter', IPS_FLOAT, ' l', 0, 0, 0, 1, '');
+        $this->CreateVarProfile('Hydrawise.Flowmeter', IPS_FLOAT, ' l', 0, 0, 0, 1, '');
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
     }
@@ -40,10 +40,10 @@ class HydrawiseSensor extends IPSModule
     {
         parent::ApplyChanges();
 
-		$mode = $this->ReadPropertyInteger('mode');
+        $mode = $this->ReadPropertyInteger('mode');
 
         $vpos = 1;
-		$this->MaintainVariable('Flow', $this->Translate('Flow'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $mode == 30);
+        $this->MaintainVariable('Flow', $this->Translate('Flow'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $mode == 30);
 
         $this->SetStatus(102);
     }
@@ -52,9 +52,9 @@ class HydrawiseSensor extends IPSModule
     {
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Sensor'];
-		$formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'controller_id'];
-		$formElements[] = ['type' => 'ValidationTextBox', 'name' => 'channel', 'caption' => 'channel'];
-		$formElements[] = ['type' => 'ValidationTextBox', 'name' => 'mode', 'caption' => 'mode'];
+        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'controller_id'];
+        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'channel', 'caption' => 'channel'];
+        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'mode', 'caption' => 'mode'];
 
         $formStatus = [];
         $formStatus[] = ['code' => '101', 'icon' => 'inactive', 'caption' => 'Instance getting created'];
@@ -70,8 +70,8 @@ class HydrawiseSensor extends IPSModule
             parent::SetValue($Ident, $Value);
         } else {
             if (SetValue($this->GetIDForIdent($Ident), $Value) == false) {
-				echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
-			}
+                echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
+            }
         }
     }
 
@@ -121,22 +121,23 @@ class HydrawiseSensor extends IPSModule
 
         $now = time();
 
-		$sensors = $controller['sensors'];
-		if (count($sensors) > 0) {
-			foreach ($sensors as $i => $value) {
-				$sensor = $sensors[$i];
-				if ($channel != $sensor['input'])
-					continue;
-				if ($mode == 30) {
-					if (isset($sensor['flow']['week'])) {
-						$flow = preg_replace('/^([0-9\.,]*).*$/', '$1', $sensor['flow']['week']);
-					} else {
-						$flow = 0;
-					}
-					$this->SetValue('Flow', $flow);
-				}
-			}
-		}
+        $sensors = $controller['sensors'];
+        if (count($sensors) > 0) {
+            foreach ($sensors as $i => $value) {
+                $sensor = $sensors[$i];
+                if ($channel != $sensor['input']) {
+                    continue;
+                }
+                if ($mode == 30) {
+                    if (isset($sensor['flow']['week'])) {
+                        $flow = preg_replace('/^([0-9\.,]*).*$/', '$1', $sensor['flow']['week']);
+                    } else {
+                        $flow = 0;
+                    }
+                    $this->SetValue('Flow', $flow);
+                }
+            }
+        }
 
         $this->SetStatus(102);
     }
@@ -161,5 +162,4 @@ class HydrawiseSensor extends IPSModule
             }
         }
     }
-
 }

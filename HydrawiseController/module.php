@@ -47,7 +47,7 @@ class HydrawiseController extends IPSModule
         $this->CreateVarProfile('Hydrawise.Rainfall', IPS_FLOAT, ' mm', 0, 60, 0, 1, 'Rainfall');
         $this->CreateVarProfile('Hydrawise.ProbabilityOfRain', IPS_INTEGER, ' %', 0, 0, 0, 0, 'Rainfall');
         $this->CreateVarProfile('Hydrawise.WindSpeed', IPS_FLOAT, ' km/h', 0, 100, 0, 0, 'WindSpeed');
-		$this->CreateVarProfile('Hydrawise.Humidity', IPS_FLOAT, ' %', 10, 100, 0, 0, 'Drops');
+        $this->CreateVarProfile('Hydrawise.Humidity', IPS_FLOAT, ' %', 10, 100, 0, 0, 'Drops');
 
         /*
         $this->CreateVarProfile('Hydrawise.absHumidity', IPS_FLOAT, ' g/m³', 10, 100, 0, 0, 'Drops');
@@ -109,29 +109,29 @@ class HydrawiseController extends IPSModule
         $vpos = 1;
 
         $this->MaintainVariable('Status', $this->Translate('State'), IPS_BOOLEAN, '~Alert.Reversed', $vpos++, true);
-		$this->MaintainVariable('LastContact', $this->Translate('last transmission'), IPS_STRING, '', $vpos++, $with_last_contact);
-		$this->MaintainVariable('LastMessage', $this->Translate('last message'), IPS_STRING, '', $vpos++, $with_last_message);
+        $this->MaintainVariable('LastContact', $this->Translate('last transmission'), IPS_STRING, '', $vpos++, $with_last_contact);
+        $this->MaintainVariable('LastMessage', $this->Translate('last message'), IPS_STRING, '', $vpos++, $with_last_message);
 
-		$this->MaintainVariable('WateringTime', $this->Translate('watering time'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info);
-		$this->MaintainVariable('WaterSaving', $this->Translate('water saving'), IPS_INTEGER, 'Hydrawise.WaterSaving', $vpos++, $with_info);
+        $this->MaintainVariable('WateringTime', $this->Translate('watering time'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info);
+        $this->MaintainVariable('WaterSaving', $this->Translate('water saving'), IPS_INTEGER, 'Hydrawise.WaterSaving', $vpos++, $with_info);
 
-		$this->MaintainVariable('ObsRainDay', $this->Translate('rain day'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
-		$this->MaintainVariable('ObsRainWeek', $this->Translate('rain week'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
-		$this->MaintainVariable('ObsCurTemp', $this->Translate('cur. temp'), IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
-		$this->MaintainVariable('ObsMaxTemp', $this->Translate('max. temp'), IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
+        $this->MaintainVariable('ObsRainDay', $this->Translate('rain day'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
+        $this->MaintainVariable('ObsRainWeek', $this->Translate('rain week'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
+        $this->MaintainVariable('ObsCurTemp', $this->Translate('cur. temp'), IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
+        $this->MaintainVariable('ObsMaxTemp', $this->Translate('max. temp'), IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
 
-		$words = ['today', 'tomorrow', 'overmorrow'];
-		for ($i = 0; $i < 3; $i++) {
-			$s = ' (' . $this->Translate($words[$i]) . ')';
-			$this->MaintainVariable('Forecast' . $i . 'Conditions', $this->Translate('Conditions') . $s, IPS_STRING, '', $vpos++, $with_forecast);
-			$this->MaintainVariable('Forecast' . $i . 'TempMax', $this->Translate('max. Temperatur') . $s, IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
-			$this->MaintainVariable('Forecast' . $i . 'TempMin', $this->Translate('min. Temperatur') . $s, IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
-			$this->MaintainVariable('Forecast' . $i . 'ProbabilityOfRain', $this->Translate('Probability of rainfall') . $s, IPS_INTEGER, 'Hydrawise.ProbabilityOfRain', $vpos++, $with_forecast);
-			$this->MaintainVariable('Forecast' . $i . 'WindSpeed', $this->Translate('Windspeed') . $s, IPS_FLOAT, 'Hydrawise.WindSpeed', $vpos++, $with_forecast);
-			$this->MaintainVariable('Forecast' . $i . 'Humidity', $this->Translate('Humidity') . $s, IPS_FLOAT, 'Hydrawise.Humidity', $vpos++, $with_forecast);
-		}
+        $words = ['today', 'tomorrow', 'overmorrow'];
+        for ($i = 0; $i < 3; $i++) {
+            $s = ' (' . $this->Translate($words[$i]) . ')';
+            $this->MaintainVariable('Forecast' . $i . 'Conditions', $this->Translate('Conditions') . $s, IPS_STRING, '', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'TempMax', $this->Translate('max. Temperatur') . $s, IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'TempMin', $this->Translate('min. Temperatur') . $s, IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'ProbabilityOfRain', $this->Translate('Probability of rainfall') . $s, IPS_INTEGER, 'Hydrawise.ProbabilityOfRain', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'WindSpeed', $this->Translate('Windspeed') . $s, IPS_FLOAT, 'Hydrawise.WindSpeed', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'Humidity', $this->Translate('Humidity') . $s, IPS_FLOAT, 'Hydrawise.Humidity', $vpos++, $with_forecast);
+        }
 
-		$this->MaintainVariable('StatusBox', $this->Translate('State of controller and zones'), IPS_STRING, '~HTMLBox', $vpos++, $with_status_box);
+        $this->MaintainVariable('StatusBox', $this->Translate('State of controller and zones'), IPS_STRING, '~HTMLBox', $vpos++, $with_status_box);
 
         // Inspired by module SymconTest/HookServe
         // Only call this in READY state. On startup the WebHook instance might not be available yet
@@ -171,8 +171,8 @@ class HydrawiseController extends IPSModule
             parent::SetValue($Ident, $Value);
         } else {
             if (SetValue($this->GetIDForIdent($Ident), $Value) == false) {
-				echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
-			}
+                echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
+            }
         }
     }
 
@@ -265,57 +265,58 @@ class HydrawiseController extends IPSModule
         }
 
         if ($with_observations) {
-			$obs_rain_day =  preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_rain']);
+            $obs_rain_day = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_rain']);
             $this->SetValue('ObsRainDay', $obs_rain_day);
 
-			$obs_rain_week =  preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_rain_week']);
+            $obs_rain_week = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_rain_week']);
             $this->SetValue('ObsRainWeek', $obs_rain_week);
 
-			$obs_curtemp =  preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_currenttemp']);
+            $obs_curtemp = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_currenttemp']);
             $this->SetValue('ObsCurTemp', $obs_curtemp);
 
-			$obs_maxtemp =  preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_maxtemp']);
+            $obs_maxtemp = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_maxtemp']);
             $this->SetValue('ObsMaxTemp', $obs_maxtemp);
-		}
+        }
 
         if ($with_info) {
-			$watering_time =  preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['watering_time']);
+            $watering_time = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['watering_time']);
             $this->SetValue('WateringTime', $watering_time);
 
-			$water_saving = $controller['water_saving'];
+            $water_saving = $controller['water_saving'];
             $this->SetValue('WaterSaving', $water_saving);
-		}
+        }
 
-		if ($with_forecast) {
-			$n = 0;
-			$forecast = $controller['forecast'];
-			if (count($forecast) > 0) {
-				foreach ($forecast as $i => $value) {
-					$_forcecast = $forecast[$i];
+        if ($with_forecast) {
+            $n = 0;
+            $forecast = $controller['forecast'];
+            if (count($forecast) > 0) {
+                foreach ($forecast as $i => $value) {
+                    $_forcecast = $forecast[$i];
 
-					$temp_hi = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['temp_hi']);
-					$this->SetValue('Forecast' . $i . 'TempMax', $temp_hi);
+                    $temp_hi = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['temp_hi']);
+                    $this->SetValue('Forecast' . $i . 'TempMax', $temp_hi);
 
-					$temp_lo = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['temp_lo']);
-					$this->SetValue('Forecast' . $i . 'TempMin', $temp_lo);
+                    $temp_lo = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['temp_lo']);
+                    $this->SetValue('Forecast' . $i . 'TempMin', $temp_lo);
 
-					$humidity = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['humidity']);
-					$this->SetValue('Forecast' . $i . 'WindSpeed', $humidity);
+                    $humidity = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['humidity']);
+                    $this->SetValue('Forecast' . $i . 'WindSpeed', $humidity);
 
-					$wind = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['wind']);
-					$this->SetValue('Forecast' . $i . 'Humidity', $wind);
+                    $wind = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['wind']);
+                    $this->SetValue('Forecast' . $i . 'Humidity', $wind);
 
-					$pop = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['pop']);
-					$this->SetValue('Forecast' . $i . 'ProbabilityOfRain', $pop);
+                    $pop = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['pop']);
+                    $this->SetValue('Forecast' . $i . 'ProbabilityOfRain', $pop);
 
-					$conditions = $_forcecast['conditions'];
-					$this->SetValue('Forecast' . $i . 'Conditions', $conditions);
+                    $conditions = $_forcecast['conditions'];
+                    $this->SetValue('Forecast' . $i . 'Conditions', $conditions);
 
-					if ($n++ == 2)
-						break;
-				}
-			}
-		}
+                    if ($n++ == 2) {
+                        break;
+                    }
+                }
+            }
+        }
 
         $controller_data = [];
         $this->SetBuffer('Data', json_encode($controller_data));
