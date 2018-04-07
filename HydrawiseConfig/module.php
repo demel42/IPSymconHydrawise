@@ -53,7 +53,7 @@ class HydrawiseConfig extends IPSModule
         return json_encode(['actions' => $formActions, 'status' => $formStatus]);
     }
 
-    private function FindOrCreateInstance($guid, $module_id, $module_name, $module_info, $properties, $pos)
+    private function FindOrCreateInstance($guid, $controller_id, $channel, $name, $info, $properties, $pos)
     {
         $instID = '';
 
@@ -61,32 +61,36 @@ class HydrawiseConfig extends IPSModule
         foreach ($instIDs as $id) {
             $cfg = IPS_GetConfiguration($id);
             $jcfg = json_decode($cfg, true);
-            if (!isset($jcfg['module_id'])) {
+            if (!isset($jcfg['controller_id'])) {
                 continue;
             }
-            if ($jcfg['module_id'] == $module_id) {
-                $instID = $id;
-                break;
+            if ($jcfg['controller_id'] == $controller_id) {
+				if ($channel == '' || jcfg['channel'] == $channel) {
+					$instID = $id;
+					break;
+				}
             }
         }
 
         if ($instID == '') {
             $instID = IPS_CreateInstance($guid);
             if ($instID == '') {
-                echo 'unable to create instance "' . $module_name . '"';
-
+                echo 'unable to create instance "' . $name . '"';
                 return $instID;
             }
-            IPS_SetProperty($instID, 'module_id', $module_id);
+            IPS_SetProperty($instID, 'controller_id', $controller_id);
+			if (is_numeric($channel)) {
+				IPS_SetProperty($instID, 'channel', $channel);
+			}
             foreach ($properties as $key => $property) {
                 IPS_SetProperty($instID, $key, $property);
             }
-            IPS_SetName($instID, $module_name);
-            IPS_SetInfo($instID, $module_info);
+            IPS_SetName($instID, $name);
+            IPS_SetInfo($instID, $info);
             IPS_SetPosition($instID, $pos);
         }
 
-        $this->SetSummary($module_info);
+        $this->SetSummary($info);
         IPS_ApplyChanges($instID);
 
         return $instID;
@@ -154,10 +158,54 @@ class HydrawiseConfig extends IPSModule
         $this->SetStatus(102);
 
         $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
+		
+        // HydrawiseController: '{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}'
+		$name = $controller['name'];
+		$info = 'Controller (' . $name . ')';
+		$properties = [];
+
+		$pos = 1000;
+		$instID = $this->FindOrCreateInstance('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}', $controller_id, '', $name, $info, $properties, $pos++);
 
         // Instanzen anlegen
-        // HydrawiseController: '{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}'
         // HydrawiseZone: '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}'
+
         // HydrawiseSensor: '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}'
+		$pos = 1100;
+		$sensors = $controller['sensors'];
+		if (count($sensors) > 0) {
+			foreach ($sensors as $i => $value) {
+				$sensor = $sensors[$i];
+				$channel = $sensor['input'];
+				$name = $sensor['name'];
+				$type = $sensor['type'];
+				$mode = $sensor['mode'];
+
+				// type=1, mode=1 => normally close - start
+				// type=1, mode=2 => normally open - stop
+				// type=1, mode=3 => normally close - stop
+				// type=1, mode=4 => normally open - start
+				// type=3, mode=0 => flow meter
+
+				if ($type == 1 && $mode == 1) {
+					$sensor_mode = 11; // normally close - start
+				} else if ($type == 1 && $mode == 2) {
+					$sensor_mode = 12; // normally open - stop
+				} else if ($type == 1 && $mode == 3) {
+					$sensor_mode = 13; // normally close - stop
+				} else if ($type == 1 && $mode == 4) {
+					$sensor_mode = 14; // normally close - start
+				} else if ($type == 3 && $mode == 0) {
+					$sensor_mode = 30; // flow meter
+				} else {
+					$sensor_mode = '';
+				}
+
+				if ($sensor_mode != '') {
+					$properties = ['mode' => $sensor_mode];
+					$instID = $this->FindOrCreateInstance('{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}', $controller_id, $channel, $name, $info, $properties, $pos++);
+				}
+			}
+		}
     }
 }

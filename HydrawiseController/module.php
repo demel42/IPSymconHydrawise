@@ -29,70 +29,53 @@ class HydrawiseController extends IPSModule
 
         $this->RegisterPropertyString('controller_id', '');
 
-        $this->RegisterPropertyInteger('minutes2fail', 30);
+        $this->RegisterPropertyInteger('minutes2fail', 60);
 
         $this->RegisterPropertyInteger('statusbox_script', 0);
         $this->RegisterPropertyInteger('webhook_script', 0);
 
         $this->RegisterPropertyBoolean('with_last_contact', true);
-        $this->RegisterPropertyBoolean('with_message', true);
+        $this->RegisterPropertyBoolean('with_last_message', true);
+        $this->RegisterPropertyBoolean('with_info', true);
+        $this->RegisterPropertyBoolean('with_observations', true);
+        $this->RegisterPropertyBoolean('with_forecast', true);
         $this->RegisterPropertyBoolean('with_status_box', false);
 
-        /*
         $this->CreateVarProfile('Hydrawise.Temperatur', IPS_FLOAT, ' °C', -10, 30, 0, 1, 'Temperature');
-        $this->CreateVarProfile('Hydrawise.Humidity', IPS_FLOAT, ' %', 10, 100, 0, 0, 'Drops');
+        $this->CreateVarProfile('Hydrawise.WaterSaving', IPS_INTEGER, ' %', 0, 0, 0, 0, 'Drops');
+        $this->CreateVarProfile('Hydrawise.Duration', IPS_INTEGER, ' min', 0, 0, 0, 1, 'Clock');
+        $this->CreateVarProfile('Hydrawise.Rainfall', IPS_FLOAT, ' mm', 0, 60, 0, 1, 'Rainfall');
+        $this->CreateVarProfile('Hydrawise.ProbabilityOfRain', IPS_INTEGER, ' %', 0, 0, 0, 0, 'Rainfall');
+        $this->CreateVarProfile('Hydrawise.WindSpeed', IPS_FLOAT, ' km/h', 0, 100, 0, 0, 'WindSpeed');
+		$this->CreateVarProfile('Hydrawise.Humidity', IPS_FLOAT, ' %', 10, 100, 0, 0, 'Drops');
+
+        /*
         $this->CreateVarProfile('Hydrawise.absHumidity', IPS_FLOAT, ' g/m³', 10, 100, 0, 0, 'Drops');
         $this->CreateVarProfile('Hydrawise.Dewpoint', IPS_FLOAT, ' °C', 0, 30, 0, 0, 'Drops');
         $this->CreateVarProfile('Hydrawise.Heatindex', IPS_FLOAT, ' °C', 0, 100, 0, 0, 'Temperature');
         $this->CreateVarProfile('Hydrawise.Pressure', IPS_FLOAT, ' mbar', 500, 1200, 0, 0, 'Gauge');
-        $this->CreateVarProfile('Hydrawise.WindSpeed', IPS_FLOAT, ' km/h', 0, 100, 0, 0, 'WindSpeed');
-        $this->CreateVarProfile('Hydrawise.WindStrength', IPS_INTEGER, ' bft', 0, 13, 0, 0, 'WindSpeed');
+        $this->CreateVarProfile('Hydrawise.WindStrength', IPS_INTEGER, ' bft', 0, 0, 0, 0, 'WindSpeed');
         $this->CreateVarProfile('Hydrawise.WindAngle', IPS_INTEGER, ' °', 0, 360, 0, 0, 'WindDirection');
         $this->CreateVarProfile('Hydrawise.WindDirection', IPS_STRING, '', 0, 0, 0, 0, 'WindDirection');
-        $this->CreateVarProfile('Hydrawise.Rainfall', IPS_FLOAT, ' mm', 0, 60, 0, 1, 'Rainfall');
 
         $associations = [];
         $associations[] = ['Wert' =>  0, 'Name' => '%d', 'Farbe' => 0x008040];
         $associations[] = ['Wert' => 40, 'Name' => '%d', 'Farbe' => 0xFFFF31];
         $associations[] = ['Wert' => 65, 'Name' => '%d', 'Farbe' => 0xFF8000];
         $associations[] = ['Wert' => 95, 'Name' => '%d', 'Farbe' => 0xFF0000];
-        $this->CreateVarProfile('Hydrawise.Noise', IPS_INTEGER, ' dB', 0, 130, 0, 1, 'Speaker', $associations);
+        $this->CreateVarProfile('Hydrawise.Noise', IPS_INTEGER, ' dB', 0, 0, 0, 1, 'Speaker', $associations);
 
         $associations = [];
         $associations[] = ['Wert' =>    0, 'Name' => '%d', 'Farbe' => 0x008000];
         $associations[] = ['Wert' => 1000, 'Name' => '%d', 'Farbe' => 0xFFFF00];
         $associations[] = ['Wert' => 1250, 'Name' => '%d', 'Farbe' => 0xFF8000];
         $associations[] = ['Wert' => 1300, 'Name' => '%d', 'Farbe' => 0xFF0000];
-        $this->CreateVarProfile('Hydrawise.CO2', IPS_INTEGER, ' ppm', 250, 2000, 0, 1, 'Gauge', $associations);
+        $this->CreateVarProfile('Hydrawise.CO2', IPS_INTEGER, ' ppm', 0, 0, 0, 1, 'Gauge', $associations);
 
         $associations = [];
         $associations[] = ['Wert' => false, 'Name' => 'Nein', 'Farbe' => -1];
         $associations[] = ['Wert' => true, 'Name' => 'Ja', 'Farbe' => 0xEE0000];
         $this->CreateVarProfile('Hydrawise.Alarm', IPS_BOOLEAN, '', 0, 0, 0, 1, 'Alert', $associations);
-
-        $associations = [];
-        $associations[] = ['Wert' => 0, 'Name' => $this->wifi_status2text(0), 'Farbe' => 0xEE0000];
-        $associations[] = ['Wert' => 1, 'Name' => $this->wifi_status2text(1), 'Farbe' => 0xFFFF00];
-        $associations[] = ['Wert' => 2, 'Name' => $this->wifi_status2text(2), 'Farbe' => 0x32CD32];
-        $associations[] = ['Wert' => 3, 'Name' => $this->wifi_status2text(3), 'Farbe' => 0x228B22];
-        $this->CreateVarProfile('Hydrawise.Wifi', IPS_INTEGER, '', 0, 0, 0, 1, 'Intensity', $associations);
-
-        $associations = [];
-        $associations[] = ['Wert' => 0, 'Name' => $this->signal_status2text(0), 'Farbe' => 0xEE0000];
-        $associations[] = ['Wert' => 1, 'Name' => $this->signal_status2text(1), 'Farbe' => 0xFFA500];
-        $associations[] = ['Wert' => 2, 'Name' => $this->signal_status2text(2), 'Farbe' => 0xFFFF00];
-        $associations[] = ['Wert' => 3, 'Name' => $this->signal_status2text(3), 'Farbe' => 0x32CD32];
-        $associations[] = ['Wert' => 4, 'Name' => $this->signal_status2text(4), 'Farbe' => 0x228B22];
-        $this->CreateVarProfile('Hydrawise.RfSignal', IPS_INTEGER, '', 0, 0, 0, 1, 'Intensity', $associations);
-
-        $associations = [];
-        $associations[] = ['Wert' => 0, 'Name' => $this->battery_status2text(0), 'Farbe' => 0xEE0000];
-        $associations[] = ['Wert' => 1, 'Name' => $this->battery_status2text(1), 'Farbe' => 0xFFA500];
-        $associations[] = ['Wert' => 2, 'Name' => $this->battery_status2text(2), 'Farbe' => 0xFFFF00];
-        $associations[] = ['Wert' => 3, 'Name' => $this->battery_status2text(3), 'Farbe' => 0x32CD32];
-        $associations[] = ['Wert' => 4, 'Name' => $this->battery_status2text(4), 'Farbe' => 0x228B22];
-        $associations[] = ['Wert' => 5, 'Name' => $this->battery_status2text(5), 'Farbe' => 0x228B22];
-        $this->CreateVarProfile('Hydrawise.Battery', IPS_INTEGER, '', 0, 0, 0, 1, 'Intensity', $associations);
         */
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
@@ -117,33 +100,38 @@ class HydrawiseController extends IPSModule
         parent::ApplyChanges();
 
         $with_last_contact = $this->ReadPropertyBoolean('with_last_contact');
+        $with_last_message = $this->ReadPropertyBoolean('with_last_message');
+        $with_info = $this->ReadPropertyBoolean('with_info');
+        $with_observations = $this->ReadPropertyBoolean('with_observations');
+        $with_forecast = $this->ReadPropertyBoolean('with_forecast');
         $with_status_box = $this->ReadPropertyBoolean('with_status_box');
 
         $vpos = 1;
 
-        $this->RegisterVariableBoolean('Status', $this->Translate('State'), '~Alert.Reversed', $vpos);
-        $vpos++;
+        $this->MaintainVariable('Status', $this->Translate('State'), IPS_BOOLEAN, '~Alert.Reversed', $vpos++, true);
+		$this->MaintainVariable('LastContact', $this->Translate('last transmission'), IPS_STRING, '', $vpos++, $with_last_contact);
+		$this->MaintainVariable('LastMessage', $this->Translate('last message'), IPS_STRING, '', $vpos++, $with_last_message);
 
-        if ($with_last_contact) {
-            $this->RegisterVariableString('Message', $this->Translate('last message'), '', $vpos);
-        } else {
-            $this->UnregisterVariable('Message');
-        }
-        $vpos++;
+		$this->MaintainVariable('WateringTime', $this->Translate('watering time'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info);
+		$this->MaintainVariable('WaterSaving', $this->Translate('water saving'), IPS_INTEGER, 'Hydrawise.WaterSaving', $vpos++, $with_info);
 
-        if ($with_last_contact) {
-            $this->RegisterVariableString('LastContact', $this->Translate('last transmission'), '', $vpos);
-        } else {
-            $this->UnregisterVariable('LastContact');
-        }
-        $vpos++;
+		$this->MaintainVariable('ObsRainDay', $this->Translate('rain day'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
+		$this->MaintainVariable('ObsRainWeek', $this->Translate('rain week'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
+		$this->MaintainVariable('ObsCurTemp', $this->Translate('cur. temp'), IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
+		$this->MaintainVariable('ObsMaxTemp', $this->Translate('max. temp'), IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
 
-        if ($with_status_box) {
-            $this->RegisterVariableString('StatusBox', $this->Translate('State of controller and zones'), '~HTMLBox', $vpos);
-        } else {
-            $this->UnregisterVariable('StatusBox');
-        }
-        $vpos++;
+		$words = ['today', 'tomorrow', 'overmorrow'];
+		for ($i = 0; $i < 3; $i++) {
+			$s = ' (' . $this->Translate($words[$i]) . ')';
+			$this->MaintainVariable('Forecast' . $i . 'Conditions', $this->Translate('Conditions') . $s, IPS_STRING, '', $vpos++, $with_forecast);
+			$this->MaintainVariable('Forecast' . $i . 'TempMax', $this->Translate('max. Temperatur') . $s, IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
+			$this->MaintainVariable('Forecast' . $i . 'TempMin', $this->Translate('min. Temperatur') . $s, IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
+			$this->MaintainVariable('Forecast' . $i . 'ProbabilityOfRain', $this->Translate('Probability of rainfall') . $s, IPS_INTEGER, 'Hydrawise.ProbabilityOfRain', $vpos++, $with_forecast);
+			$this->MaintainVariable('Forecast' . $i . 'WindSpeed', $this->Translate('Windspeed') . $s, IPS_FLOAT, 'Hydrawise.WindSpeed', $vpos++, $with_forecast);
+			$this->MaintainVariable('Forecast' . $i . 'Humidity', $this->Translate('Humidity') . $s, IPS_FLOAT, 'Hydrawise.Humidity', $vpos++, $with_forecast);
+		}
+
+		$this->MaintainVariable('StatusBox', $this->Translate('State of controller and zones'), IPS_STRING, '~HTMLBox', $vpos++, $with_status_box);
 
         // Inspired by module SymconTest/HookServe
         // Only call this in READY state. On startup the WebHook instance might not be available yet
@@ -160,7 +148,10 @@ class HydrawiseController extends IPSModule
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Controller'];
         $formElements[] = ['type' => 'Label', 'label' => 'optional controller data'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_last_contact', 'caption' => ' ... last transmission to Hydrawise'];
-        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_messages', 'caption' => ' ... last message'];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_last_message', 'caption' => ' ... last message'];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_info', 'caption' => ' ... info'];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_observations', 'caption' => ' ... observations'];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_forecast', 'caption' => ' ... forecast'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_status_box', 'caption' => ' ... html-box with state of controller and zones'];
 
         $formStatus = [];
@@ -179,7 +170,9 @@ class HydrawiseController extends IPSModule
         if (IPS_GetKernelVersion() >= 5) {
             parent::SetValue($Ident, $Value);
         } else {
-            SetValue($this->GetIDForIdent($Ident), $Value);
+            if (SetValue($this->GetIDForIdent($Ident), $Value) == false) {
+				echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
+			}
         }
     }
 
@@ -191,9 +184,12 @@ class HydrawiseController extends IPSModule
 
         $controller_id = $this->ReadPropertyString('controller_id');
         $with_last_contact = $this->ReadPropertyBoolean('with_last_contact');
-        $with_status_box = $this->ReadPropertyBoolean('with_status_box');
-        $with_messages = $this->ReadPropertyBoolean('with_messages');
+        $with_last_message = $this->ReadPropertyBoolean('with_last_message');
         $minutes2fail = $this->ReadPropertyInteger('minutes2fail');
+        $with_info = $this->ReadPropertyBoolean('with_info');
+        $with_observations = $this->ReadPropertyBoolean('with_observations');
+        $with_forecast = $this->ReadPropertyBoolean('with_forecast');
+        $with_status_box = $this->ReadPropertyBoolean('with_status_box');
 
         $err = '';
         $statuscode = 0;
@@ -264,9 +260,62 @@ class HydrawiseController extends IPSModule
             $this->SetValue('LastContact', $contact);
         }
 
-        if ($with_message) {
-            $this->SetValue('LastMessages', $message);
+        if ($with_last_message) {
+            $this->SetValue('LastMessage', $message);
         }
+
+        if ($with_observations) {
+			$obs_rain_day =  preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_rain']);
+            $this->SetValue('ObsRainDay', $obs_rain_day);
+
+			$obs_rain_week =  preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_rain_week']);
+            $this->SetValue('ObsRainWeek', $obs_rain_week);
+
+			$obs_curtemp =  preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_currenttemp']);
+            $this->SetValue('ObsCurTemp', $obs_curtemp);
+
+			$obs_maxtemp =  preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_maxtemp']);
+            $this->SetValue('ObsMaxTemp', $obs_maxtemp);
+		}
+
+        if ($with_info) {
+			$watering_time =  preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['watering_time']);
+            $this->SetValue('WateringTime', $watering_time);
+
+			$water_saving = $controller['water_saving'];
+            $this->SetValue('WaterSaving', $water_saving);
+		}
+
+		if ($with_forecast) {
+			$n = 0;
+			$forecast = $controller['forecast'];
+			if (count($forecast) > 0) {
+				foreach ($forecast as $i => $value) {
+					$_forcecast = $forecast[$i];
+
+					$temp_hi = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['temp_hi']);
+					$this->SetValue('Forecast' . $i . 'TempMax', $temp_hi);
+
+					$temp_lo = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['temp_lo']);
+					$this->SetValue('Forecast' . $i . 'TempMin', $temp_lo);
+
+					$humidity = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['humidity']);
+					$this->SetValue('Forecast' . $i . 'WindSpeed', $humidity);
+
+					$wind = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['wind']);
+					$this->SetValue('Forecast' . $i . 'Humidity', $wind);
+
+					$pop = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['pop']);
+					$this->SetValue('Forecast' . $i . 'ProbabilityOfRain', $pop);
+
+					$conditions = $_forcecast['conditions'];
+					$this->SetValue('Forecast' . $i . 'Conditions', $conditions);
+
+					if ($n++ == 2)
+						break;
+				}
+			}
+		}
 
         $controller_data = [];
         $this->SetBuffer('Data', json_encode($controller_data));
