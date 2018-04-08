@@ -21,24 +21,7 @@ if (!defined('IPS_STRING')) {
     define('IPS_STRING', 3);
 }
 
-// Model of Sensor
-if (!defined('SENSOR_NORMALLY_CLOSE_START')) {
-	define('SENSOR_NORMALLY_CLOSE_START', 11);
-}
-if (!defined('SENSOR_NORMALLY_OPEN_STOP')) {
-	define('SENSOR_NORMALLY_OPEN_STOP', 12);
-}
-if (!defined('SENSOR_NORMALLY_CLOSE_STOP')) {
-	define('SENSOR_NORMALLY_CLOSE_STOP', 13);
-}
-if (!defined('SENSOR_NORMALLY_OPEN_START')) {
-	define('SENSOR_NORMALLY_OPEN_START', 14);
-}
-if (!defined('SENSOR_FLOW_METER')) {
-	define('SENSOR_FLOW_METER', 30);
-}
-
-class HydrawiseSensor extends IPSModule
+class HydrawiseZone extends IPSModule
 {
     public function Create()
     {
@@ -46,9 +29,6 @@ class HydrawiseSensor extends IPSModule
 
         $this->RegisterPropertyString('controller_id', '');
         $this->RegisterPropertyInteger('connector', -1);
-        $this->RegisterPropertyInteger('model', -1);
-
-        $this->CreateVarProfile('Hydrawise.Flowmeter', IPS_FLOAT, ' l', 0, 0, 0, 1, 'Gauge');
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
     }
@@ -64,24 +44,20 @@ class HydrawiseSensor extends IPSModule
     {
 		$opts_connector = [];
 		$opts_connector[] = ['label' => $this->Translate('no'), 'value' => 0];
-		for ($s = 1; $s <= 2; $s++) {
-			$l = $this->Translate('Sensor') . ' ' . $s;
-			$opts_connector[] = ['label' => $l, 'value' => $s];
-		} 
-
-		$opts_model = [];
-		$opts_model[] = ['label' => $this->Translate('no'), 'value' => 0];
-		$opts_model[] = ['label' => $this->Translate('normally close - start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
-		$opts_model[] = ['label' => $this->Translate('normally open - stop'), 'value' => SENSOR_NORMALLY_OPEN_STOP];
-		$opts_model[] = ['label' => $this->Translate('normally close - stop'), 'value' => SENSOR_NORMALLY_CLOSE_STOP];
-		$opts_model[] = ['label' => $this->Translate('normally open - start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
-		$opts_model[] = ['label' => $this->Translate('flow meter'), 'value' => SENSOR_FLOW_METER];
+		for ($u = 0; $u <= 2; $u++) {
+			for ($z = 1; $z <= 16; $z++) {
+				$n = $u * 100 + $z;
+				$l = $u ?  $this->Translate('Expander') . ' ' . $u . ' ': '';
+				$l .= $this->Translate('Zone') . ' ' . $z;
+				$opts_connector[] = ['label' => $l, 'value' => $n];
+			}
+		}
 
         $formElements = [];
-        $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Sensor'];
+        $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Zone'];
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'controller_id'];
 		$formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
-		$formElements[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
+        //$formElements[] = ['type' => 'ValidationTextBox', 'name' => 'mode', 'caption' => 'mode'];
 
         $formStatus = [];
         $formStatus[] = ['code' => '101', 'icon' => 'inactive', 'caption' => 'Instance getting created'];
@@ -110,7 +86,6 @@ class HydrawiseSensor extends IPSModule
 
         $controller_id = $this->ReadPropertyString('controller_id');
         $connector = $this->ReadPropertyInteger('connector');
-        $model = $this->ReadPropertyInteger('model');
 
         $err = '';
         $statuscode = 0;
@@ -146,33 +121,56 @@ class HydrawiseSensor extends IPSModule
             return -1;
         }
 
+		$vpos = 1;
+
         $now = time();
 
-        $vpos = 1;
-
-		$has_flow = false;
-		$flow = 0;
-
-        $sensors = $controller['sensors'];
-        if (count($sensors) > 0) {
-            foreach ($sensors as $sensor) {
-                if ($connector != ($sensor['input'] + 1)) {
+        $relays = $controller['relays'];
+        $running = $controller['running'];
+        if (count($relays) > 0) {
+            foreach ($relays as $relay) {
+                if ($connector != $relay['relay']) {
                     continue;
                 }
-				// Flow meter
-                if ($model == SENSOR_FLOW_METER) {
-                    if (isset($sensor['flow']['week'])) {
-						$has_flow = true;
-                        $flow = preg_replace('/^([0-9\.,]*).*$/', '$1', $sensor['flow']['week']);
-                    }
-                }
+				$lastwater = $relay['lastwater'];
+				$lastrun = strtotime($lastwater);
+				$this->MaintainVariable('lastrun', $this->Translate('last run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $lastrun > 0);
+				if ($lastrun) {
+					$this->SetValue('lastrun', $lastrun);
+				}
+
+				$nicetime = $relay['nicetime'];
+				$tm = date_create_from_format("D, j* F g:ia", $nicetime);
+				$nextrun = $tm ? $tm->format('U') : 0;
+				$this->MaintainVariable('nextrun', $this->Translate('next run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $nextrun > 0);
+				if ($nextrun) {
+					$this->SetValue('nextrun', $nextrun);
+				}
+
+				$suspended = isset($relay['suspended']) ? $relay['suspended'] : 0;
+				$this->MaintainVariable('suspended', $this->Translate('suspended until'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $suspended > 0);
+				if ($suspended) {
+					$this->SetValue('suspended', $suspended);
+				}
+
+				$run_seconds = $relay['run_seconds'];
+				$this->MaintainVariable('duration', $this->Translate('duration of run'), IPS_STRING, '', $vpos++, $run_seconds > 0);
+				if ($run_seconds) {
+					$this->SetValue('duration', seconds2duration($run_seconds));
+				}
+
+				$this->SendDebug(__FUNCTION__, "lastwater=$lastwater => $lastrun, nicetime=$nicetime => $nextrun, suspended=$suspended", 0);
+
+				foreach ($running as $run) {
+					if ($connector != $run['relay']) {
+						continue;
+					}
+					$time_left = $run['time_left'];
+					$water_int = $run['water_int'];
+					$this->SendDebug(__FUNCTION__, "time_left=$time_left, water_int=$water_int", 0);
+				}
             }
         }
-
-        $this->MaintainVariable('Flow', $this->Translate('Flow'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_flow);
-		if ($has_flow)
-			$this->SetValue('Flow', $flow);
-
         $this->SetStatus(102);
     }
 
@@ -195,5 +193,25 @@ class HydrawiseSensor extends IPSModule
                 }
             }
         }
+    }
+
+    // Sekunden in Menschen-lesbares Format umwandeln
+    private function seconds2duration(int $sec)
+    {
+        $duration = '';
+        if ($sec > 3600) {
+            $duration .= sprintf('%dh', floor($sec / 3600));
+            $sec = $sec % 3600;
+        }
+        if ($sec > 60) {
+            $duration .= sprintf('%dm', floor($sec / 60));
+            $sec = $sec % 60;
+        }
+        if ($sec > 0) {
+            $duration .= sprintf('%ds', $sec);
+            $sec = floor($sec);
+        }
+
+        return $duration;
     }
 }

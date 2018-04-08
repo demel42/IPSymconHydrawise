@@ -1,5 +1,22 @@
 <?php
 
+// Model of Sensor
+if (!defined('SENSOR_NORMALLY_CLOSE_START')) {
+	define('SENSOR_NORMALLY_CLOSE_START', 11);
+}
+if (!defined('SENSOR_NORMALLY_OPEN_STOP')) {
+	define('SENSOR_NORMALLY_OPEN_STOP', 12);
+}
+if (!defined('SENSOR_NORMALLY_CLOSE_STOP')) {
+	define('SENSOR_NORMALLY_CLOSE_STOP', 13);
+}
+if (!defined('SENSOR_NORMALLY_OPEN_START')) {
+	define('SENSOR_NORMALLY_OPEN_START', 14);
+}
+if (!defined('SENSOR_FLOW_METER')) {
+	define('SENSOR_FLOW_METER', 30);
+}
+
 class HydrawiseConfig extends IPSModule
 {
     public function Create()
@@ -53,7 +70,7 @@ class HydrawiseConfig extends IPSModule
         return json_encode(['actions' => $formActions, 'status' => $formStatus]);
     }
 
-    private function FindOrCreateInstance($guid, $controller_id, $channel, $name, $info, $properties, $pos)
+    private function FindOrCreateInstance($guid, $controller_id, $connector, $name, $info, $properties, $pos)
     {
         $instID = '';
 
@@ -65,7 +82,7 @@ class HydrawiseConfig extends IPSModule
                 continue;
             }
             if ($jcfg['controller_id'] == $controller_id) {
-                if ($channel == '' || jcfg['channel'] == $channel) {
+                if ($connector == '' || $jcfg['connector'] == $connector) {
                     $instID = $id;
                     break;
                 }
@@ -79,8 +96,8 @@ class HydrawiseConfig extends IPSModule
                 return $instID;
             }
             IPS_SetProperty($instID, 'controller_id', $controller_id);
-            if (is_numeric($channel)) {
-                IPS_SetProperty($instID, 'channel', $channel);
+            if (is_numeric($connector)) {
+                IPS_SetProperty($instID, 'connector', $connector);
             }
             foreach ($properties as $key => $property) {
                 IPS_SetProperty($instID, $key, $property);
@@ -159,25 +176,22 @@ class HydrawiseConfig extends IPSModule
 
         $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
 
-        // HydrawiseController: '{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}'
-        $name = $controller['name'];
-        $info = 'Controller (' . $name . ')';
+        // HydrawiseController
+        $controller_name = $controller['name'];
+        $info = 'Controller (' . $controller_name . ')';
         $properties = [];
 
         $pos = 1000;
-        $instID = $this->FindOrCreateInstance('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}', $controller_id, '', $name, $info, $properties, $pos++);
+        $instID = $this->FindOrCreateInstance('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}', $controller_id, '', $controller_name, $info, $properties, $pos++);
 
-        // Instanzen anlegen
-        // HydrawiseZone: '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}'
-
-        // HydrawiseSensor: '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}'
+        // HydrawiseSensor
         $pos = 1100;
         $sensors = $controller['sensors'];
         if (count($sensors) > 0) {
             foreach ($sensors as $i => $value) {
                 $sensor = $sensors[$i];
-                $channel = $sensor['input'];
-                $name = $sensor['name'];
+                $connector = $sensor['input'] + 1;
+                $sensor_name = $sensor['name'];
                 $type = $sensor['type'];
                 $mode = $sensor['mode'];
 
@@ -188,24 +202,42 @@ class HydrawiseConfig extends IPSModule
                 // type=3, mode=0 => flow meter
 
                 if ($type == 1 && $mode == 1) {
-                    $sensor_mode = 11; // normally close - start
+                    $model = SENSOR_NORMALLY_CLOSE_START;
                 } elseif ($type == 1 && $mode == 2) {
-                    $sensor_mode = 12; // normally open - stop
+                    $model = SENSOR_NORMALLY_OPEN_STOP;
                 } elseif ($type == 1 && $mode == 3) {
-                    $sensor_mode = 13; // normally close - stop
+                    $model = SENSOR_NORMALLY_CLOSE_STOP;
                 } elseif ($type == 1 && $mode == 4) {
-                    $sensor_mode = 14; // normally close - start
+                    $model = SENSOR_NORMALLY_OPEN_START;
                 } elseif ($type == 3 && $mode == 0) {
-                    $sensor_mode = 30; // flow meter
+                    $model = SENSOR_FLOW_METER;
                 } else {
-                    $sensor_mode = '';
+                    continue;
                 }
 
-                if ($sensor_mode != '') {
-                    $properties = ['mode' => $sensor_mode];
-                    $instID = $this->FindOrCreateInstance('{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}', $controller_id, $channel, $name, $info, $properties, $pos++);
-                }
+				$info = 'Sensor ' . ($connector + 1) . ' (' . $controller_name . '\\' . $sensor_name . ')';
+				$properties = ['model' => $model];
+				$instID = $this->FindOrCreateInstance('{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}', $controller_id, $connector, $sensor_name, $info, $properties, $pos++);
             }
         }
+
+        $pos = 1200;
+        $relays = $controller['relays'];
+        if (count($relays) > 0) {
+            foreach ($relays as $i => $value) {
+                $relay = $relays[$i];
+                $connector = $relay['relay'];
+                $zone_name = $relay['name'];
+				if ($connector < 100) {
+					$info = 'Zone '. $connector;
+				} else {
+					$info = 'Expander ' . floor($connector / 100) . ' Zone '. ($connector % 100);
+				}
+				$info .= ' (' . $controller_name . '\\' . $zone_name . ')';
+				$properties = [];
+				$instID = $this->FindOrCreateInstance('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}', $controller_id, $connector, $zone_name, $info, $properties, $pos++);
+            }
+        }
+
     }
 }
