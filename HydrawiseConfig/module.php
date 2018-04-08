@@ -2,19 +2,19 @@
 
 // Model of Sensor
 if (!defined('SENSOR_NORMALLY_CLOSE_START')) {
-	define('SENSOR_NORMALLY_CLOSE_START', 11);
+    define('SENSOR_NORMALLY_CLOSE_START', 11);
 }
 if (!defined('SENSOR_NORMALLY_OPEN_STOP')) {
-	define('SENSOR_NORMALLY_OPEN_STOP', 12);
+    define('SENSOR_NORMALLY_OPEN_STOP', 12);
 }
 if (!defined('SENSOR_NORMALLY_CLOSE_STOP')) {
-	define('SENSOR_NORMALLY_CLOSE_STOP', 13);
+    define('SENSOR_NORMALLY_CLOSE_STOP', 13);
 }
 if (!defined('SENSOR_NORMALLY_OPEN_START')) {
-	define('SENSOR_NORMALLY_OPEN_START', 14);
+    define('SENSOR_NORMALLY_OPEN_START', 14);
 }
 if (!defined('SENSOR_FLOW_METER')) {
-	define('SENSOR_FLOW_METER', 30);
+    define('SENSOR_FLOW_METER', 30);
 }
 
 class HydrawiseConfig extends IPSModule
@@ -215,9 +215,9 @@ class HydrawiseConfig extends IPSModule
                     continue;
                 }
 
-				$info = 'Sensor ' . ($connector + 1) . ' (' . $controller_name . '\\' . $sensor_name . ')';
-				$properties = ['model' => $model];
-				$instID = $this->FindOrCreateInstance('{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}', $controller_id, $connector, $sensor_name, $info, $properties, $pos++);
+                $info = 'Sensor ' . ($connector + 1) . ' (' . $controller_name . '\\' . $sensor_name . ')';
+                $properties = ['model' => $model];
+                $instID = $this->FindOrCreateInstance('{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}', $controller_id, $connector, $sensor_name, $info, $properties, $pos++);
             }
         }
 
@@ -228,16 +228,15 @@ class HydrawiseConfig extends IPSModule
                 $relay = $relays[$i];
                 $connector = $relay['relay'];
                 $zone_name = $relay['name'];
-				if ($connector < 100) {
-					$info = 'Zone '. $connector;
-				} else {
-					$info = 'Expander ' . floor($connector / 100) . ' Zone '. ($connector % 100);
-				}
-				$info .= ' (' . $controller_name . '\\' . $zone_name . ')';
-				$properties = [];
-				$instID = $this->FindOrCreateInstance('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}', $controller_id, $connector, $zone_name, $info, $properties, $pos++);
+                if ($connector < 100) {
+                    $info = 'Zone ' . $connector;
+                } else {
+                    $info = 'Expander ' . floor($connector / 100) . ' Zone ' . ($connector % 100);
+                }
+                $info .= ' (' . $controller_name . '\\' . $zone_name . ')';
+                $properties = [];
+                $instID = $this->FindOrCreateInstance('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}', $controller_id, $connector, $zone_name, $info, $properties, $pos++);
             }
         }
-
     }
 }

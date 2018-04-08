@@ -42,21 +42,21 @@ class HydrawiseZone extends IPSModule
 
     public function GetConfigurationForm()
     {
-		$opts_connector = [];
-		$opts_connector[] = ['label' => $this->Translate('no'), 'value' => 0];
-		for ($u = 0; $u <= 2; $u++) {
-			for ($z = 1; $z <= 16; $z++) {
-				$n = $u * 100 + $z;
-				$l = $u ?  $this->Translate('Expander') . ' ' . $u . ' ': '';
-				$l .= $this->Translate('Zone') . ' ' . $z;
-				$opts_connector[] = ['label' => $l, 'value' => $n];
-			}
-		}
+        $opts_connector = [];
+        $opts_connector[] = ['label' => $this->Translate('no'), 'value' => 0];
+        for ($u = 0; $u <= 2; $u++) {
+            for ($z = 1; $z <= 16; $z++) {
+                $n = $u * 100 + $z;
+                $l = $u ? $this->Translate('Expander') . ' ' . $u . ' ' : '';
+                $l .= $this->Translate('Zone') . ' ' . $z;
+                $opts_connector[] = ['label' => $l, 'value' => $n];
+            }
+        }
 
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Zone'];
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'controller_id'];
-		$formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
+        $formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
         //$formElements[] = ['type' => 'ValidationTextBox', 'name' => 'mode', 'caption' => 'mode'];
 
         $formStatus = [];
@@ -121,7 +121,7 @@ class HydrawiseZone extends IPSModule
             return -1;
         }
 
-		$vpos = 1;
+        $vpos = 1;
 
         $now = time();
 
@@ -132,43 +132,43 @@ class HydrawiseZone extends IPSModule
                 if ($connector != $relay['relay']) {
                     continue;
                 }
-				$lastwater = $relay['lastwater'];
-				$lastrun = strtotime($lastwater);
-				$this->MaintainVariable('lastrun', $this->Translate('last run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $lastrun > 0);
-				if ($lastrun) {
-					$this->SetValue('lastrun', $lastrun);
-				}
+                $lastwater = $relay['lastwater'];
+                $lastrun = strtotime($lastwater);
+                $this->MaintainVariable('lastrun', $this->Translate('last run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $lastrun > 0);
+                if ($lastrun) {
+                    $this->SetValue('lastrun', $lastrun);
+                }
 
-				$nicetime = $relay['nicetime'];
-				$tm = date_create_from_format("D, j* F g:ia", $nicetime);
-				$nextrun = $tm ? $tm->format('U') : 0;
-				$this->MaintainVariable('nextrun', $this->Translate('next run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $nextrun > 0);
-				if ($nextrun) {
-					$this->SetValue('nextrun', $nextrun);
-				}
+                $nicetime = $relay['nicetime'];
+                $tm = date_create_from_format('D, j* F g:ia', $nicetime);
+                $nextrun = $tm ? $tm->format('U') : 0;
+                $this->MaintainVariable('nextrun', $this->Translate('next run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $nextrun > 0);
+                if ($nextrun) {
+                    $this->SetValue('nextrun', $nextrun);
+                }
 
-				$suspended = isset($relay['suspended']) ? $relay['suspended'] : 0;
-				$this->MaintainVariable('suspended', $this->Translate('suspended until'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $suspended > 0);
-				if ($suspended) {
-					$this->SetValue('suspended', $suspended);
-				}
+                $suspended = isset($relay['suspended']) ? $relay['suspended'] : 0;
+                $this->MaintainVariable('suspended', $this->Translate('suspended until'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $suspended > 0);
+                if ($suspended) {
+                    $this->SetValue('suspended', $suspended);
+                }
 
-				$run_seconds = $relay['run_seconds'];
-				$this->MaintainVariable('duration', $this->Translate('duration of run'), IPS_STRING, '', $vpos++, $run_seconds > 0);
-				if ($run_seconds) {
-					$this->SetValue('duration', seconds2duration($run_seconds));
-				}
+                $run_seconds = $relay['run_seconds'];
+                $this->MaintainVariable('duration', $this->Translate('duration of run'), IPS_STRING, '', $vpos++, $run_seconds > 0);
+                if ($run_seconds) {
+                    $this->SetValue('duration', seconds2duration($run_seconds));
+                }
 
-				$this->SendDebug(__FUNCTION__, "lastwater=$lastwater => $lastrun, nicetime=$nicetime => $nextrun, suspended=$suspended", 0);
+                $this->SendDebug(__FUNCTION__, "lastwater=$lastwater => $lastrun, nicetime=$nicetime => $nextrun, suspended=$suspended", 0);
 
-				foreach ($running as $run) {
-					if ($connector != $run['relay']) {
-						continue;
-					}
-					$time_left = $run['time_left'];
-					$water_int = $run['water_int'];
-					$this->SendDebug(__FUNCTION__, "time_left=$time_left, water_int=$water_int", 0);
-				}
+                foreach ($running as $run) {
+                    if ($connector != $run['relay']) {
+                        continue;
+                    }
+                    $time_left = $run['time_left'];
+                    $water_int = $run['water_int'];
+                    $this->SendDebug(__FUNCTION__, "time_left=$time_left, water_int=$water_int", 0);
+                }
             }
         }
         $this->SetStatus(102);

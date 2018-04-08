@@ -92,7 +92,7 @@ class HydrawiseController extends IPSModule
 
         $words = ['today', 'tomorrow', 'overmorrow'];
         for ($i = 0; $i < 3; $i++) {
-			$with_forecast = $i < $num_forecast;
+            $with_forecast = $i < $num_forecast;
             $s = ' (' . $this->Translate($words[$i]) . ')';
             $this->MaintainVariable('Forecast' . $i . 'Conditions', $this->Translate('Conditions') . $s, IPS_STRING, '', $vpos++, $with_forecast);
             $this->MaintainVariable('Forecast' . $i . 'TempMax', $this->Translate('max. Temperatur') . $s, IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
@@ -115,11 +115,11 @@ class HydrawiseController extends IPSModule
 
     public function GetConfigurationForm()
     {
-		$opts_forecast = [];
-		$opts_forecast[] = ['label' => $this->Translate('no'), 'value' => 0];
-		$opts_forecast[] = ['label' => $this->Translate('today'), 'value' => 1];
-		$opts_forecast[] = ['label' => $this->Translate('tomorrow'), 'value' => 2];
-		$opts_forecast[] = ['label' => $this->Translate('overmorrow'), 'value' => 3];
+        $opts_forecast = [];
+        $opts_forecast[] = ['label' => $this->Translate('no'), 'value' => 0];
+        $opts_forecast[] = ['label' => $this->Translate('today'), 'value' => 1];
+        $opts_forecast[] = ['label' => $this->Translate('tomorrow'), 'value' => 2];
+        $opts_forecast[] = ['label' => $this->Translate('overmorrow'), 'value' => 3];
 
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Controller'];
@@ -128,7 +128,7 @@ class HydrawiseController extends IPSModule
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_last_message', 'caption' => ' ... last message'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_info', 'caption' => ' ... info'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_observations', 'caption' => ' ... observations'];
-		$formElements[] = ['type' => 'Select', 'name' => 'num_forecast', 'caption' => ' ... forecast', 'options' => $opts_forecast];
+        $formElements[] = ['type' => 'Select', 'name' => 'num_forecast', 'caption' => ' ... forecast', 'options' => $opts_forecast];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_status_box', 'caption' => ' ... html-box with state of controller and zones'];
 
         $formStatus = [];
@@ -257,7 +257,7 @@ class HydrawiseController extends IPSModule
 
         if ($with_info) {
             $watering_time = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['watering_time']);
-			$watering_time *= 60;
+            $watering_time *= 60;
 
             $this->SetValue('WateringTime', seconds2duration($watering_time));
             $this->SetValue('WateringTime_seconds', $watering_time);

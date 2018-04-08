@@ -23,19 +23,19 @@ if (!defined('IPS_STRING')) {
 
 // Model of Sensor
 if (!defined('SENSOR_NORMALLY_CLOSE_START')) {
-	define('SENSOR_NORMALLY_CLOSE_START', 11);
+    define('SENSOR_NORMALLY_CLOSE_START', 11);
 }
 if (!defined('SENSOR_NORMALLY_OPEN_STOP')) {
-	define('SENSOR_NORMALLY_OPEN_STOP', 12);
+    define('SENSOR_NORMALLY_OPEN_STOP', 12);
 }
 if (!defined('SENSOR_NORMALLY_CLOSE_STOP')) {
-	define('SENSOR_NORMALLY_CLOSE_STOP', 13);
+    define('SENSOR_NORMALLY_CLOSE_STOP', 13);
 }
 if (!defined('SENSOR_NORMALLY_OPEN_START')) {
-	define('SENSOR_NORMALLY_OPEN_START', 14);
+    define('SENSOR_NORMALLY_OPEN_START', 14);
 }
 if (!defined('SENSOR_FLOW_METER')) {
-	define('SENSOR_FLOW_METER', 30);
+    define('SENSOR_FLOW_METER', 30);
 }
 
 class HydrawiseSensor extends IPSModule
@@ -62,26 +62,26 @@ class HydrawiseSensor extends IPSModule
 
     public function GetConfigurationForm()
     {
-		$opts_connector = [];
-		$opts_connector[] = ['label' => $this->Translate('no'), 'value' => 0];
-		for ($s = 1; $s <= 2; $s++) {
-			$l = $this->Translate('Sensor') . ' ' . $s;
-			$opts_connector[] = ['label' => $l, 'value' => $s];
-		} 
+        $opts_connector = [];
+        $opts_connector[] = ['label' => $this->Translate('no'), 'value' => 0];
+        for ($s = 1; $s <= 2; $s++) {
+            $l = $this->Translate('Sensor') . ' ' . $s;
+            $opts_connector[] = ['label' => $l, 'value' => $s];
+        }
 
-		$opts_model = [];
-		$opts_model[] = ['label' => $this->Translate('no'), 'value' => 0];
-		$opts_model[] = ['label' => $this->Translate('normally close - start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
-		$opts_model[] = ['label' => $this->Translate('normally open - stop'), 'value' => SENSOR_NORMALLY_OPEN_STOP];
-		$opts_model[] = ['label' => $this->Translate('normally close - stop'), 'value' => SENSOR_NORMALLY_CLOSE_STOP];
-		$opts_model[] = ['label' => $this->Translate('normally open - start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
-		$opts_model[] = ['label' => $this->Translate('flow meter'), 'value' => SENSOR_FLOW_METER];
+        $opts_model = [];
+        $opts_model[] = ['label' => $this->Translate('no'), 'value' => 0];
+        $opts_model[] = ['label' => $this->Translate('normally close - start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
+        $opts_model[] = ['label' => $this->Translate('normally open - stop'), 'value' => SENSOR_NORMALLY_OPEN_STOP];
+        $opts_model[] = ['label' => $this->Translate('normally close - stop'), 'value' => SENSOR_NORMALLY_CLOSE_STOP];
+        $opts_model[] = ['label' => $this->Translate('normally open - start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
+        $opts_model[] = ['label' => $this->Translate('flow meter'), 'value' => SENSOR_FLOW_METER];
 
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Sensor'];
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'controller_id'];
-		$formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
-		$formElements[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
+        $formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
+        $formElements[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
 
         $formStatus = [];
         $formStatus[] = ['code' => '101', 'icon' => 'inactive', 'caption' => 'Instance getting created'];
@@ -150,8 +150,8 @@ class HydrawiseSensor extends IPSModule
 
         $vpos = 1;
 
-		$has_flow = false;
-		$flow = 0;
+        $has_flow = false;
+        $flow = 0;
 
         $sensors = $controller['sensors'];
         if (count($sensors) > 0) {
@@ -159,10 +159,10 @@ class HydrawiseSensor extends IPSModule
                 if ($connector != ($sensor['input'] + 1)) {
                     continue;
                 }
-				// Flow meter
+                // Flow meter
                 if ($model == SENSOR_FLOW_METER) {
                     if (isset($sensor['flow']['week'])) {
-						$has_flow = true;
+                        $has_flow = true;
                         $flow = preg_replace('/^([0-9\.,]*).*$/', '$1', $sensor['flow']['week']);
                     }
                 }
@@ -170,8 +170,9 @@ class HydrawiseSensor extends IPSModule
         }
 
         $this->MaintainVariable('Flow', $this->Translate('Flow'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_flow);
-		if ($has_flow)
-			$this->SetValue('Flow', $flow);
+        if ($has_flow) {
+            $this->SetValue('Flow', $flow);
+        }
 
         $this->SetStatus(102);
     }
