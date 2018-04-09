@@ -2,7 +2,7 @@
 	"id": "{5927E05C-82D0-4D78-B8E0-A973470A9CD3}",
 	"name": "HydrawiseIO",
 	"type": 1,
-	"vendor": "Hydrawise",
+	"vendor": "Hunter",
 	"aliases": ["Hydrawise I/O"],
 	"parentRequirements": [],
 	"childRequirements": ["{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}"],

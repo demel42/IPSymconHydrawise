@@ -2,7 +2,7 @@
 	"id": "{92DEBBAA-3191-4FA8-AB36-ED82BEA08154}",
 	"name": "HydrawiseConfig",
 	"type": 4,
-	"vendor": "Hydrawise",
+	"vendor": "Hunter",
 	"aliases": ["Hydrawise Konfigurator"],
 	"parentRequirements": ["{B54B579C-3992-4C1D-B7A8-4A129A78ED03}"],
 	"childRequirements": [],
