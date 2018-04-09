@@ -162,57 +162,57 @@ class HydrawiseZone extends IPSModule
 
                 $this->SendDebug(__FUNCTION__, "lastwater=$lastwater => $lastrun, nicetime=$nicetime => $nextrun, suspended=$suspended", 0);
 
-				$has_run = false;
-				$time_left = 0;
-				$water_int = 0;
+                $has_run = false;
+                $time_left = 0;
+                $water_int = 0;
                 foreach ($running as $run) {
                     if ($connector != $run['relay']) {
                         continue;
                     }
                     $time_left = $run['time_left'];
                     $water_usage = $run['water_int'];
-					$has_run = true;
+                    $has_run = true;
                     $this->SendDebug(__FUNCTION__, "time_left=$time_left, water_int=$water_int", 0);
                 }
 
-				$this->MaintainVariable('TimeLeft', $this->Translate('Time left'), IPS_STRING, '', $vpos++, $has_run);
-				$this->MaintainVariable('WaterUsage', $this->Translate('Water usage'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_run);
-				if ($has_run) {
-					$this->SetValue('TimeLeft', $this->seconds2duration($time_left));
-					$this->SetValue('WaterUsage', $water_usage);
+                $this->MaintainVariable('TimeLeft', $this->Translate('Time left'), IPS_STRING, '', $vpos++, $has_run);
+                $this->MaintainVariable('WaterUsage', $this->Translate('Water usage'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_run);
+                if ($has_run) {
+                    $this->SetValue('TimeLeft', $this->seconds2duration($time_left));
+                    $this->SetValue('WaterUsage', $water_usage);
 
-					$time_begin = $lastrun;
-					$time_end = $now + $time_left;
+                    $time_begin = $lastrun;
+                    $time_end = $now + $time_left;
 
-					$current_run = [
-							'time_begin'    => $time_begin,
-							'time_end'      => $time_end,
-							'time_left'     => $time_left,
-							'water_usage'   => $water_usage
-						];
-					$this->SetBuffer('currentRun', json_encode($current_run));
-					$this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
-				} else {
-					$buf = $this->GetBuffer('currentRun');
-					if ($buf != '') {
-						$current_run = json_decode($buf, true);
+                    $current_run = [
+                            'time_begin'    => $time_begin,
+                            'time_end'      => $time_end,
+                            'time_left'     => $time_left,
+                            'water_usage'   => $water_usage
+                        ];
+                    $this->SetBuffer('currentRun', json_encode($current_run));
+                    $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
+                } else {
+                    $buf = $this->GetBuffer('currentRun');
+                    if ($buf != '') {
+                        $current_run = json_decode($buf, true);
 
-						$time_begin = $current_run['time_begin'];
-						$time_end = $current_run['time_end'];
-						$time_left = $current_run['time_left'];
-						$water_usage = $current_run['water_usage'];
+                        $time_begin = $current_run['time_begin'];
+                        $time_end = $current_run['time_end'];
+                        $time_left = $current_run['time_left'];
+                        $water_usage = $current_run['water_usage'];
 
-						$time_duration = $time_end - $time_begin;
-						$time_done = $time_end - $time_begin - $time_left;
+                        $time_duration = $time_end - $time_begin;
+                        $time_done = $time_end - $time_begin - $time_left;
 
-						$water_estimated = $water_usage / $time_done * $time_duration;
+                        $water_estimated = $water_usage / $time_done * $time_duration;
 
-						$this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
-						$this->SendDebug(__FUNCTION__, 'duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
+                        $this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
+                        $this->SendDebug(__FUNCTION__, 'duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
 
-						$this->SetBuffer('currentRun', '');
-					}
-				}
+                        $this->SetBuffer('currentRun', '');
+                    }
+                }
             }
         }
         $this->SetStatus(102);
