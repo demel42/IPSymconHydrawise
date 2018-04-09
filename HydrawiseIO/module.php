@@ -56,9 +56,9 @@ class HydrawiseIO extends IPSModule
 
     protected function SendData($buf)
     {
-		$data = ['DataID' => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}', 'Buffer' => $buf];
-		$this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-		$this->SendDataToChildren(json_encode($data));
+        $data = ['DataID' => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}', 'Buffer' => $buf];
+        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
+        $this->SendDataToChildren(json_encode($data));
     }
 
     public function ForwardData($JSONString)
