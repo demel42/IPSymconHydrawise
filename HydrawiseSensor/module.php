@@ -48,7 +48,7 @@ class HydrawiseSensor extends IPSModule
         $this->RegisterPropertyInteger('connector', -1);
         $this->RegisterPropertyInteger('model', -1);
 
-        $this->CreateVarProfile('Hydrawise.Flowmeter', IPS_FLOAT, ' l', 0, 0, 0, 1, 'Gauge');
+        $this->CreateVarProfile('Hydrawise.Flowmeter', IPS_FLOAT, ' l', 0, 0, 0, 0, 'Gauge');
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
     }
@@ -152,7 +152,6 @@ class HydrawiseSensor extends IPSModule
 
         $has_flow = false;
         $flow = 0;
-
         $sensors = $controller['sensors'];
         if (count($sensors) > 0) {
             foreach ($sensors as $sensor) {
@@ -169,7 +168,7 @@ class HydrawiseSensor extends IPSModule
             }
         }
 
-        $this->MaintainVariable('Flow', $this->Translate('Flow'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_flow);
+        $this->MaintainVariable('Flow', $this->Translate('Consumption (week)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_flow);
         if ($has_flow) {
             $this->SetValue('Flow', $flow);
         }
