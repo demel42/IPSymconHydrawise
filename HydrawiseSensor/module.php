@@ -46,11 +46,12 @@ class HydrawiseSensor extends IPSModule
 
         $this->RegisterPropertyString('controller_id', '');
         $this->RegisterPropertyInteger('connector', -1);
-        $this->RegisterPropertyInteger('model', -1);
+        $this->RegisterPropertyInteger('model', 0);
+		$this->RegisterPropertyBoolean('with_daily_value', true);
 
         $this->CreateVarProfile('Hydrawise.Flowmeter', IPS_FLOAT, ' l', 0, 0, 0, 0, 'Gauge');
 
-        $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
+        $this->ConnectParent('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}');
     }
 
     public function ApplyChanges()
@@ -82,6 +83,7 @@ class HydrawiseSensor extends IPSModule
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'controller_id'];
         $formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
         $formElements[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
+		$formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
 
         $formStatus = [];
         $formStatus[] = ['code' => '101', 'icon' => 'inactive', 'caption' => 'Instance getting created'];
@@ -89,17 +91,6 @@ class HydrawiseSensor extends IPSModule
         $formStatus[] = ['code' => '104', 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
 
         return json_encode(['elements' => $formElements, 'status' => $formStatus]);
-    }
-
-    protected function SetValue($Ident, $Value)
-    {
-        if (IPS_GetKernelVersion() >= 5) {
-            parent::SetValue($Ident, $Value);
-        } else {
-            if (SetValue($this->GetIDForIdent($Ident), $Value) == false) {
-                echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
-            }
-        }
     }
 
     public function ReceiveData($data)
@@ -111,6 +102,7 @@ class HydrawiseSensor extends IPSModule
         $controller_id = $this->ReadPropertyString('controller_id');
         $connector = $this->ReadPropertyInteger('connector');
         $model = $this->ReadPropertyInteger('model');
+		$with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
 
         $err = '';
         $statuscode = 0;
@@ -168,12 +160,49 @@ class HydrawiseSensor extends IPSModule
             }
         }
 
-        $this->MaintainVariable('Flow', $this->Translate('Consumption (week)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_flow);
+        $this->MaintainVariable('Flow', $this->Translate('Usage (week)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_flow);
+        $this->MaintainVariable('DailyFlow', $this->Translate('Usage (day)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_flow && $with_daily_value);
         if ($has_flow) {
             $this->SetValue('Flow', $flow);
+			if ($with_daily_value) {
+				$old_flow = $this->GetBuffer('Flow');
+				$this->SendDebug(__FUNCTION__, 'flow=' . $flow . ', old_flow=' . $old_flow, 0);
+				if ($old_flow != '' && $old_flow < $flow) {
+					$new_flow = $this->GetValue('DailyFlow') + ($flow - $old_flow);
+					$this->SendDebug(__FUNCTION__, 'new_flow=' . $new_flow, 0);
+					$this->SetValue('DailyFLow', $new_flow);
+				}
+				$this->SetBuffer('Flow', $flow);
+			}
         }
 
         $this->SetStatus(102);
+    }
+
+	public function ClearDailyValue()
+	{
+		$with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
+
+		$this->SendDebug(__FUNCTION__, '', 0);
+
+		if ($with_daily_value) {
+		}
+	}
+
+	protected function GetValue($Ident)
+	{
+		return GetValue($this->GetIDForIdent($Ident));
+	}
+
+    protected function SetValue($Ident, $Value)
+    {
+        if (IPS_GetKernelVersion() >= 5) {
+            parent::SetValue($Ident, $Value);
+        } else {
+            if (SetValue($this->GetIDForIdent($Ident), $Value) == false) {
+                echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
+            }
+        }
     }
 
     // Variablenprofile erstellen

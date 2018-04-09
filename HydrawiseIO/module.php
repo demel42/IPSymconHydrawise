@@ -47,15 +47,6 @@ class HydrawiseIO extends IPSModule
         }
     }
 
-    protected function SetValue($Ident, $Value)
-    {
-        if (IPS_GetKernelVersion() >= 5) {
-            parent::SetValue($Ident, $Value);
-        } else {
-            SetValue($this->GetIDForIdent($Ident), $Value);
-        }
-    }
-
     protected function SetUpdateInterval()
     {
         $min = $this->ReadPropertyInteger('UpdateDataInterval');
@@ -63,10 +54,11 @@ class HydrawiseIO extends IPSModule
         $this->SetTimerInterval('UpdateData', $msec);
     }
 
-    protected function SendData($data)
+    protected function SendData($buf)
     {
-        $this->SendDebug(__FUNCTION__, 'SendData(): data=' . print_r($data, true), 0);
-        $this->SendDataToChildren(json_encode(['DataID' => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}', 'Buffer' => $data]));
+		$data = ['DataID' => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}', 'Buffer' => $buf];
+		$this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
+		$this->SendDataToChildren(json_encode($data));
     }
 
     public function ForwardData($JSONString)
