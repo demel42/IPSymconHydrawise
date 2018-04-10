@@ -66,6 +66,7 @@ class HydrawiseConfig extends IPSModule
         $formStatus[] = ['code' => '202', 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
         $formStatus[] = ['code' => '203', 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
         $formStatus[] = ['code' => '204', 'icon' => 'error', 'caption' => 'Instance is inactive (more then one controller)'];
+        $formStatus[] = ['code' => '205', 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
 
         return json_encode(['actions' => $formActions, 'status' => $formStatus]);
     }
@@ -226,6 +227,7 @@ class HydrawiseConfig extends IPSModule
         if (count($relays) > 0) {
             foreach ($relays as $i => $value) {
                 $relay = $relays[$i];
+                $relay_id = $relay['relay_id'];
                 $connector = $relay['relay'];
                 $zone_name = $relay['name'];
                 if ($connector < 100) {
@@ -234,7 +236,9 @@ class HydrawiseConfig extends IPSModule
                     $info = 'Expander ' . floor($connector / 100) . ' Zone ' . ($connector % 100);
                 }
                 $info .= ' (' . $controller_name . '\\' . $zone_name . ')';
-                $properties = [];
+                $properties = [
+						'relay_id'	=> $relay_id
+					];
                 $instID = $this->FindOrCreateInstance('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}', $controller_id, $connector, $zone_name, $info, $properties, $pos++);
             }
         }

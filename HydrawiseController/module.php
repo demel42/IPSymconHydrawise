@@ -82,10 +82,10 @@ class HydrawiseController extends IPSModule
         $vpos = 1;
 
         $this->MaintainVariable('Status', $this->Translate('State'), IPS_BOOLEAN, '~Alert.Reversed', $vpos++, true);
-        $this->MaintainVariable('LastContact', $this->Translate('last Transmission'), IPS_STRING, '', $vpos++, $with_last_contact);
-        $this->MaintainVariable('LastMessage', $this->Translate('last Message'), IPS_STRING, '', $vpos++, $with_last_message);
+        $this->MaintainVariable('LastContact', $this->Translate('last contact'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $with_last_contact);
+        $this->MaintainVariable('LastMessage', $this->Translate('Message to last contact'), IPS_STRING, '', $vpos++, $with_last_message);
 
-        $this->MaintainVariable('DailyReference', $this->Translate('current day'), IPS_INTEGER, '~UnixTimestampDate', $vpos++, $with_daily_value);
+        $this->MaintainVariable('DailyReference', $this->Translate('day of cumulation'), IPS_INTEGER, '~UnixTimestampDate', $vpos++, $with_daily_value);
 
         if ($with_daily_value) {
             $this->MaintainVariable('DailyWateringTime', $this->Translate('Watering time (day)'), IPS_STRING, '', $vpos++, $with_info);
@@ -100,7 +100,7 @@ class HydrawiseController extends IPSModule
         $this->MaintainVariable('ObsRainDay', $this->Translate('Rainfall (today)'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
         $this->MaintainVariable('ObsRainWeek', $this->Translate('Rainfall (week)'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
         $this->MaintainVariable('ObsCurTemp', $this->Translate('currrent Temperature'), IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
-        $this->MaintainVariable('ObsMaxTemp', $this->Translate('maximum Temperature (today)'), IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
+        $this->MaintainVariable('ObsMaxTemp', $this->Translate('maximum Temperature (24h)'), IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
 
         $words = ['today', 'tomorrow', 'overmorrow'];
         for ($i = 0; $i < 3; $i++) {
@@ -222,32 +222,15 @@ class HydrawiseController extends IPSModule
         $controller_name = $controller['name'];
 
         $last_contact = $controller['last_contact'];
-        $ts = strtotime($last_contact);
-        if ($ts) {
-            $sec = $now - $ts;
-            $s = $this->seconds2duration($sec);
-            if ($s != '') {
-                $contact = 'vor ' . $s;
-            } else {
-                $contact = 'jetzt';
-            }
-
-            $s = $this->seconds2duration($sec);
-            $min = floor($sec / 60);
-            if ($min > $minutes2fail) {
-                $controller_status = false;
-            }
-        } else {
-            $contact = $last_contact;
-        }
+        $last_contact_ts = strtotime($last_contact);
 
         $message = $controller['message'];
 
-        $msg = "controller \"$controller_name\": last_contact=$contact";
+        $msg = "controller \"$controller_name\": last_contact=$last_contact";
         $this->SendDebug(__FUNCTION__, utf8_decode($msg), 0);
 
         if ($with_last_contact) {
-            $this->SetValue('LastContact', $contact);
+            $this->SetValue('LastContact', $last_contact_ts);
         }
 
         if ($with_last_message) {

@@ -90,6 +90,12 @@ class HydrawiseSensor extends IPSModule
         $formStatus[] = ['code' => '102', 'icon' => 'active', 'caption' => 'Instance is active'];
         $formStatus[] = ['code' => '104', 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
 
+        $formStatus[] = ['code' => '201', 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
+        $formStatus[] = ['code' => '202', 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
+        $formStatus[] = ['code' => '203', 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
+        $formStatus[] = ['code' => '204', 'icon' => 'error', 'caption' => 'Instance is inactive (more then one controller)'];
+        $formStatus[] = ['code' => '205', 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
+
         return json_encode(['elements' => $formElements, 'status' => $formStatus]);
     }
 
@@ -133,8 +139,6 @@ class HydrawiseSensor extends IPSModule
             echo "statuscode=$statuscode, err=$err";
             $this->SendDebug(__FUNCTION__, $err, 0);
             $this->SetStatus($statuscode);
-
-            $this->SetValue('Status', false);
             return -1;
         }
 
@@ -160,8 +164,8 @@ class HydrawiseSensor extends IPSModule
             }
         }
 
-        $this->MaintainVariable('Flow', $this->Translate('Usage (week)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_flow);
-        $this->MaintainVariable('DailyFlow', $this->Translate('Usage (day)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_flow && $with_daily_value);
+        $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_flow);
+        $this->MaintainVariable('DailyFlow', $this->Translate('Water usage (day)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $has_flow && $with_daily_value);
         if ($has_flow) {
             $this->SetValue('Flow', $flow);
             if ($with_daily_value) {
