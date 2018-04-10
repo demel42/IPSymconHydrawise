@@ -237,8 +237,8 @@ class HydrawiseConfig extends IPSModule
                 }
                 $info .= ' (' . $controller_name . '\\' . $zone_name . ')';
                 $properties = [
-						'relay_id'	=> $relay_id
-					];
+                        'relay_id'	=> $relay_id
+                    ];
                 $instID = $this->FindOrCreateInstance('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}', $controller_id, $connector, $zone_name, $info, $properties, $pos++);
             }
         }

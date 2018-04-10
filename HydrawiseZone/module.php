@@ -112,18 +112,18 @@ class HydrawiseZone extends IPSModule
         }
 
         $relays = $controller['relays'];
-		$relay_found = false;
+        $relay_found = false;
         foreach ($relays as $relay) {
             if ($relay_id == $relay['relay_id']) {
-				$relay_found = true;
+                $relay_found = true;
                 break;
             }
-		}
-		if ($relay_found == false) {
-			$err = "relay_id \"$relay_id\" not found";
-			$statuscode = 205;
-			$do_abort = true;
-		}
+        }
+        if ($relay_found == false) {
+            $err = "relay_id \"$relay_id\" not found";
+            $statuscode = 205;
+            $do_abort = true;
+        }
 
         if ($do_abort) {
             echo "statuscode=$statuscode, err=$err";
@@ -139,106 +139,106 @@ class HydrawiseZone extends IPSModule
         $with_duration = isset($relay['run_seconds']);
         $running = isset($controller['running']) ? $controller['running'] : '';
 
-		$lastwater = $relay['lastwater'];
-		$lastrun = strtotime($lastwater);
-		$this->MaintainVariable('LastRun', $this->Translate('Last run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $lastrun > 0);
-		if ($lastrun) {
-			$this->SetValue('LastRun', $lastrun);
-		}
+        $lastwater = $relay['lastwater'];
+        $lastrun = strtotime($lastwater);
+        $this->MaintainVariable('LastRun', $this->Translate('Last run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $lastrun > 0);
+        if ($lastrun) {
+            $this->SetValue('LastRun', $lastrun);
+        }
 
-		$nicetime = $relay['nicetime'];
-		$tm = date_create_from_format('D, j* F g:ia', $nicetime);
-		$nextrun = $tm ? $tm->format('U') : 0;
-		$this->MaintainVariable('NextRun', $this->Translate('Next run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $nextrun > 0);
-		if ($nextrun) {
-			$this->SetValue('NextRun', $nextrun);
-		}
+        $nicetime = $relay['nicetime'];
+        $tm = date_create_from_format('D, j* F g:ia', $nicetime);
+        $nextrun = $tm ? $tm->format('U') : 0;
+        $this->MaintainVariable('NextRun', $this->Translate('Next run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $nextrun > 0);
+        if ($nextrun) {
+            $this->SetValue('NextRun', $nextrun);
+        }
 
-		$suspended = isset($relay['suspended']) ? $relay['suspended'] : 0;
-		$is_suspended = $suspended > 0;
-		$this->MaintainVariable('SuspendUntil', $this->Translate('Suspended until until end of'), IPS_INTEGER, '~UnixTimestampDate', $vpos++, $is_suspended);
-		if ($is_suspended) {
-			$this->SetValue('SuspendUntil', $suspended);
-		}
+        $suspended = isset($relay['suspended']) ? $relay['suspended'] : 0;
+        $is_suspended = $suspended > 0;
+        $this->MaintainVariable('SuspendUntil', $this->Translate('Suspended until until end of'), IPS_INTEGER, '~UnixTimestampDate', $vpos++, $is_suspended);
+        if ($is_suspended) {
+            $this->SetValue('SuspendUntil', $suspended);
+        }
 
-		$with_duration = isset($relay['run_seconds']);
-		$this->MaintainVariable('Duration', $this->Translate('Duration of run'), IPS_STRING, '', $vpos++, $with_duration);
-		$this->MaintainVariable('Duration_seconds', $this->Translate('Duration of run'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_duration);
-		if ($with_duration) {
-			$run_seconds = $relay['run_seconds'];
-			$this->SetValue('Duration', $this->seconds2duration($run_seconds));
-			$this->SetValue('Duration_seconds', $run_seconds);
-		}
+        $with_duration = isset($relay['run_seconds']);
+        $this->MaintainVariable('Duration', $this->Translate('Duration of run'), IPS_STRING, '', $vpos++, $with_duration);
+        $this->MaintainVariable('Duration_seconds', $this->Translate('Duration of run'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_duration);
+        if ($with_duration) {
+            $run_seconds = $relay['run_seconds'];
+            $this->SetValue('Duration', $this->seconds2duration($run_seconds));
+            $this->SetValue('Duration_seconds', $run_seconds);
+        }
 
-		$this->SendDebug(__FUNCTION__, "lastwater=$lastwater => $lastrun, nicetime=$nicetime => $nextrun, suspended=$suspended", 0);
+        $this->SendDebug(__FUNCTION__, "lastwater=$lastwater => $lastrun, nicetime=$nicetime => $nextrun, suspended=$suspended", 0);
 
-		$is_running = false;
-		$time_left = 0;
-		$water_int = 0;
-		if ($running != '') {
-			foreach ($running as $run) {
-				if ($relay_id != $run['relay_id']) {
-					continue;
-				}
-				$time_left = $run['time_left'];
-				$water_usage = $run['water_int'];
-				$is_running = true;
-				$this->SendDebug(__FUNCTION__, "time_left=$time_left, water_int=$water_int", 0);
-			}
-		}
+        $is_running = false;
+        $time_left = 0;
+        $water_int = 0;
+        if ($running != '') {
+            foreach ($running as $run) {
+                if ($relay_id != $run['relay_id']) {
+                    continue;
+                }
+                $time_left = $run['time_left'];
+                $water_usage = $run['water_int'];
+                $is_running = true;
+                $this->SendDebug(__FUNCTION__, "time_left=$time_left, water_int=$water_int", 0);
+            }
+        }
 
-		$this->MaintainVariable('TimeLeft', $this->Translate('Time left'), IPS_STRING, '', $vpos++, $is_running);
-		$this->MaintainVariable('WaterUsage', $this->Translate('Water usage'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $is_running);
+        $this->MaintainVariable('TimeLeft', $this->Translate('Time left'), IPS_STRING, '', $vpos++, $is_running);
+        $this->MaintainVariable('WaterUsage', $this->Translate('Water usage'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $is_running);
 
-		$do_daily = $with_daily_value && !$is_suspended;
-		$this->MaintainVariable('DailyDuration', $this->Translate('Duration of run (today)'), IPS_STRING, '', $vpos++, $do_daily);
-		$this->MaintainVariable('DailyDuration_seconds', $this->Translate('Duration of run (today)'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $do_daily);
-		$this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $do_daily);
+        $do_daily = $with_daily_value && !$is_suspended;
+        $this->MaintainVariable('DailyDuration', $this->Translate('Duration of run (today)'), IPS_STRING, '', $vpos++, $do_daily);
+        $this->MaintainVariable('DailyDuration_seconds', $this->Translate('Duration of run (today)'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $do_daily);
+        $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $do_daily);
 
-		if ($is_running) {
-			$this->SetValue('TimeLeft', $this->seconds2duration($time_left));
-			$this->SetValue('WaterUsage', $water_usage);
+        if ($is_running) {
+            $this->SetValue('TimeLeft', $this->seconds2duration($time_left));
+            $this->SetValue('WaterUsage', $water_usage);
 
-			$time_begin = $lastrun;
-			$time_end = $now + $time_left;
+            $time_begin = $lastrun;
+            $time_end = $now + $time_left;
 
-			$current_run = [
-					'time_begin'    => $time_begin,
-					'time_end'      => $time_end,
-					'time_left'     => $time_left,
-					'water_usage'   => $water_usage
-				];
-			$this->SetBuffer('currentRun', json_encode($current_run));
-			$this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
-		} else {
-			$buf = $this->GetBuffer('currentRun');
-			if ($buf != '') {
-				$current_run = json_decode($buf, true);
+            $current_run = [
+                    'time_begin'    => $time_begin,
+                    'time_end'      => $time_end,
+                    'time_left'     => $time_left,
+                    'water_usage'   => $water_usage
+                ];
+            $this->SetBuffer('currentRun', json_encode($current_run));
+            $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
+        } else {
+            $buf = $this->GetBuffer('currentRun');
+            if ($buf != '') {
+                $current_run = json_decode($buf, true);
 
-				$time_begin = $current_run['time_begin'];
-				$time_end = $current_run['time_end'];
-				$time_left = $current_run['time_left'];
-				$water_usage = $current_run['water_usage'];
+                $time_begin = $current_run['time_begin'];
+                $time_end = $current_run['time_end'];
+                $time_left = $current_run['time_left'];
+                $water_usage = $current_run['water_usage'];
 
-				$time_duration = $time_end - $time_begin;
-				$time_done = $time_end - $time_begin - $time_left;
+                $time_duration = $time_end - $time_begin;
+                $time_done = $time_end - $time_begin - $time_left;
 
-				$water_estimated = $water_usage / $time_done * $time_duration;
+                $water_estimated = $water_usage / $time_done * $time_duration;
 
-				$this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
-				$this->SendDebug(__FUNCTION__, 'duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
+                $this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
+                $this->SendDebug(__FUNCTION__, 'duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
 
-				if ($do_daily) {
-					$duration = $this->GetValue('DailyDuration_seconds') + $time_duration;
-					$this->SetValue('DailyDuration', $this->seconds2duration($duration));
-					$this->SetValue('DailyDuration_seconds', $duration);
+                if ($do_daily) {
+                    $duration = $this->GetValue('DailyDuration_seconds') + $time_duration;
+                    $this->SetValue('DailyDuration', $this->seconds2duration($duration));
+                    $this->SetValue('DailyDuration_seconds', $duration);
 
-					$water_usage = $this->GetValue('DailyWaterUsage') + $water_estimated;
-					$this->SetValue('DailyWaterUsage', $water_usage);
-				}
-				$this->SetBuffer('currentRun', '');
-			}
-		}
+                    $water_usage = $this->GetValue('DailyWaterUsage') + $water_estimated;
+                    $this->SetValue('DailyWaterUsage', $water_usage);
+                }
+                $this->SetBuffer('currentRun', '');
+            }
+        }
 
         $this->SetStatus(102);
     }
@@ -256,42 +256,42 @@ class HydrawiseZone extends IPSModule
         }
     }
 
-	public function Run(int $duration = null)
-	{
+    public function Run(int $duration = null)
+    {
         $relay_id = $this->ReadPropertyString('relay_id');
 
-		$url = '&relay_id=' + $relay_id . '&action=run';
-		if ($duration > 0) {
-			$url .= '&custom=' + $duration;
-		}
+        $url = '&relay_id=' + $relay_id . '&action=run';
+        if ($duration > 0) {
+            $url .= '&custom=' + $duration;
+        }
 
-		$this->SendDebug(__FUNCTION__, '', 0);
-	}
+        $this->SendDebug(__FUNCTION__, '', 0);
+    }
 
-	public function Stop()
-	{
+    public function Stop()
+    {
         $relay_id = $this->ReadPropertyString('relay_id');
 
-		$url = '&relay_id=' + $relay_id . '&action=stop';
+        $url = '&relay_id=' + $relay_id . '&action=stop';
 
-		$this->SendDebug(__FUNCTION__, '', 0);
-	}
+        $this->SendDebug(__FUNCTION__, '', 0);
+    }
 
-	public function Suspend(int $timestamp)
-	{
+    public function Suspend(int $timestamp)
+    {
         $relay_id = $this->ReadPropertyString('relay_id');
-		$url = '&relay_id=' + $relay_id . '&action=suspend&custom=' + $timestamp;
+        $url = '&relay_id=' + $relay_id . '&action=suspend&custom=' + $timestamp;
 
-		$this->SendDebug(__FUNCTION__, '', 0);
-	}
+        $this->SendDebug(__FUNCTION__, '', 0);
+    }
 
-	public function Resume()
-	{
+    public function Resume()
+    {
         $relay_id = $this->ReadPropertyString('relay_id');
-		$url = '&relay_id=' + $relay_id . '&action=suspend&custom=' . time();
+        $url = '&relay_id=' + $relay_id . '&action=suspend&custom=' . time();
 
-		$this->SendDebug(__FUNCTION__, '', 0);
-	}
+        $this->SendDebug(__FUNCTION__, '', 0);
+    }
 
     private function do_HttpRequest($url)
     {
@@ -329,9 +329,9 @@ class HydrawiseZone extends IPSModule
                 $statuscode = 204;
                 $err = 'malformed response from hydrawise';
             } else {
-// cdata={"message":"Resuming scheduled watering for zone Gef\u00e4\u00dfe (Beet)","message_type":"info"}, httpcode=200
-// cdata={"message":"Invalid operation requested. Please contact Hydrawise.","message_type":"error"}, httpcode=200
-// cdata={"error_msg":"unauthorised"}, httpcode=200
+                // cdata={"message":"Resuming scheduled watering for zone Gef\u00e4\u00dfe (Beet)","message_type":"info"}, httpcode=200
+                // cdata={"message":"Invalid operation requested. Please contact Hydrawise.","message_type":"error"}, httpcode=200
+                // cdata={"error_msg":"unauthorised"}, httpcode=200
                 $data = $cdata;
             }
         }
