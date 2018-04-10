@@ -189,18 +189,18 @@ class HydrawiseZone extends IPSModule
         }
 
         $this->MaintainVariable('ZoneAction', $this->Translate('Zone operation'), IPS_INTEGER, 'Hydrawise.ZoneAction', $vpos++, true);
-		$this->SetValue('ZoneAction', $is_running ? -1 : 0);
-		$this->MaintainAction('ZoneAction', true);
+        $this->SetValue('ZoneAction', $is_running ? -1 : 0);
+        $this->MaintainAction('ZoneAction', true);
 
         $suspended = isset($relay['suspended']) ? $relay['suspended'] : 0;
         $is_suspended = $suspended > 0;
         $this->MaintainVariable('SuspendUntil', $this->Translate('Suspended until end of'), IPS_INTEGER, '~UnixTimestampDate', $vpos++, true);
-		$this->SetValue('SuspendUntil', $suspended);
-		$this->MaintainAction('SuspendUntil', true);
+        $this->SetValue('SuspendUntil', $suspended);
+        $this->MaintainAction('SuspendUntil', true);
 
         $this->MaintainVariable('SuspendAction', $this->Translate('Zone suspension'), IPS_INTEGER, 'Hydrawise.ZoneSuspend', $vpos++, true);
-		$this->SetValue('SuspendAction', $is_suspended ? -1 : 0);
-		$this->MaintainAction('SuspendAction', true);
+        $this->SetValue('SuspendAction', $is_suspended ? -1 : 0);
+        $this->MaintainAction('SuspendAction', true);
 
         $with_duration = isset($relay['run_seconds']);
         $this->MaintainVariable('Duration', $this->Translate('Duration of run'), IPS_STRING, '', $vpos++, $with_duration);
@@ -286,38 +286,36 @@ class HydrawiseZone extends IPSModule
     {
         switch ($Ident) {
             case 'SuspendUntil':
-				$dt = date('d.m.Y H:i:s', $Value);
+                $dt = date('d.m.Y H:i:s', $Value);
                 $this->SendDebug(__FUNCTION__, "$Ident=$Value => $dt", 0);
-				break;
-			case 'SuspendAction':
+                break;
+            case 'SuspendAction':
                 $this->SendDebug(__FUNCTION__, "$Ident=$Value", 0);
-				if ($Value == -1) {
-					$this->Resume($Value);
-				}
-				else if ($Value == 0) {
+                if ($Value == -1) {
+                    $this->Resume($Value);
+                } elseif ($Value == 0) {
                     $sec = $this->GetValue('SuspendUntil');
-					$dt = date('d.m.Y H:i:s', $sec);
-					$this->SendDebug(__FUNCTION__, "$Ident=$Value => $dt", 0);
-					$this->Suspend($sec);
-				} else {
-					$sec = $Value * 86400;
-					$dt = new DateTime(date('d.m.Y 23:59:59', time() + $sec));
-					$ts = $dt->format('U');
-					$dt = date('d.m.Y H:i:s', $ts) ;
-					$this->SendDebug(__FUNCTION__, "$Ident=$Value => $dt", 0);
-					$this->Suspend($ts);
-				}
+                    $dt = date('d.m.Y H:i:s', $sec);
+                    $this->SendDebug(__FUNCTION__, "$Ident=$Value => $dt", 0);
+                    $this->Suspend($sec);
+                } else {
+                    $sec = $Value * 86400;
+                    $dt = new DateTime(date('d.m.Y 23:59:59', time() + $sec));
+                    $ts = $dt->format('U');
+                    $dt = date('d.m.Y H:i:s', $ts);
+                    $this->SendDebug(__FUNCTION__, "$Ident=$Value => $dt", 0);
+                    $this->Suspend($ts);
+                }
                 break;
             case 'ZoneAction':
-				if ($Value == -1) {
-					$this->Stop();
-				}
-				else if ($Value == 0) {
-					$this->Run();
-				} else {
-					$sec = $Value * 60;
-					$this->Run($sec);
-				}
+                if ($Value == -1) {
+                    $this->Stop();
+                } elseif ($Value == 0) {
+                    $this->Run();
+                } else {
+                    $sec = $Value * 60;
+                    $this->Run($sec);
+                }
                 $this->SendDebug(__FUNCTION__, "$Ident=$Value", 0);
                 break;
             default:
