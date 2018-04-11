@@ -143,9 +143,14 @@ Es werden folgende Variableprofile angelegt:
 
 GUIDs
 - Modul: `{CCB22FB7-9262-4387-98E4-256A07E37816}` 
-
-- HydrawiseIO: `{5927E05C-82D0-4D78-B8E0-A973470A9CD3}`
-- HydrawiseConfig: `{92DEBBAA-3191-4FA8-AB36-ED82BEA08154}`
-- HydrawiseController: `{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}`
-- HydrawiseZone: `{6A0DAE44-B86A-4D50-A76F-532365FD88AE}`
-- HydrawiseSensor: `{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}`
+- Instanzen:
+  - HydrawiseIO: `{5927E05C-82D0-4D78-B8E0-A973470A9CD3}`
+  - HydrawiseConfig: `{92DEBBAA-3191-4FA8-AB36-ED82BEA08154}`
+  - HydrawiseController: `{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}`
+  - HydrawiseZone: `{6A0DAE44-B86A-4D50-A76F-532365FD88AE}`
+  - HydrawiseSensor: `{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}`
+- Nachrichten:
+  - `{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}`: an HydrawiseConfig, HydrawiseController
+  - `{B54B579C-3992-4C1D-B7A8-4A129A78ED03}`: an HydrawiseIO
+  - `{5BF2F1ED-7782-457B-856F-D4F388CBF060}`: an HydrawiseSensor, HydrawiseZone
+  - `{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}`: an HydrawiseController
