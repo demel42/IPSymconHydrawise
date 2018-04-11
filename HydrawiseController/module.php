@@ -63,7 +63,7 @@ class HydrawiseController extends IPSModule
         parent::MessageSink($TimeStamp, $SenderID, $Message, $Data);
 
         if ($Message == IPS_KERNELMESSAGE && $Data[0] == KR_READY) {
-            $this->RegisterHook('/hook/HydrawiseWeather');
+            $this->RegisterHook('/hook/Hydrawise');
         }
     }
 
@@ -120,7 +120,7 @@ class HydrawiseController extends IPSModule
         // Inspired by module SymconTest/HookServe
         // Only call this in READY state. On startup the WebHook instance might not be available yet
         if (IPS_GetKernelRunlevel() == KR_READY) {
-            $this->RegisterHook('/hook/HydrawiseWeather');
+            $this->RegisterHook('/hook/Hydrawise');
         }
 
         $info = 'Controller (' . $controller_id . ')';
@@ -318,7 +318,128 @@ class HydrawiseController extends IPSModule
             }
         }
 
-        $controller_data = [];
+		// Namen der Zonen/Ventile (relay) merken
+		$relay2name = [];
+		$relays = $controller['relays'];
+		if ( count($relays) > 0 ) {
+			foreach ($relays as $relay) {
+				$relay2name[$relay['relay_id']] = $relay['name'];
+			}
+		}
+
+		// Status der Zonen (relays)
+		$running_zones = [];
+		$today_zones = [];
+		$done_zones = [];
+		$future_zones = [];
+
+		// aktuell durchgeführte Bewässerung
+		$relay2running = [];
+		if (isset($controller['running'])) {
+			$running = $controller['running'];
+			foreach ($running as $_running) {
+				$relay_id = $_running['relay_id'];
+				$relay2running[$relay_id] = true;
+
+				$name = $relay2name[$relay_id];
+				$time_left = $running[$i]->time_left;
+
+				$running_zone = [
+						'name'     => $name,
+						'duration' => $duration
+					];
+				$running_zones[] = $running_zone;
+			}
+		}
+
+		if (count($relays) > 0 ) {
+			usort($relays, ['HydrawiseController', 'cmp_relays_nextrun']);
+			foreach ($relays as $relay) {
+				$name = $relay['name'];
+
+				$duration = '';
+				if (isset($relay['run_seconds'])) {
+					$run_seconds = $relay['run_seconds'];
+					$duration = $this->seconds2duration($run_seconds);
+				}
+
+				$nicetime = $relay['nicetime'];
+				$ts = 0;
+				$is_today = false;
+				$tm = date_create_from_format("D, j* F g:ia", $nicetime);
+				if ( $tm ) {
+					$ts = $tm->format('U');
+					if ( $tm->format('d.m.Y') == date('d.m.Y', $now) )
+						$is_today = true;
+				}
+
+				if ( $is_today ) {
+					// was kommt heute noch?
+					$today_zone = [
+							'name'      => $name,
+							'timestamp' => $ts,
+							'duration'  => $duration
+						];
+					$today_zone[] = $today_zone;
+				} else if ($ts) {
+					// was kommt in den nächsten Tagen
+					if ( $nicetime == "Not scheduled" )
+						continue;
+					$future_zone = [
+							'name'      => $name,
+							'timestamp' => $ts,
+							'duration'  => $duration
+						];
+					$future_zones[] = $future_zone;
+				}
+			}
+
+			// was war heute?
+			usort($relays, ['HydrawiseController', 'cmp_relays_lastrun']);
+			foreach ($relays as $relay) {
+				$relay_id = $relay['relay_id'];
+				$name = $relay['name'];
+				$lastwater = $relay['lastwater'];
+
+				$duration = '';
+				if (isset($relay['run_seconds'])) {
+					$run_seconds = $relay['run_seconds'];
+					$duration = $this->seconds2duration($run_seconds);
+				}
+
+				$is_today = false;
+				$ts = strtotime($lastwater);
+				if ( $ts ) {
+					if ( date('d.m.Y', $ts) == date('d.m.Y', $now) )
+						$is_today = true;
+				}
+
+				if ( ! $is_today )
+					continue;
+
+				$is_running = isset($relay2running[$relay_id]) ? $relay2running[$relay_id] : false;
+				if ( $is_running )
+					continue;
+
+				$done_zone = [
+						'name'      => $name,
+						'timestamp' => $ts,
+						'duration'  => $duration
+					];
+				$done_zones[] = $done_zone;
+			}
+		}
+
+		$controller_data = [
+				'status'            => $controller['status'],
+				'last_contact_ts'   => $last_contact_ts,
+				'name'              => $controller_name,
+				'running_zones'     => $running_zones,
+				'today_zones'       => $today_zones,
+				'done_zones'        => $done_zones,
+				'future_zones'      => $future_zones,
+			];
+
         $this->SetBuffer('Data', json_encode($controller_data));
 
         $this->SetValue('Status', $controller_status);
@@ -457,9 +578,191 @@ class HydrawiseController extends IPSModule
 
     private function Build_StatusBox($controller_data)
     {
-        $img_path = '/hook/HydrawiseWeather/imgs/';
-
         $html = '';
+
+		$html .= "<style>\n";
+		$html .= ".right-align { text-align: right; }\n";
+		$html .= "table { border-collapse: collapse; border: 1px solid; margin: 1; width: 95%; }\n";
+		$html .= "tr { border-left: 1px solid; border-top: 1px solid; border-bottom: 1px solid; } \n";
+		$html .= "tr:first-child { border-top: 0 none; } \n";
+		$html .= "th, td { border: 1px solid; margin: 1; padding: 3px; } \n";
+		$html .= "tbody th { text-align: left; }\n";
+		$html .= "#spalte_zeitpunkt { width: 120px; }\n";
+		$html .= "#spalte_dauer { width: 60px; }\n";
+		$html .= "#spalte_rest { width: 180px; }\n";
+		$html .= "</style>\n";
+
+		$now = time();
+
+		// Daten des Controllers
+		$last_contact_ts = $controller_data['last_contact_ts'];
+		$status	= $controller_data['status'];
+		$name = $controller_data['name'];
+
+		if ( $last_contact_ts ) {
+			$duration = $this->seconds2duration($now - $last_contact_ts);
+			if ( $duration != "" )
+				$contact = "vor " . $duration;
+			else
+				$contact = "jetzt";
+		} else {
+			$contact = '';
+		}
+
+		$dt = date('d.m. H:i', $now);
+		$s = "<font size=\"-1\">Stand:</font> ";
+		$s .= $dt;
+		$s .= "&emsp;";
+		$s .= "<font size=\"-1\">Status:</font> ";
+		$s .= $status;
+		if ( $contact != "" ) {
+			$s .= " <font size=\"-2\">($contact)</font>";
+		}
+		$html .= "<center>$s</center>\n";
+
+		$running_zones = $controller_data['running_zones'];
+		$today_zones = $controller_data['today_zones'];
+		$done_zones = $controller_data['done_zones'];
+		$future_zones = $controller_data['future_zones'];
+
+		// aktuell durchgeführte Bewässerung
+		$b = false;
+		foreach ($running_zones as $zone) {
+			$name = $zone['name'];
+			$duration = $zone['duration'];
+
+			if ( ! $b ) {
+				$html .= "<br>\n";
+				$html .= "<table>\n";
+				$html .= "<colgroup><col></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_rest\"></colgroup>\n";
+				$html .= "<thead>\n";
+				$html .= "<tr>\n";
+				$html .= "<th>derzeitige Bewässerung</th>\n";
+				$html .= "<th>Restdauer</th>\n";
+				$html .= "</tr>\n";
+				$html .= "</thead>\n";
+				$html .= "<tdata>\n";
+				$b = true;
+			}
+
+			$html .= "<tr>\n";
+			$html .= "<td>$name</td>\n";
+			$html .= "<td>$duration</td>\n";
+			$html .= "</tr>\n";
+		}
+		if ( $b ) {
+			$html .= "</tdata>\n";
+			$html .= "</table>\n";
+		}
+		
+		// was kommt heute noch?
+		$b = false;
+		foreach ($today_zones as $zone) {
+			$name = $zone['name'];
+			$timestamp = $zone['timestamp'];
+			$time = date('H:i', $timestamp);
+			$duration = $zone['duration'];
+
+			if ( ! $b ) {
+				$html .= "<br>\n";
+				$html .= "<table>\n";
+				$html .= "<colgroup><col></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_zeitpunkt\"></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+				$html .= "<thead>\n";
+				$html .= "<tr>\n";
+				$html .= "<th>heute noch geplante Bewässerung</th>\n";
+				$html .= "<th>Zeit</th>\n";
+				$html .= "<th>Dauer</th>\n";
+				$html .= "</tr>\n";
+				$html .= "</thead>\n";
+				$html .= "<tdata>\n";
+				$b = true;
+			}
+
+			$html .= "<tr>\n";
+			$html .= "<td>$name</td>\n";
+			$html .= "<td>$time</td>\n";
+			$html .= "<td>$duration</td>\n";
+			$html .= "</tr>\n";
+		}
+		if ( $b ) {
+			$html .= "</tdata>\n";
+			$html .= "</table>\n";
+		}
+
+		// was war heute?
+		$b = false;
+		foreach ($future_zones as $zone) {
+			$name = $zone['name'];
+			$timestamp = $zone['timestamp'];
+			$time = date('H:i', $timestamp);
+			$duration = $zone['duration'];
+
+			if ( ! $b ) {
+				$html .= "<br>\n";
+				$html .= "<table>\n";
+				$html .= "<colgroup><col></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_zeitpunkt\"></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+				$html .= "<thead>\n";
+				$html .= "<tr>\n";
+				$html .= "<th>heute bereits durchgeführte Bewässerung</th>\n";
+				$html .= "<th>Zeit</th>\n";
+				$html .= "<th>Dauer</th>\n";
+				$html .= "</tr>\n";
+				$html .= "</thead>\n";
+				$html .= "<tdata>\n";
+				$b = true;
+			}
+
+			$html .= "<tr>\n";
+			$html .= "<td>$name</td>\n";
+			$html .= "<td>$time</td>\n";
+			$html .= "<td>$duration</td>\n";
+			$html .= "</tr>\n";
+		}
+		if ( $b ) {
+			$html .= "</tdata>\n";
+			$html .= "</table>\n";
+		}
+
+		// was kommt in den nächsten Tagen
+		$b = false;
+		foreach ($future_zones as $zone) {
+			$name = $zone['name'];
+			$timestamp = $zone['timestamp'];
+			$duration = $zone['duration'];
+			$date = date('d.m. H:i', $timestamp);
+
+			if ( ! $b ) {
+				$html .= "<br>\n";
+				$html .= "<table>\n";
+				$html .= "<colgroup><col></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_zeitpunkt\"></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+				$html .= "<thead>\n";
+				$html .= "<tr>\n";
+				$html .= "<th>demnächst geplante Bewässerung</th>\n";
+				$html .= "<th>Zeitpunkt</th>\n";
+				$html .= "<th>Dauer</th>\n";
+				$html .= "</tr>\n";
+				$html .= "</thead>\n";
+				$html .= "<tdata>\n";
+				$b = 1;
+			}
+
+			$html .= "<tr>\n";
+			$html .= "<td>$name</td>\n";
+			$html .= "<td>$date</td>\n";
+			$html .= "<td>$duration</td>\n";
+			$html .= "</tr>\n";
+		}
+		if ( $b ) {
+			$html .= "</tdata>\n";
+			$html .= "</table>\n";
+		}
 
         return $html;
     }
@@ -469,7 +772,210 @@ class HydrawiseController extends IPSModule
         $s = $this->GetBuffer('Data');
         $controller_data = json_decode($s, true);
 
+		$now = time();
+
         $html = '';
+
+		$html .= "<!DOCTYPE html>\n";
+		$html .= "<html>\n";
+		$html .= "<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n";
+		$html .= "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans\" rel=\"stylesheet\">\n";
+		$html .= "<title>Status von Hydrawise</title>\n";
+		$html .= "<style>\n";
+		$html .= "html { height: 100%; background-color: darkgrey; overflow: hidden; }\n";
+		$html .= "body { table-cell; text-align: left; vertical-align: top; height: 100%; }\n";
+		$html .= "</style>\n";
+		$html .= "</head>\n";
+		$html .= "<body>\n";
+		$html .= "<style>\n";
+		$html .= "body { margin: 1; padding: 0; font-family: 'Open Sans', sans-serif;}\n";
+		$html .= "table { border-collapse: collapse; border: 1px solid; margin: 0.5em; width: 95%; }\n";
+		$html .= "tr { border-top: 1px solid; border-bottom: 1px solid; } \n";
+		$html .= "tr:first-child { border-top: 0 none; } \n";
+		$html .= "th, td { padding: 1; } \n";
+		$html .= "thead tr, tr:nth-child(odd) { background-color: lightgrey; }\n";
+		$html .= "thead tr, tr:nth-child(even) { background-color: white; }\n";
+		$html .= "tbody th { text-align: left; }\n";
+		$html .= "#spalte_zeitpunkt { width: 100px; }\n";
+		$html .= "#spalte_dauer { width: 40px; }\n";
+		$html .= "#spalte_rest { width: 1400px; }\n";
+		$html .= "</style>\n";	
+
+		if ($controller_data != '') {
+		// Daten des Controllers
+		$last_contact_ts = $controller_data['last_contact_ts'];
+		$status	= $controller_data['status'];
+		$name = $controller_data['name'];
+
+		if ( $last_contact_ts ) {
+			$duration = $this->seconds2duration($now - $last_contact_ts);
+			if ( $duration != "" )
+				$contact = "vor " . $duration;
+			else
+				$contact = "jetzt";
+		} else {
+			$contact = '';
+		}
+
+		$dt = date('d.m. H:i', $now);
+        $s = "<font size=\"-1\">Stand:</font> ";
+        $s .= $dt;
+        $s .= "&emsp;";
+        $s .= "<font size=\"-1\">Status:</font> ";
+        $s .= $status;
+        if ( $contact != "" ) {
+            $s .= " <font size=\"-2\">($contact)</font>";
+        }
+        $html .= "<center>$s</center><br>\n";
+
+		$running_zones = $controller_data['running_zones'];
+		$today_zones = $controller_data['today_zones'];
+		$done_zones = $controller_data['done_zones'];
+		$future_zones = $controller_data['future_zones'];
+
+		// aktuell durchgeführte Bewässerung
+		$b = false;
+		foreach ($running_zones as $zone) {
+			$name = $zone['name'];
+			$duration = $zone['duration'];
+
+			if ( ! $b ) {
+				$html .= "derzeitige Bewässerung\n";
+				$html .= "<table>\n";
+				$html .= "<colgroup><col></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_rest\"></colgroup>\n";
+				$html .= "<thead>\n";
+				$html .= "<tr>\n";
+				$html .= "<th>Bezeichnung</th>\n";
+				$html .= "<th>Restdauer</th>\n";
+				$html .= "</tr>\n";
+				$html .= "</thead>\n";
+				$html .= "<tdata>\n";
+				$b = true;
+			}
+
+			$html .= "<tr>\n";
+			$html .= "<td>$name</td>\n";
+			$html .= "<td>$duration</td>\n";
+			$html .= "</tr>\n";
+		}
+		if ( $b ) {
+			$html .= "</tdata>\n";
+			$html .= "</table>\n";
+		}
+		
+		// was kommt heute noch?
+		$b = false;
+		foreach ($today_zones as $zone) {
+			$name = $zone['name'];
+			$timestamp = $zone['timestamp'];
+			$time = date('H:i', $timestamp);
+			$duration = $zone['duration'];
+
+			if ( ! $b ) {
+				$html .= "heute noch geplante Bewässerung\n";
+				$html .= "<table>\n";
+				$html .= "<colgroup><col></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_zeitpunkt\"></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+				$html .= "<thead>\n";
+				$html .= "<tr>\n";
+				$html .= "<th>Bezeichnung</th>\n";
+				$html .= "<th>Zeit</th>\n";
+				$html .= "<th>Dauer</th>\n";
+				$html .= "</tr>\n";
+				$html .= "</thead>\n";
+				$html .= "<tdata>\n";
+				$b = true;
+			}
+
+			$html .= "<tr>\n";
+			$html .= "<td>$name</td>\n";
+			$html .= "<td>$time</td>\n";
+			$html .= "<td>$duration</td>\n";
+			$html .= "</tr>\n";
+		}
+		if ( $b ) {
+			$html .= "</tdata>\n";
+			$html .= "</table>\n";
+		}
+
+		// was war heute?
+		$b = false;
+		foreach ($future_zones as $zone) {
+			$name = $zone['name'];
+			$timestamp = $zone['timestamp'];
+			$time = date('H:i', $timestamp);
+			$duration = $zone['duration'];
+
+			if ( ! $b ) {
+				$html .= "heute bereits durchgeführte Bewässerung\n";
+				$html .= "<table>\n";
+				$html .= "<colgroup><col></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_zeitpunkt\"></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+				$html .= "<thead>\n";
+				$html .= "<tr>\n";
+				$html .= "<th>Bezeichnung</th>\n";
+				$html .= "<th>Zeit</th>\n";
+				$html .= "<th>Dauer</th>\n";
+				$html .= "</tr>\n";
+				$html .= "</thead>\n";
+				$html .= "<tdata>\n";
+				$b = true;
+			}
+
+			$html .= "<tr>\n";
+			$html .= "<td>$name</td>\n";
+			$html .= "<td>$time</td>\n";
+			$html .= "<td>$duration</td>\n";
+			$html .= "</tr>\n";
+		}
+		if ( $b ) {
+			$html .= "</tdata>\n";
+			$html .= "</table>\n";
+		}
+
+		// was kommt in den nächsten Tagen
+		$b = false;
+		foreach ($future_zones as $zone) {
+			$name = $zone['name'];
+			$timestamp = $zone['timestamp'];
+			$duration = $zone['duration'];
+			$date = date('d.m. H:i', $timestamp);
+
+			if ( ! $b ) {
+				$html .= "demnächst geplante Bewässerung\n";
+				$html .= "<table>\n";
+				$html .= "<colgroup><col></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_zeitpunkt\"></colgroup>\n";
+				$html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+				$html .= "<thead>\n";
+				$html .= "<tr>\n";
+				$html .= "<th>Bezeichnung</th>\n";
+				$html .= "<th>Zeitpunkt</th>\n";
+				$html .= "<th>Dauer</th>\n";
+				$html .= "</tr>\n";
+				$html .= "</thead>\n";
+				$html .= "<tdata>\n";
+				$b = 1;
+			}
+
+			$html .= "<tr>\n";
+			$html .= "<td>$name</td>\n";
+			$html .= "<td>$date</td>\n";
+			$html .= "<td>$duration</td>\n";
+			$html .= "</tr>\n";
+		}
+		if ( $b ) {
+			$html .= "</tdata>\n";
+			$html .= "</table>\n";
+		}
+
+		$html .= "<br>\n";
+		}
+		$html .= "</body>\n";
+		$html .= "</html>\n";
 
         echo $html;
     }
@@ -491,7 +997,7 @@ class HydrawiseController extends IPSModule
             http_response_code(404);
             die('File not found!');
         }
-        $basename = substr($uri, strlen('/hook/HydrawiseWeather/'));
+        $basename = substr($uri, strlen('/hook/Hydrawise/'));
         if ($basename == 'status') {
             $webhook_script = $this->ReadPropertyInteger('webhook_script');
             if ($webhook_script > 0) {
@@ -532,6 +1038,57 @@ class HydrawiseController extends IPSModule
         }
         return 'text/plain';
     }
+
+	// Sortierfunkion: nach nächstem geplantem Vorgang
+	// Format des Zeitstempels: "Tue, 30th May 11:00am"
+	private function cmp_relays_nextrun($a, $b)
+	{
+		$tm = date_create_from_format("D, j* F g:ia", $a['nicetime']);
+		if ( $tm ) {
+			$a_nextrun = $tm->format('U');
+		} else {
+			$a_nextrun = 0;
+		}
+
+		$tm = date_create_from_format("D, j* F g:ia", $b['nicetime']);
+		if ( $tm ) {
+			$b_nextrun = $tm->format('U');
+		} else {
+			$b_nextrun = 0;
+		}
+
+		if ($a_nextrun != $b_nextrun) {
+			return ($a_nextrun < $b_nextrun) ? -1 : 1;
+		}
+
+		$a_relay = $a['relay'];
+		$b_relay = $b['relay'];
+
+		if ($a_relay == $b_relay) {
+			return 0;
+		}
+		return ($a_relay < $b_relay) ? -1 : 1;
+	}
+
+	// Sortierfunkion: nach letztem durchgeführtem Vorgang
+	// Format des Zeitstempels: "6 hours 22 minutes ago"
+	private function cmp_relays_lastrun($a, $b)
+	{
+		$a_lastrun = strtotime($a['lastwater']);
+		$b_lastrun = strtotime($b['lastwater']);
+
+		if ($a_lastrun != $b_lastrun) {
+			return ($a_lastrun < $b_lastrun) ? -1 : 1;
+		}
+
+		$a_relay = $a['relay'];
+		$b_relay = $b['relay'];
+
+		if ($a_relay == $b_relay) {
+			return 0;
+		}
+		return ($a_relay < $b_relay) ? -1 : 1;
+	}
 
     // Sekunden in Menschen-lesbares Format umwandeln
     private function seconds2duration(int $sec)
