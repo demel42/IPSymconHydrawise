@@ -133,8 +133,8 @@ class HydrawiseConfig extends IPSModule
                     $statuscode = 202;
                 }
             } else {
-				$err = 'no controller selected';
-				$statuscode = 203;
+                $err = 'no controller selected';
+                $statuscode = 203;
             }
             if ($statuscode) {
                 echo "statuscode=$statuscode, err=$err";

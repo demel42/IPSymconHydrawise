@@ -60,15 +60,15 @@ class HydrawiseZone extends IPSModule
 
         $controller_id = $this->ReadPropertyString('controller_id');
         $relay_id = $this->ReadPropertyString('relay_id');
-		$connector = $this->ReadPropertyInteger('connector');
+        $connector = $this->ReadPropertyInteger('connector');
 
-		if ($connector < 100) {
-			$info = 'Zone ' . $connector;
-		} else {
-			$info = 'Expander ' . floor($connector / 100) . ' Zone ' . ($connector % 100);
-		}
-		$info .= ' (' . $controller_id . '/' . $relay_id . ')';
-		$this->SetSummary($info);
+        if ($connector < 100) {
+            $info = 'Zone ' . $connector;
+        } else {
+            $info = 'Expander ' . floor($connector / 100) . ' Zone ' . ($connector % 100);
+        }
+        $info .= ' (' . $controller_id . '/' . $relay_id . ')';
+        $this->SetSummary($info);
 
         $this->SetStatus(102);
     }
@@ -107,33 +107,33 @@ class HydrawiseZone extends IPSModule
 
     public function ReceiveData($data)
     {
-		$controller_id = $this->ReadPropertyString('controller_id');
+        $controller_id = $this->ReadPropertyString('controller_id');
 
         $jdata = json_decode($data);
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
 
-		if (isset($jdata->Buffer)) {
-			$this->DecodeData($jdata->Buffer);
-		} else if (isset($jdata->Function)) {
-			if (isset($jdata->controller_id) && $jdata->controller_id != $controller_id) {
-				$this->SendDebug(__FUNCTION__, 'ignore foreign controller_id ' . $jdata->controller_id, 0);
-			} else {
-				switch ($jdata->Function) {
-					case 'ClearDailyValue':
-						$this->ClearDailyValue();
-						break;
-					default:
-						$this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata->Function . '"', 0);
-						break;
-				}
-			}
-		} else {
-			$this->SendDebug(__FUNCTION__, 'unknown message-structure', 0);
-		}
-	}
+        if (isset($jdata->Buffer)) {
+            $this->DecodeData($jdata->Buffer);
+        } elseif (isset($jdata->Function)) {
+            if (isset($jdata->controller_id) && $jdata->controller_id != $controller_id) {
+                $this->SendDebug(__FUNCTION__, 'ignore foreign controller_id ' . $jdata->controller_id, 0);
+            } else {
+                switch ($jdata->Function) {
+                    case 'ClearDailyValue':
+                        $this->ClearDailyValue();
+                        break;
+                    default:
+                        $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata->Function . '"', 0);
+                        break;
+                }
+            }
+        } else {
+            $this->SendDebug(__FUNCTION__, 'unknown message-structure', 0);
+        }
+    }
 
-	protected function DecodeData($buf)
-	{
+    protected function DecodeData($buf)
+    {
         $controller_id = $this->ReadPropertyString('controller_id');
         $relay_id = $this->ReadPropertyString('relay_id');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
@@ -366,8 +366,8 @@ class HydrawiseZone extends IPSModule
             $url .= '&custom=' . $duration;
         }
 
-		$SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
-		$data = $this->SendDataToParent(json_encode($SendData));
+        $SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
+        $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
     }
@@ -378,8 +378,8 @@ class HydrawiseZone extends IPSModule
 
         $url = 'relay_id=' . $relay_id . '&action=stop';
 
-		$SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
-		$data = $this->SendDataToParent(json_encode($SendData));
+        $SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
+        $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
     }
@@ -389,8 +389,8 @@ class HydrawiseZone extends IPSModule
         $relay_id = $this->ReadPropertyString('relay_id');
         $url = 'relay_id=' . $relay_id . '&action=suspend&custom=' . $timestamp;
 
-		$SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
-		$data = $this->SendDataToParent(json_encode($SendData));
+        $SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
+        $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
     }
@@ -400,8 +400,8 @@ class HydrawiseZone extends IPSModule
         $relay_id = $this->ReadPropertyString('relay_id');
         $url = 'relay_id=' . $relay_id . '&action=suspend&custom=' . time();
 
-		$SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
-		$data = $this->SendDataToParent(json_encode($SendData));
+        $SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
+        $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
     }
@@ -413,20 +413,20 @@ class HydrawiseZone extends IPSModule
 
     protected function SetValue($Ident, $Value)
     {
-		@$varID = $this->GetIDForIdent($Ident);
-		if ($varID == false) {
-			$this->SendDebug(__FUNCTION__, 'missing variable ' . $Ident, 0);
-			return;
-		}
+        @$varID = $this->GetIDForIdent($Ident);
+        if ($varID == false) {
+            $this->SendDebug(__FUNCTION__, 'missing variable ' . $Ident, 0);
+            return;
+        }
 
         if (IPS_GetKernelVersion() >= 5) {
             $ret = parent::SetValue($Ident, $Value);
         } else {
-			$ret = SetValue($varID, $Value);
+            $ret = SetValue($varID, $Value);
         }
-		if ($ret == false) {
-			echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
-		}
+        if ($ret == false) {
+            echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
+        }
     }
 
     // Variablenprofile erstellen
