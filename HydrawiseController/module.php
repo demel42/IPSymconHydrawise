@@ -71,6 +71,7 @@ class HydrawiseController extends IPSModule
     {
         parent::ApplyChanges();
 
+        $controller_id = $this->ReadPropertyString('controller_id');
         $with_last_contact = $this->ReadPropertyBoolean('with_last_contact');
         $with_last_message = $this->ReadPropertyBoolean('with_last_message');
         $with_info = $this->ReadPropertyBoolean('with_info');
@@ -122,6 +123,9 @@ class HydrawiseController extends IPSModule
             $this->RegisterHook('/hook/HydrawiseWeather');
         }
 
+		$info = 'Controller (' . $controller_id . ')';
+		$this->SetSummary($info);
+
         $this->SetStatus(102);
     }
 
@@ -159,8 +163,15 @@ class HydrawiseController extends IPSModule
     {
         $jdata = json_decode($data);
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
-        $buf = $jdata->Buffer;
+		if (isset($jdata->Buffer)) {
+			$this->DecodeData($jdata->Buffer);
+		} else {
+			$this->SendDebug(__FUNCTION__, 'unknown message-structure', 0);
+		}
+    }
 
+    protected function DecodeData($buf) 
+	{
         $controller_id = $this->ReadPropertyString('controller_id');
         $with_last_contact = $this->ReadPropertyBoolean('with_last_contact');
         $with_last_message = $this->ReadPropertyBoolean('with_last_message');
@@ -245,6 +256,7 @@ class HydrawiseController extends IPSModule
             $this->SetValue('ObsRainWeek', $obs_rain_week);
 
             $obs_curtemp = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_currenttemp']);
+			$this->SendDebug(__FUNCTION__, 'obs_curtemp=' . $controller['obs_currenttemp'] . ' => ' . $obs_curtemp, 0);
             $this->SetValue('ObsCurTemp', $obs_curtemp);
 
             $obs_maxtemp = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_maxtemp']);
@@ -326,8 +338,34 @@ class HydrawiseController extends IPSModule
         $this->SetStatus(102);
     }
 
-    public function ClearDailyValue()
+    public function ForwardData($data)
     {
+		$jdata = json_decode($data);
+        $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
+
+		$ret = '';
+
+		if (isset($jdata->Function)) {
+			switch ($jdata->Function) {
+				case 'CmdUrl':
+					$SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => $jdata->Function, 'Url' => $jdata->Url];
+					$ret = $this->SendDataToParent(json_encode($SendData));
+					break;
+				default:
+					$this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata->Function . '"', 0);
+					break;
+			}
+		} else {
+			$this->SendDebug(__FUNCTION__, 'unknown message-structure', 0);
+		}
+
+		$this->SendDebug(__FUNCTION__, 'ret=' . print_r($ret, true), 0);
+        return $ret;
+    }
+
+    protected function ClearDailyValue()
+    {
+        $controller_id = $this->ReadPropertyString('controller_id');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
 
         $this->SendDebug(__FUNCTION__, '', 0);
@@ -337,14 +375,9 @@ class HydrawiseController extends IPSModule
             $this->SetValue('DailyWateringTime_seconds', 0);
         }
 
-        $instIDs = IPS_GetInstanceListByModuleID('{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}');
-        foreach ($instIDs as $instID) {
-            HydrawiseSensor_ClearDailyValue($instID);
-        }
-        $instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
-        foreach ($instIDs as $instID) {
-            HydrawiseZone_ClearDailyValue($instID);
-        }
+        $data = ['DataID' => '{5BF2F1ED-7782-457B-856F-D4F388CBF060}', 'Function' => 'ClearDailyValue', 'controller_id' => $controller_id];
+        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
+        $this->SendDataToChildren(json_encode($data));
     }
 
     protected function SendData($buf)
@@ -361,13 +394,20 @@ class HydrawiseController extends IPSModule
 
     protected function SetValue($Ident, $Value)
     {
+		@$varID = $this->GetIDForIdent($Ident);
+		if ($varID == false) {
+			$this->SendDebug(__FUNCTION__, 'missing variable ' . $Ident, 0);
+			return;
+		}
+
         if (IPS_GetKernelVersion() >= 5) {
-            parent::SetValue($Ident, $Value);
+            $ret = parent::SetValue($Ident, $Value);
         } else {
-            if (SetValue($this->GetIDForIdent($Ident), $Value) == false) {
-                echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
-            }
+			$ret = SetValue($varID, $Value);
         }
+		if ($ret == false) {
+			echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
+		}
     }
 
     // Variablenprofile erstellen

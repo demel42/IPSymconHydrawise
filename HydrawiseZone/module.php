@@ -58,6 +58,18 @@ class HydrawiseZone extends IPSModule
     {
         parent::ApplyChanges();
 
+        $controller_id = $this->ReadPropertyString('controller_id');
+        $relay_id = $this->ReadPropertyString('relay_id');
+		$connector = $this->ReadPropertyInteger('connector');
+
+		if ($connector < 100) {
+			$info = 'Zone ' . $connector;
+		} else {
+			$info = 'Expander ' . floor($connector / 100) . ' Zone ' . ($connector % 100);
+		}
+		$info .= ' (' . $controller_id . '/' . $relay_id . ')';
+		$this->SetSummary($info);
+
         $this->SetStatus(102);
     }
 
@@ -88,8 +100,6 @@ class HydrawiseZone extends IPSModule
 
         $formStatus[] = ['code' => '201', 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
         $formStatus[] = ['code' => '202', 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
-        $formStatus[] = ['code' => '203', 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
-        $formStatus[] = ['code' => '204', 'icon' => 'error', 'caption' => 'Instance is inactive (more then one controller)'];
         $formStatus[] = ['code' => '205', 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
 
         return json_encode(['elements' => $formElements, 'status' => $formStatus]);
@@ -97,10 +107,33 @@ class HydrawiseZone extends IPSModule
 
     public function ReceiveData($data)
     {
+		$controller_id = $this->ReadPropertyString('controller_id');
+
         $jdata = json_decode($data);
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
-        $buf = $jdata->Buffer;
 
+		if (isset($jdata->Buffer)) {
+			$this->DecodeData($jdata->Buffer);
+		} else if (isset($jdata->Function)) {
+			if (isset($jdata->controller_id) && $jdata->controller_id != $controller_id) {
+				$this->SendDebug(__FUNCTION__, 'ignore foreign controller_id ' . $jdata->controller_id, 0);
+			} else {
+				switch ($jdata->Function) {
+					case 'ClearDailyValue':
+						$this->ClearDailyValue();
+						break;
+					default:
+						$this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata->Function . '"', 0);
+						break;
+				}
+			}
+		} else {
+			$this->SendDebug(__FUNCTION__, 'unknown message-structure', 0);
+		}
+	}
+
+	protected function DecodeData($buf)
+	{
         $controller_id = $this->ReadPropertyString('controller_id');
         $relay_id = $this->ReadPropertyString('relay_id');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
@@ -199,7 +232,7 @@ class HydrawiseZone extends IPSModule
         $this->MaintainAction('SuspendUntil', true);
 
         $this->MaintainVariable('SuspendAction', $this->Translate('Zone suspension'), IPS_INTEGER, 'Hydrawise.ZoneSuspend', $vpos++, true);
-        $this->SetValue('SuspendAction', $is_suspended ? -1 : 0);
+        $this->SetValue('SuspendAction', $is_suspended ? -1 : 1);
         $this->MaintainAction('SuspendAction', true);
 
         $with_duration = isset($relay['run_seconds']);
@@ -269,7 +302,7 @@ class HydrawiseZone extends IPSModule
         $this->SetStatus(102);
     }
 
-    public function ClearDailyValue()
+    protected function ClearDailyValue()
     {
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
 
@@ -328,89 +361,49 @@ class HydrawiseZone extends IPSModule
     {
         $relay_id = $this->ReadPropertyString('relay_id');
 
-        $url = '&relay_id=' + $relay_id . '&action=run';
+        $url = 'relay_id=' . $relay_id . '&action=run';
         if ($duration > 0) {
             $url .= '&custom=' . $duration;
         }
 
-        $this->SendDebug(__FUNCTION__, 'url=' . $url, 0);
+		$SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
+		$data = $this->SendDataToParent(json_encode($SendData));
+
+        $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
     }
 
     public function Stop()
     {
         $relay_id = $this->ReadPropertyString('relay_id');
 
-        $url = '&relay_id=' + $relay_id . '&action=stop';
+        $url = 'relay_id=' . $relay_id . '&action=stop';
 
-        $this->SendDebug(__FUNCTION__, 'url=' . $url, 0);
+		$SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
+		$data = $this->SendDataToParent(json_encode($SendData));
+
+        $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
     }
 
     public function Suspend(int $timestamp)
     {
         $relay_id = $this->ReadPropertyString('relay_id');
-        $url = '&relay_id=' + $relay_id . '&action=suspend&custom=' . $timestamp;
+        $url = 'relay_id=' . $relay_id . '&action=suspend&custom=' . $timestamp;
 
-        $this->SendDebug(__FUNCTION__, 'url=' . $url, 0);
+		$SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
+		$data = $this->SendDataToParent(json_encode($SendData));
+
+        $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
     }
 
     public function Resume()
     {
         $relay_id = $this->ReadPropertyString('relay_id');
-        $url = '&relay_id=' + $relay_id . '&action=suspend&custom=' . time();
+        $url = 'relay_id=' . $relay_id . '&action=suspend&custom=' . time();
 
-        $this->SendDebug(__FUNCTION__, 'url=' . $url, 0);
-    }
+		$SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
+		$data = $this->SendDataToParent(json_encode($SendData));
 
-    private function do_HttpRequest($url)
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HEADER, false);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        $cdata = curl_exec($ch);
-        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
-
-        $this->SendDebug(__FUNCTION__, "url=$url, httpcode=$httpcode", 0);
-
-        $statuscode = 0;
-        $err = '';
-        $data = '';
-        if ($httpcode != 200) {
-            if ($httpcode == 400 || $httpcode == 401) {
-                $statuscode = 201;
-                $err = "got http-code $httpcode (unauthorized) from hydrawise";
-            } elseif ($httpcode >= 500 && $httpcode <= 599) {
-                $statuscode = 202;
-                $err = "got http-code $httpcode (server error) from hydrawise";
-            } else {
-                $statuscode = 203;
-                $err = "got http-code $httpcode from hydrawise";
-            }
-        } elseif ($cdata == '') {
-            $statuscode = 204;
-            $err = 'no data from hydrawise';
-        } else {
-            $jdata = json_decode($cdata, true);
-            if ($jdata == '') {
-                $statuscode = 204;
-                $err = 'malformed response from hydrawise';
-            } else {
-                // cdata={"message":"Resuming scheduled watering for zone Gef\u00e4\u00dfe (Beet)","message_type":"info"}, httpcode=200
-                // cdata={"message":"Invalid operation requested. Please contact Hydrawise.","message_type":"error"}, httpcode=200
-                // cdata={"error_msg":"unauthorised"}, httpcode=200
-                $data = $cdata;
-            }
-        }
-
-        if ($statuscode) {
-            echo "statuscode=$statuscode, err=$err";
-            $this->SendDebug(__FUNCTION__, $err, 0);
-            $this->SetStatus($statuscode);
-        }
-
-        return $data;
+        $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
     }
 
     protected function GetValue($Ident)
@@ -420,13 +413,20 @@ class HydrawiseZone extends IPSModule
 
     protected function SetValue($Ident, $Value)
     {
+		@$varID = $this->GetIDForIdent($Ident);
+		if ($varID == false) {
+			$this->SendDebug(__FUNCTION__, 'missing variable ' . $Ident, 0);
+			return;
+		}
+
         if (IPS_GetKernelVersion() >= 5) {
-            parent::SetValue($Ident, $Value);
+            $ret = parent::SetValue($Ident, $Value);
         } else {
-            if (SetValue($this->GetIDForIdent($Ident), $Value) == false) {
-                echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
-            }
+			$ret = SetValue($varID, $Value);
         }
+		if ($ret == false) {
+			echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
+		}
     }
 
     // Variablenprofile erstellen

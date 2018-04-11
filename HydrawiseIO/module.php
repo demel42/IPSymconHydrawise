@@ -61,12 +61,32 @@ class HydrawiseIO extends IPSModule
         $this->SendDataToChildren(json_encode($data));
     }
 
-    public function ForwardData($JSONString)
+    public function ForwardData($data)
     {
-        $data = $this->GetBuffer('LastData');
-        $this->SendDebug(__FUNCTION__, 'ForwardData(): data=' . print_r($data, true), 0);
+		$jdata = json_decode($data);
+        $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
 
-        return $data;
+		$ret = '';
+
+		if (isset($jdata->Function)) {
+			switch ($jdata->Function) {
+				case 'LastData':
+					$ret = $this->GetBuffer('LastData');
+					break;
+				case 'CmdUrl':
+					$ret = $this->SendCommand($jdata->Url);
+					$this->UpdateData();
+					break;
+				default:
+					$this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata->Function . '"', 0);
+					break;
+			}
+		} else {
+			$this->SendDebug(__FUNCTION__, 'unknown message-structure', 0);
+		}
+
+		$this->SendDebug(__FUNCTION__, 'ret=' . print_r($ret, true), 0);
+        return $ret;
     }
 
     public function UpdateData()
@@ -101,6 +121,24 @@ class HydrawiseIO extends IPSModule
         $this->SendData($data);
         $this->SetBuffer('LastData', $data);
     }
+
+    public function SendCommand(string $cmd_url)
+    {
+        $api_key = $this->ReadPropertyString('api_key');
+
+		$url = "https://app.hydrawise.com/api/v1/setzone.php?api_key=$api_key&" . $cmd_url;
+
+		$ret = '';
+		$data = $this->do_HttpRequest($url);
+        if ($data != '') {
+            $jdata = json_decode($data);
+			// cdata={"message":"Resuming scheduled watering for zone Gef\u00e4\u00dfe (Beet)","message_type":"info"}, httpcode=200
+			// cdata={"message":"Invalid operation requested. Please contact Hydrawise.","message_type":"error"}, httpcode=200
+			// cdata={"error_msg":"unauthorised"}, httpcode=200
+        }
+
+        return $ret;
+	}
 
     private function do_HttpRequest($url)
     {

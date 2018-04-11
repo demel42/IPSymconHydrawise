@@ -35,7 +35,7 @@ class HydrawiseConfig extends IPSModule
 
     public function GetConfigurationForm()
     {
-        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}'];
+        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'LastData'];
         $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, "data=$data", 0);
@@ -48,12 +48,9 @@ class HydrawiseConfig extends IPSModule
                 $controller_id = $controller['controller_id'];
                 $options[] = ['label' => $controller_name, 'value' => $controller_id];
             }
-        } else {
-            $this->SetStatus(201);
         }
 
         $formActions = [];
-        $formActions[] = ['type' => 'Label', 'label' => 'Controller-Name only needs to be selected if you have more then one'];
         $formActions[] = ['type' => 'Select', 'name' => 'controller_id', 'caption' => 'Controller-Name', 'options' => $options];
         $formActions[] = ['type' => 'Button', 'label' => 'Import of controller', 'onClick' => 'HydrawiseConfig_Doit($id, $controller_id);'];
 
@@ -65,8 +62,6 @@ class HydrawiseConfig extends IPSModule
         $formStatus[] = ['code' => '201', 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
         $formStatus[] = ['code' => '202', 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
         $formStatus[] = ['code' => '203', 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
-        $formStatus[] = ['code' => '204', 'icon' => 'error', 'caption' => 'Instance is inactive (more then one controller)'];
-        $formStatus[] = ['code' => '205', 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
 
         return json_encode(['actions' => $formActions, 'status' => $formStatus]);
     }
@@ -108,7 +103,6 @@ class HydrawiseConfig extends IPSModule
             IPS_SetPosition($instID, $pos);
         }
 
-        $this->SetSummary($info);
         IPS_ApplyChanges($instID);
 
         return $instID;
@@ -116,7 +110,7 @@ class HydrawiseConfig extends IPSModule
 
     public function Doit(string $controller_id)
     {
-        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}'];
+        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'LastData'];
         $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, "data=$data", 0);
@@ -139,20 +133,8 @@ class HydrawiseConfig extends IPSModule
                     $statuscode = 202;
                 }
             } else {
-                switch (count($controllers)) {
-                    case 1:
-                        $controller = $controllers[0];
-                        $controller_id = $controller['controller_id'];
-                        break;
-                    case 0:
-                        $err = 'data contains no controller';
-                        $statuscode = 203;
-                        break;
-                    default:
-                        $err = 'data contains to many controller';
-                        $statuscode = 204;
-                        break;
-                }
+				$err = 'no controller selected';
+				$statuscode = 203;
             }
             if ($statuscode) {
                 echo "statuscode=$statuscode, err=$err";
@@ -216,7 +198,7 @@ class HydrawiseConfig extends IPSModule
                     continue;
                 }
 
-                $info = 'Sensor ' . ($connector + 1) . ' (' . $controller_name . '\\' . $sensor_name . ')';
+                $info = 'Sensor ' . $connector . ' (' . $controller_name . '\\' . $sensor_name . ')';
                 $properties = ['model' => $model];
                 $instID = $this->FindOrCreateInstance('{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}', $controller_id, $connector, $sensor_name, $info, $properties, $pos++);
             }

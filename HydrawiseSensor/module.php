@@ -58,6 +58,12 @@ class HydrawiseSensor extends IPSModule
     {
         parent::ApplyChanges();
 
+        $controller_id = $this->ReadPropertyString('controller_id');
+        $connector = $this->ReadPropertyInteger('connector');
+
+		$info = 'Sensor ' . $connector . ' (' . $controller_id . ')';
+		$this->SetSummary($info);
+
         $this->SetStatus(102);
     }
 
@@ -92,19 +98,39 @@ class HydrawiseSensor extends IPSModule
 
         $formStatus[] = ['code' => '201', 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
         $formStatus[] = ['code' => '202', 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
-        $formStatus[] = ['code' => '203', 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
-        $formStatus[] = ['code' => '204', 'icon' => 'error', 'caption' => 'Instance is inactive (more then one controller)'];
-        $formStatus[] = ['code' => '205', 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
 
         return json_encode(['elements' => $formElements, 'status' => $formStatus]);
     }
 
     public function ReceiveData($data)
     {
+		$controller_id = $this->ReadPropertyString('controller_id');
+
         $jdata = json_decode($data);
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
-        $buf = $jdata->Buffer;
 
+		if (isset($jdata->Buffer)) {
+			$this->DecodeData($jdata->Buffer);
+		} else if (isset($jdata->Function)) {
+			if (isset($jdata->controller_id) && $jdata->controller_id != $controller_id) {
+				$this->SendDebug(__FUNCTION__, 'ignore foreign controller_id ' . $jdata->controller_id, 0);
+			} else {
+				switch ($jdata->Function) {
+					case 'ClearDailyValue':
+						$this->ClearDailyValue();
+						break;
+					default:
+						$this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata->Function . '"', 0);
+						break;
+				}
+			}
+		} else {
+			$this->SendDebug(__FUNCTION__, 'unknown message-structure', 0);
+		}
+	}
+
+	protected function DecodeData($buf)
+	{
         $controller_id = $this->ReadPropertyString('controller_id');
         $connector = $this->ReadPropertyInteger('connector');
         $model = $this->ReadPropertyInteger('model');
@@ -174,7 +200,7 @@ class HydrawiseSensor extends IPSModule
                 if ($old_flow != '' && $old_flow < $flow) {
                     $new_flow = $this->GetValue('DailyFlow') + ($flow - $old_flow);
                     $this->SendDebug(__FUNCTION__, 'new_flow=' . $new_flow, 0);
-                    $this->SetValue('DailyFLow', $new_flow);
+                    $this->SetValue('DailyFlow', $new_flow);
                 }
                 $this->SetBuffer('Flow', $flow);
             }
@@ -183,13 +209,14 @@ class HydrawiseSensor extends IPSModule
         $this->SetStatus(102);
     }
 
-    public function ClearDailyValue()
+    protected function ClearDailyValue()
     {
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
 
         $this->SendDebug(__FUNCTION__, '', 0);
 
         if ($with_daily_value) {
+			$this->SetValue('DailyFlow', 0);
         }
     }
 
@@ -200,13 +227,20 @@ class HydrawiseSensor extends IPSModule
 
     protected function SetValue($Ident, $Value)
     {
+		@$varID = $this->GetIDForIdent($Ident);
+		if ($varID == false) {
+			$this->SendDebug(__FUNCTION__, 'missing variable ' . $Ident, 0);
+			return;
+		}
+
         if (IPS_GetKernelVersion() >= 5) {
-            parent::SetValue($Ident, $Value);
+            $ret = parent::SetValue($Ident, $Value);
         } else {
-            if (SetValue($this->GetIDForIdent($Ident), $Value) == false) {
-                echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
-            }
+			$ret = SetValue($varID, $Value);
         }
+		if ($ret == false) {
+			echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
+		}
     }
 
     // Variablenprofile erstellen
