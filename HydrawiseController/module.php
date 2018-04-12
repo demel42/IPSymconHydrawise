@@ -670,7 +670,7 @@ class HydrawiseController extends IPSModule
 
         // was war heute?
         $b = false;
-        foreach ($future_zones as $zone) {
+        foreach ($done_zones as $zone) {
             $name = $zone['name'];
             $timestamp = $zone['timestamp'];
             $time = date('H:i', $timestamp);
@@ -879,7 +879,7 @@ class HydrawiseController extends IPSModule
 
             // was war heute?
             $b = false;
-            foreach ($future_zones as $zone) {
+            foreach ($done_zones as $zone) {
                 $name = $zone['name'];
                 $timestamp = $zone['timestamp'];
                 $time = date('H:i', $timestamp);
