@@ -115,7 +115,7 @@ class HydrawiseController extends IPSModule
             $this->MaintainVariable('Forecast' . $i . 'Humidity', $this->Translate('Humidity') . $s, IPS_FLOAT, 'Hydrawise.Humidity', $vpos++, $with_forecast);
         }
 
-        $this->MaintainVariable('StatusBox', $this->Translate('State of controller and zones'), IPS_STRING, '~HTMLBox', $vpos++, $with_status_box);
+        $this->MaintainVariable('StatusBox', $this->Translate('State of irrigation'), IPS_STRING, '~HTMLBox', $vpos++, $with_status_box);
 
         // Inspired by module SymconTest/HookServe
         // Only call this in READY state. On startup the WebHook instance might not be available yet
@@ -123,7 +123,7 @@ class HydrawiseController extends IPSModule
             $this->RegisterHook('/hook/Hydrawise');
         }
 
-        $info = 'Controller (' . $controller_id . ')';
+        $info = 'Controller (#' . $controller_id . ')';
         $this->SetSummary($info);
 
         $this->SetStatus(102);
@@ -145,7 +145,7 @@ class HydrawiseController extends IPSModule
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_info', 'caption' => ' ... info'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_observations', 'caption' => ' ... observations'];
         $formElements[] = ['type' => 'Select', 'name' => 'num_forecast', 'caption' => ' ... forecast', 'options' => $opts_forecast];
-        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_status_box', 'caption' => ' ... html-box with state of controller and zones'];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_status_box', 'caption' => ' ... html-box with state of irrigation'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
 
         $formStatus = [];
@@ -256,7 +256,6 @@ class HydrawiseController extends IPSModule
             $this->SetValue('ObsRainWeek', $obs_rain_week);
 
             $obs_curtemp = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_currenttemp']);
-            $this->SendDebug(__FUNCTION__, 'obs_curtemp=' . $controller['obs_currenttemp'] . ' => ' . $obs_curtemp, 0);
             $this->SetValue('ObsCurTemp', $obs_curtemp);
 
             $obs_maxtemp = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_maxtemp']);
@@ -532,7 +531,7 @@ class HydrawiseController extends IPSModule
             $ret = SetValue($varID, $Value);
         }
         if ($ret == false) {
-            echo "fehlerhafter Datentyp: $Ident=\"$Value\"";
+            $this->SendDebug(__FUNCTION__, 'mismatch of value "' . $Value . '" to variable ' . $Ident, 0);
         }
     }
 
@@ -596,35 +595,6 @@ class HydrawiseController extends IPSModule
         $html .= "#spalte_dauer { width: 60px; }\n";
         $html .= "#spalte_rest { width: 180px; }\n";
         $html .= "</style>\n";
-
-        $now = time();
-
-        // Daten des Controllers
-        $last_contact_ts = $controller_data['last_contact_ts'];
-        $status = $controller_data['status'];
-        $name = $controller_data['name'];
-
-        if ($last_contact_ts) {
-            $duration = $this->seconds2duration($now - $last_contact_ts);
-            if ($duration != '') {
-                $contact = 'vor ' . $duration;
-            } else {
-                $contact = 'jetzt';
-            }
-        } else {
-            $contact = '';
-        }
-
-        $dt = date('d.m. H:i', $now);
-        $s = '<font size="-1">Stand:</font> ';
-        $s .= $dt;
-        $s .= '&emsp;';
-        $s .= '<font size="-1">Status:</font> ';
-        $s .= $status;
-        if ($contact != '') {
-            $s .= " <font size=\"-2\">($contact)</font>";
-        }
-        $html .= "<center>$s</center>\n";
 
         $running_zones = $controller_data['running_zones'];
         $today_zones = $controller_data['today_zones'];
