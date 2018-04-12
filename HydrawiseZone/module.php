@@ -31,7 +31,7 @@ class HydrawiseZone extends IPSModule
         $this->RegisterPropertyString('relay_id', '');
         $this->RegisterPropertyInteger('connector', -1);
         $this->RegisterPropertyBoolean('with_daily_value', true);
-		$this->RegisterPropertyInteger('visibility_script', 0);
+        $this->RegisterPropertyInteger('visibility_script', 0);
 
         $associations = [];
         $associations[] = ['Wert' => -1, 'Name' => $this->Translate('Stop'), 'Farbe' => 0xEE0000];
@@ -159,7 +159,7 @@ class HydrawiseZone extends IPSModule
         $controller_id = $this->ReadPropertyString('controller_id');
         $relay_id = $this->ReadPropertyString('relay_id');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
-		$visibility_script = $this->ReadPropertyInteger('visibility_script');
+        $visibility_script = $this->ReadPropertyInteger('visibility_script');
 
         $err = '';
         $statuscode = 0;
@@ -207,19 +207,18 @@ class HydrawiseZone extends IPSModule
             return -1;
         }
 
-
         $now = time();
 
         $running = isset($controller['running']) ? $controller['running'] : '';
 
         $lastwater = $relay['lastwater'];
         $lastrun = strtotime($lastwater);
-		$this->SetValue('LastRun', $lastrun);
+        $this->SetValue('LastRun', $lastrun);
 
         $nicetime = $relay['nicetime'];
         $tm = date_create_from_format('D, j* F g:ia', $nicetime);
         $nextrun = $tm ? $tm->format('U') : 0;
-		$this->SetValue('NextRun', $nextrun);
+        $this->SetValue('NextRun', $nextrun);
 
         $is_running = false;
         $time_left = 0;
@@ -244,9 +243,9 @@ class HydrawiseZone extends IPSModule
 
         $this->SetValue('SuspendAction', $is_suspended ? -1 : 1);
 
-		$run_seconds = isset($relay['run_seconds']) ? $relay['run_seconds'] : 0;
-		$this->SetValue('Duration', $this->seconds2duration($run_seconds));
-		$this->SetValue('Duration_seconds', $run_seconds);
+        $run_seconds = isset($relay['run_seconds']) ? $relay['run_seconds'] : 0;
+        $this->SetValue('Duration', $this->seconds2duration($run_seconds));
+        $this->SetValue('Duration_seconds', $run_seconds);
 
         $this->SendDebug(__FUNCTION__, "lastwater=$lastwater => $lastrun, nicetime=$nicetime => $nextrun, suspended=$suspended", 0);
 
@@ -298,16 +297,16 @@ class HydrawiseZone extends IPSModule
             }
         }
 
-		if ($visibility_script > 0) {
-			$opts = [
-					'InstanceID'       => $this->InstanceID,
-					'suspended_until'  => $suspended,
-					'duration'         => $run_seconds,
-					'time_left'        => $time_left,
-				];
-			$ret = IPS_RunScriptWaitEx($visibility_script, $opts);
-			$this->SendDebug(__FUNCTION__, 'visibility_script=' . $visibility_script . ', InstanceID=' . $this->InstanceID . ' => ' . $ret, 0);
-		}
+        if ($visibility_script > 0) {
+            $opts = [
+                    'InstanceID'       => $this->InstanceID,
+                    'suspended_until'  => $suspended,
+                    'duration'         => $run_seconds,
+                    'time_left'        => $time_left,
+                ];
+            $ret = IPS_RunScriptWaitEx($visibility_script, $opts);
+            $this->SendDebug(__FUNCTION__, 'visibility_script=' . $visibility_script . ', InstanceID=' . $this->InstanceID . ' => ' . $ret, 0);
+        }
 
         $this->SetStatus(102);
     }

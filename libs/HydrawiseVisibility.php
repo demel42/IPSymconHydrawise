@@ -1,4 +1,4 @@
-<?
+<?php
 
 $instID = $_IPS['InstanceID'];
 
@@ -19,15 +19,15 @@ foreach ($triggerVars as $triggerVar) {
     switch ($triggerVar) {
         case 'duration':
             $hideVars = ['Duration', 'Duration_seconds'];
-            $do_hide = ! ($duration > 0 && ! $suspended_until);
+            $do_hide = !($duration > 0 && !$suspended_until);
             break;
         case 'run':
             $hideVars = ['TimeLeft', 'WaterUsage'];
-            $do_hide = ! ($time_left > 0);
+            $do_hide = !($time_left > 0);
             break;
         case 'daily':
             $hideVars = ['DailyDuration', 'DailyDuration_seconds', 'DailyWaterUsage'];
-            $do_hide = ! ($with_daily_value && ! $suspended_until);
+            $do_hide = !($with_daily_value && !$suspended_until);
             break;
         default:
             $vars = [];
@@ -40,27 +40,25 @@ foreach ($triggerVars as $triggerVar) {
             continue;
         }
         IPS_SetHidden($hideID, $do_hide);
-		if ($do_hide) {
-			$msg_h[] = $hideVar;
-		} else {
-        	$msg_v[] = $hideVar;
-		}
+        if ($do_hide) {
+            $msg_h[] = $hideVar;
+        } else {
+            $msg_v[] = $hideVar;
+        }
     }
 }
 
 if ($msg_e != []) {
-	$msg .= $msg != '' ? '; ' : '';
-	$msg .= implode(', ', $msg_e);
+    $msg .= $msg != '' ? '; ' : '';
+    $msg .= implode(', ', $msg_e);
 }
 if ($msg_v != []) {
-	$msg .= $msg != '' ? '; ' : '';
-	$msg .= 'set visible: ' . implode(', ', $msg_v);
+    $msg .= $msg != '' ? '; ' : '';
+    $msg .= 'set visible: ' . implode(', ', $msg_v);
 }
 if ($msg_h != []) {
-	$msg .= $msg != '' ? '; ' : '';
-	$msg .= 'set hidden: ' . implode(', ', $msg_h);
+    $msg .= $msg != '' ? '; ' : '';
+    $msg .= 'set hidden: ' . implode(', ', $msg_h);
 }
 
 echo $msg . "\n";
-
-?>

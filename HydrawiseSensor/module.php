@@ -63,30 +63,30 @@ class HydrawiseSensor extends IPSModule
         $model = $this->ReadPropertyInteger('model');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
 
-		$vpos = 1;
+        $vpos = 1;
 
-		switch ($model) {
-			case SENSOR_FLOW_METER:
-				$this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
-				$this->MaintainVariable('DailyFlow', $this->Translate('Water usage (day)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
-				$mode_txt = 'flow meter';
-				break;
-			case SENSOR_NORMALLY_CLOSE_START:
-				$mode_txt = 'normally close -> start';
-				break;
-			case SENSOR_NORMALLY_OPEN_STOP:
-				$mode_txt = 'normally open -> stop';
-				break;
-			case SENSOR_NORMALLY_CLOSE_STOP:
-				$mode_txt = 'normally close -> stop';
-				break;
-			case SENSOR_NORMALLY_OPEN_START:
-				$mode_txt = 'normally open -> start';
-				break;
-			default:
-				$mode_txt = 'unsupported';
-				break;
-		}
+        switch ($model) {
+            case SENSOR_FLOW_METER:
+                $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
+                $this->MaintainVariable('DailyFlow', $this->Translate('Water usage (day)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
+                $mode_txt = 'flow meter';
+                break;
+            case SENSOR_NORMALLY_CLOSE_START:
+                $mode_txt = 'normally close -> start';
+                break;
+            case SENSOR_NORMALLY_OPEN_STOP:
+                $mode_txt = 'normally open -> stop';
+                break;
+            case SENSOR_NORMALLY_CLOSE_STOP:
+                $mode_txt = 'normally close -> stop';
+                break;
+            case SENSOR_NORMALLY_OPEN_START:
+                $mode_txt = 'normally open -> start';
+                break;
+            default:
+                $mode_txt = 'unsupported';
+                break;
+        }
 
         $info = 'Sensor ' . $connector . ' (' . $mode_txt . ')';
         $this->SetSummary($info);
@@ -206,30 +206,29 @@ class HydrawiseSensor extends IPSModule
                 if ($connector != ($sensor['input'] + 1)) {
                     continue;
                 }
-				switch ($model) {
-					case SENSOR_FLOW_METER:
-						if (isset($sensor['flow']['week'])) {
-							$flow = preg_replace('/^([0-9\.,]*).*$/', '$1', $sensor['flow']['week']);
-							$this->SetValue('Flow', $flow);
-							if ($with_daily_value) {
-								$old_flow = $this->GetBuffer('Flow');
-								$this->SendDebug(__FUNCTION__, 'flow=' . $flow . ', old_flow=' . $old_flow, 0);
-								if ($old_flow != '' && $old_flow < $flow) {
-									$new_flow = $this->GetValue('DailyFlow') + ($flow - $old_flow);
-									$this->SendDebug(__FUNCTION__, 'new_flow=' . $new_flow, 0);
-									$this->SetValue('DailyFlow', $new_flow);
-								}
-								$this->SetBuffer('Flow', $flow);
-							}
-						}
-						break;
-					default:
-						$this->SendDebug(__FUNCTION_, 'unsupported model ' . $model, 0);
-						break;
+                switch ($model) {
+                    case SENSOR_FLOW_METER:
+                        if (isset($sensor['flow']['week'])) {
+                            $flow = preg_replace('/^([0-9\.,]*).*$/', '$1', $sensor['flow']['week']);
+                            $this->SetValue('Flow', $flow);
+                            if ($with_daily_value) {
+                                $old_flow = $this->GetBuffer('Flow');
+                                $this->SendDebug(__FUNCTION__, 'flow=' . $flow . ', old_flow=' . $old_flow, 0);
+                                if ($old_flow != '' && $old_flow < $flow) {
+                                    $new_flow = $this->GetValue('DailyFlow') + ($flow - $old_flow);
+                                    $this->SendDebug(__FUNCTION__, 'new_flow=' . $new_flow, 0);
+                                    $this->SetValue('DailyFlow', $new_flow);
+                                }
+                                $this->SetBuffer('Flow', $flow);
+                            }
+                        }
+                        break;
+                    default:
+                        $this->SendDebug(__FUNCTION_, 'unsupported model ' . $model, 0);
+                        break;
                 }
             }
         }
-
 
         $this->SetStatus(102);
     }
