@@ -67,8 +67,8 @@ class HydrawiseSensor extends IPSModule
 
         switch ($model) {
             case SENSOR_FLOW_METER:
-                $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
                 $this->MaintainVariable('DailyFlow', $this->Translate('Water usage (day)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
+                $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
                 $mode_txt = 'flow meter';
                 break;
             case SENSOR_NORMALLY_CLOSE_START:
