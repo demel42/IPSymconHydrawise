@@ -88,8 +88,8 @@ class HydrawiseController extends IPSModule
 
         $this->MaintainVariable('DailyReference', $this->Translate('day of cumulation'), IPS_INTEGER, '~UnixTimestampDate', $vpos++, $with_daily_value);
 
-		$this->MaintainVariable('DailyWateringTime', $this->Translate('Watering time (day)'), IPS_STRING, '', $vpos++, $with_info && $with_daily_value);
-		$this->MaintainVariable('DailyWateringTime_seconds', $this->Translate('Watering time (day)'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info && $with_daily_value);
+        $this->MaintainVariable('DailyWateringTime', $this->Translate('Watering time (day)'), IPS_STRING, '', $vpos++, $with_info && $with_daily_value);
+        $this->MaintainVariable('DailyWateringTime_seconds', $this->Translate('Watering time (day)'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info && $with_daily_value);
 
         $this->MaintainVariable('WateringTime', $this->Translate('Watering time (week)'), IPS_STRING, '', $vpos++, $with_info);
         $this->MaintainVariable('WateringTime_seconds', $this->Translate('Watering time (week)'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info);
