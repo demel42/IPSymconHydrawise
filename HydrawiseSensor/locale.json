@@ -7,8 +7,8 @@
 			"optional sensor data": "optionale Daten zum Sensor",
 			" ... daily sum": " ... Tageswerte",
 
-			"Water usage (week)": "",
-			"Water usage (day)": "",
+			"Water usage (week)": "Wasserverbrauch (Woche)",
+			"Water usage (day)": "Wasserverbrauch (heute)",
 			"Sensor": "Sensor",
 			"no": "nein",
 			"normally close, action start": "Ruhezustand geschlossen, Aktion Start",
