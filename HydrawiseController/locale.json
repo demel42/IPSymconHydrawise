@@ -1,6 +1,46 @@
 {
 	"translations": {
 		"de": {
+			"Hydrawise Controller": "Hydrawise Controller",
+			"optional controller data": "optionale Daten zum Controller",
+			" ... last contact to Hydrawise": " ... letze Kommunikation mit Hydrawise",
+			" ... last message": " ... letzte Nachricht",
+			" ... info": " ... zusammengefasste Daten",
+			" ... observations": " ... Wetter-Beobachtungen",
+			" ... forecast": " ... Vorhersage",
+			" ... html-box with state of irrigation": " ... HTML-Box mit dem Status der Bewässerung",
+			" ... daily sum": " ... Tageswerte",
+
+			"no": "nein",
+			"today": "heute",
+			"tomorrow": "morgen",
+			"overmorrow": "übermorgen",
+
+			"State": "Status",
+			"last contact": "letzte Kommunikation",
+			"Message to last contact": "Nchricht zur letzten Kommunikation",
+			"day of cumulation": "Datum zu Tageswerten",
+			"Watering time (day)": "Bewässerungszeit (Tag)",
+			"Watering time (week)": "Bewässerungszeit (Woche)",
+			"Water saving": "Wassereinsparung",
+			"Rainfall (today)": "Regen (Heute)",
+			"Rainfall (week)": "Regeln(Woche)",
+			"currrent Temperature": "aktuelle Temperatur",
+			"maximum Temperature (24h)": "maximale Temperatur (24h)",
+			"Conditions": "Wetterbedingungen",
+			"maximum Temperatur": "maximale Temperatur",
+			"minimum Temperatur": "minimale Temperatur",
+			"Probability of rainfall": "Regenwahrscheinlichkeit",
+			"Windspeed": "Windgeschwindigkeit",
+			"Humidity": "Luftfeuchtigkeit",
+			"State of irrigation": "Status der Bewässerung",
+
+			"Instance getting created": "Instanz wird erstellt",
+			"Instance is active": "Instanz ist aktiv",
+			"Instance is inactive": "Instanz ist inaktiv",
+
+			"Instance is inactive (no data)": "Instanz ist inaktiv (keine Daten)",
+			"Instance is inactive (controller missing)": "Instanz ist inaktiv (Controller fehlt)"
 		}
 	}
 }

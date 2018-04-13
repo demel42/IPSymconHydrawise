@@ -46,7 +46,7 @@ class HydrawiseZone extends IPSModule
 
         $associations = [];
         $associations[] = ['Wert' => -1, 'Name' => $this->Translate('Clear'), 'Farbe' => 0xEE0000];
-        $associations[] = ['Wert' =>  0, 'Name' => $this->Translate('Custom'), 'Farbe' => -1];
+        $associations[] = ['Wert' =>  0, 'Name' => $this->Translate('as stated'), 'Farbe' => -1];
         $associations[] = ['Wert' =>  1, 'Name' => $this->Translate('1 day'), 'Farbe' => -1];
         $associations[] = ['Wert' =>  2, 'Name' => $this->Translate('2 days'), 'Farbe' => -1];
         $associations[] = ['Wert' =>  7, 'Name' => $this->Translate('1 week'), 'Farbe' => -1];
@@ -108,9 +108,8 @@ class HydrawiseZone extends IPSModule
 
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Zone'];
-        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'controller_id'];
-        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'relay_id', 'caption' => 'relay_id'];
         $formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
+        $formElements[] = ['type' => 'Label', 'label' => 'optional zone data'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
         $formElements[] = ['type' => 'Label', 'label' => 'optional script to hide/show variables'];
         $formElements[] = ['type' => 'SelectScript', 'name' => 'visibility_script', 'caption' => 'visibility'];

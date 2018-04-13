@@ -1,6 +1,28 @@
 {
 	"translations": {
 		"de": {
+			"Hydrawise Sensor": "Hydrawise Sensor",
+			"connector": "Anschluss",
+			"model": "Modell",
+			"optional sensor data": "optionale Daten zum Sensor",
+			" ... daily sum": " ... Tageswerte",
+
+			"Water usage (week)": "",
+			"Water usage (day)": "",
+			"Sensor": "Sensor",
+			"no": "nein",
+			"normally close, action start": "Ruhezustand geschlossen, Aktion Start",
+			"normally open, action stop": "Ruhezustand offen, Aktion Stop",
+			"normally close, action stop": "Ruhezustand geschlossen, Aktion Stop",
+			"normally open, action start": "Ruhezustand offen, Aktion Start",
+			"flow meter": "Durchflussmesser",
+
+			"Instance getting created": "Instanz wird erstellt",
+			"Instance is active": "Instanz ist aktiv",
+			"Instance is inactive": "Instanz ist inaktiv",
+
+			"Instance is inactive (no data)": "Instanz ist inaktiv (keine Daten)",
+			"Instance is inactive (controller missing)": "Instanz ist inaktiv (Controller fehlt)"
 		}
 	}
 }

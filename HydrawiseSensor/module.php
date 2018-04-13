@@ -72,16 +72,16 @@ class HydrawiseSensor extends IPSModule
                 $mode_txt = 'flow meter';
                 break;
             case SENSOR_NORMALLY_CLOSE_START:
-                $mode_txt = 'normally close -> start';
+                $mode_txt = 'normally close, action start';
                 break;
             case SENSOR_NORMALLY_OPEN_STOP:
-                $mode_txt = 'normally open -> stop';
+                $mode_txt = 'normally open, action stop';
                 break;
             case SENSOR_NORMALLY_CLOSE_STOP:
-                $mode_txt = 'normally close -> stop';
+                $mode_txt = 'normally close, action stop';
                 break;
             case SENSOR_NORMALLY_OPEN_START:
-                $mode_txt = 'normally open -> start';
+                $mode_txt = 'normally open, action start';
                 break;
             default:
                 $mode_txt = 'unsupported';
@@ -105,17 +105,17 @@ class HydrawiseSensor extends IPSModule
 
         $opts_model = [];
         $opts_model[] = ['label' => $this->Translate('no'), 'value' => 0];
-        $opts_model[] = ['label' => $this->Translate('normally close - start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
-        $opts_model[] = ['label' => $this->Translate('normally open - stop'), 'value' => SENSOR_NORMALLY_OPEN_STOP];
-        $opts_model[] = ['label' => $this->Translate('normally close - stop'), 'value' => SENSOR_NORMALLY_CLOSE_STOP];
-        $opts_model[] = ['label' => $this->Translate('normally open - start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
+        $opts_model[] = ['label' => $this->Translate('normally close, action start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
+        $opts_model[] = ['label' => $this->Translate('normally open, action stop'), 'value' => SENSOR_NORMALLY_OPEN_STOP];
+        $opts_model[] = ['label' => $this->Translate('normally close, action stop'), 'value' => SENSOR_NORMALLY_CLOSE_STOP];
+        $opts_model[] = ['label' => $this->Translate('normally open, action start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
         $opts_model[] = ['label' => $this->Translate('flow meter'), 'value' => SENSOR_FLOW_METER];
 
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Sensor'];
-        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'controller_id'];
         $formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
         $formElements[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
+		$formElements[] = ['type' => 'Label', 'label' => 'optional sensor data'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
 
         $formStatus = [];

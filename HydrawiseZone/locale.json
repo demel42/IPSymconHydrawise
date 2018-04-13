@@ -1,6 +1,47 @@
 {
 	"translations": {
 		"de": {
+			"Hydrawise Zone": "Hydrawise Zone",
+			"connector": "Anschluss",
+			"optional zone data": "optionale Daten zur Zone",
+			" ... daily sum": " ... Tageswerte",
+			"optional script to hide/show variables": "optionales Script um die Sichtbarkeit von Variablen zu steuern",
+			"visibility": "Sichtbarkeit",
+
+			"Stop": "Stop",
+			"Default": "Voreinstellung",
+			"1 min": "1 min",
+			"2 min": "2 min",
+			"5 min": "5 min",
+			"10 min": "10 min",
+			"15 min": "15 min",
+			"20 min": "20 min",
+			"Clear": "Löschen",
+			"as given": "wie stated",
+			"1 day": "1 Tag",
+			"2 days": "2 tage",
+			"1 week": "1 Woche",
+			"Last run": "letzte Bewässerung",
+			"Next run": "nächste Bewässerung",
+			"Zone operation": "",
+			"Suspended until end of": "Ausgesetzt bis Ende",
+			"Zone suspension": "Bewässeung aussetzen",
+			"Duration of run": "Dauer der Bewässerung",
+			"Time left": "verbleibende Zeit",
+			"Water usage": "Wasserverbrauch",
+			"Duration of run (today)": "Bewässerungsdauer (heute)",
+			"Water usage (today)": "Wasserverbrauch (heute)",
+			"no": "nein",
+			"Expander": "Expander",
+			"Zone": "Zone",
+
+			"Instance getting created": "Instanz wird erstellt",
+			"Instance is active": "Instanz ist aktiv",
+			"Instance is inactive": "Instanz ist inaktiv",
+
+			"Instance is inactive (no data)": "Instanz ist inaktiv (keine Daten)",
+			"Instance is inactive (controller missing)": "Instanz ist inaktiv (Controller fehlt)",
+			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)"
 		}
 	}
 }

@@ -1,20 +1,21 @@
 {
 	"translations": {
 		"de": {
-			"Station-Name only needs to be selected if you have more then one":
-				"Stationsname muss nur ausgewählt werden, wenn mehr als eine Station vorhanden ist",
-			"Station-Name": "Stationsname",
+			"Controller": "Controller",
 
 			"Import of controller": "Importieren des Controllers",
+
+			"Sensor": "Sensor",
+			"Zone": "Zone",
+			"Expander": "Expander",
 
 			"Instance getting created": "Instanz wird erstellt",
 			"Instance is active": "Instanz ist aktiv",
 			"Instance is inactive": "Instanz ist inaktiv",
 
 			"Instance is inactive (no data)": "Instanz ist inaktiv (keine Daten)",
-			"Instance is inactive (station missing)": "Instanz ist inaktiv (Controller ist unbekannt)",
-			"Instance is inactive (no station)": "Instanz ist inaktiv (kein Controller vorhanden)",
-			"Instance is inactive (more then one station)": "Instanz ist inaktiv (mehr als ein Controller vorhanden)"
+			"Instance is inactive (controller missing)": "Instanz ist inaktiv (Controller fehlt)",
+			"Instance is inactive (no controller)": "Instanz ist inaktiv (kein Controller vorhanden)"
 		}
 	}
 }

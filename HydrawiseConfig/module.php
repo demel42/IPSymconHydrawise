@@ -51,7 +51,7 @@ class HydrawiseConfig extends IPSModule
         }
 
         $formActions = [];
-        $formActions[] = ['type' => 'Select', 'name' => 'controller_id', 'caption' => 'Controller-Name', 'options' => $options];
+        $formActions[] = ['type' => 'Select', 'name' => 'controller_id', 'caption' => 'Controller', 'options' => $options];
         $formActions[] = ['type' => 'Button', 'label' => 'Import of controller', 'onClick' => 'HydrawiseConfig_Doit($id, $controller_id);'];
 
         $formStatus = [];
@@ -198,7 +198,7 @@ class HydrawiseConfig extends IPSModule
                     continue;
                 }
 
-                $info = 'Sensor ' . $connector . ' (' . $controller_name . '\\' . $sensor_name . ')';
+                $info = $this->Translate('Sensor') . ' ' . $connector . ' (' . $controller_name . '\\' . $sensor_name . ')';
                 $properties = ['model' => $model];
                 $instID = $this->FindOrCreateInstance('{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}', $controller_id, $connector, $sensor_name, $info, $properties, $pos++);
             }
@@ -213,9 +213,9 @@ class HydrawiseConfig extends IPSModule
                 $connector = $relay['relay'];
                 $zone_name = $relay['name'];
                 if ($connector < 100) {
-                    $info = 'Zone ' . $connector;
+                    $info = $this->Translate('Zone') . ' ' . $connector;
                 } else {
-                    $info = 'Expander ' . floor($connector / 100) . ' Zone ' . ($connector % 100);
+                    $info = $this->Translate('Expander') . ' ' . floor($connector / 100) . ' Zone ' . ($connector % 100);
                 }
                 $info .= ' (' . $controller_name . '\\' . $zone_name . ')';
                 $properties = [
