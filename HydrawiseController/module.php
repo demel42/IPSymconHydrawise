@@ -762,7 +762,7 @@ class HydrawiseController extends IPSModule
         $html .= "</head>\n";
         $html .= "<body>\n";
         $html .= "<style>\n";
-        $html .= "body { margin: 1; padding: 0; font-family: 'Open Sans', sans-serif;}\n";
+        $html .= "body { margin: 1; padding: 0; font-family: 'Open Sans', sans-serif; font-size: 14px}\n";
         $html .= "table { border-collapse: collapse; border: 1px solid; margin: 0.5em; width: 95%; }\n";
         $html .= "tr { border-top: 1px solid; border-bottom: 1px solid; } \n";
         $html .= "tr:first-child { border-top: 0 none; } \n";
@@ -770,9 +770,9 @@ class HydrawiseController extends IPSModule
         $html .= "thead tr, tr:nth-child(odd) { background-color: lightgrey; }\n";
         $html .= "thead tr, tr:nth-child(even) { background-color: white; }\n";
         $html .= "tbody th { text-align: left; }\n";
-        $html .= "#spalte_zeitpunkt { width: 100px; }\n";
+        $html .= "#spalte_zeitpunkt { width: 90px; }\n";
         $html .= "#spalte_dauer { width: 40px; }\n";
-        $html .= "#spalte_rest { width: 1400px; }\n";
+        $html .= "#spalte_rest { width: 130px; }\n";
         $html .= "</style>\n";
 
         if ($controller_data != '') {
