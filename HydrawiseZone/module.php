@@ -45,8 +45,7 @@ class HydrawiseZone extends IPSModule
         $this->CreateVarProfile('Hydrawise.ZoneAction', IPS_INTEGER, '', 0, 0, 0, 1, '', $associations);
 
         $associations = [];
-        $associations[] = ['Wert' => -1, 'Name' => $this->Translate('Clear'), 'Farbe' => 0xEE0000];
-        $associations[] = ['Wert' =>  0, 'Name' => $this->Translate('as stated'), 'Farbe' => -1];
+        $associations[] = ['Wert' =>  0, 'Name' => $this->Translate('Clear'), 'Farbe' => 0xEE0000];
         $associations[] = ['Wert' =>  1, 'Name' => $this->Translate('1 day'), 'Farbe' => -1];
         $associations[] = ['Wert' =>  2, 'Name' => $this->Translate('2 days'), 'Farbe' => -1];
         $associations[] = ['Wert' =>  7, 'Name' => $this->Translate('1 week'), 'Farbe' => -1];
@@ -329,16 +328,12 @@ class HydrawiseZone extends IPSModule
             case 'SuspendUntil':
                 $dt = date('d.m.Y H:i:s', $Value);
                 $this->SendDebug(__FUNCTION__, "$Ident=$Value => $dt", 0);
+                $this->Suspend($Value);
                 break;
             case 'SuspendAction':
                 $this->SendDebug(__FUNCTION__, "$Ident=$Value", 0);
-                if ($Value == -1) {
+                if ($Value == 0) {
                     $this->Resume($Value);
-                } elseif ($Value == 0) {
-                    $sec = $this->GetValue('SuspendUntil');
-                    $dt = date('d.m.Y H:i:s', $sec);
-                    $this->SendDebug(__FUNCTION__, "$Ident=$Value => $dt", 0);
-                    $this->Suspend($sec);
                 } else {
                     $sec = $Value * 86400;
                     $dt = new DateTime(date('d.m.Y 23:59:59', time() + $sec));
