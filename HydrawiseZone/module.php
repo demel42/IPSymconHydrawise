@@ -283,7 +283,7 @@ class HydrawiseZone extends IPSModule
                 $this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
                 $this->SendDebug(__FUNCTION__, 'duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
 
-                if ($do_daily) {
+                if ($with_daily_value) {
                     $duration = $this->GetValue('DailyDuration_seconds') + $time_duration;
                     $this->SetValue('DailyDuration', $this->seconds2duration($duration));
                     $this->SetValue('DailyDuration_seconds', $duration);
