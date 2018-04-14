@@ -45,7 +45,7 @@ class HydrawiseZone extends IPSModule
         $this->CreateVarProfile('Hydrawise.ZoneAction', IPS_INTEGER, '', 0, 0, 0, 1, '', $associations);
 
         $associations = [];
-        $associations[] = ['Wert' =>  0, 'Name' => $this->Translate('Clear'), 'Farbe' => 0xEE0000];
+        $associations[] = ['Wert' => -1, 'Name' => $this->Translate('Clear'), 'Farbe' => 0xEE0000];
         $associations[] = ['Wert' =>  1, 'Name' => $this->Translate('1 day'), 'Farbe' => -1];
         $associations[] = ['Wert' =>  2, 'Name' => $this->Translate('2 days'), 'Farbe' => -1];
         $associations[] = ['Wert' =>  7, 'Name' => $this->Translate('1 week'), 'Farbe' => -1];
