@@ -332,7 +332,7 @@ class HydrawiseZone extends IPSModule
                 break;
             case 'SuspendAction':
                 $this->SendDebug(__FUNCTION__, "$Ident=$Value", 0);
-                if ($Value == 0) {
+                if ($Value == -1) {
                     $this->Resume($Value);
                 } else {
                     $sec = $Value * 86400;
