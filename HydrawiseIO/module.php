@@ -75,7 +75,7 @@ class HydrawiseIO extends IPSModule
                     break;
                 case 'CmdUrl':
                     $ret = $this->SendCommand($jdata->Url);
-					$this->SetTimerInterval('UpdateData', 500);
+                    $this->SetTimerInterval('UpdateData', 500);
                     break;
                 default:
                     $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata->Function . '"', 0);
@@ -121,7 +121,7 @@ class HydrawiseIO extends IPSModule
         $this->SendData($data);
         $this->SetBuffer('LastData', $data);
 
-		$this->SetUpdateInterval();
+        $this->SetUpdateInterval();
     }
 
     public function SendCommand(string $cmd_url)
@@ -145,7 +145,7 @@ class HydrawiseIO extends IPSModule
     private function do_HttpRequest($url)
     {
         $this->SendDebug(__FUNCTION__, 'http-get: url=' . $url, 0);
-		$time_start = microtime(true);
+        $time_start = microtime(true);
 
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
@@ -157,7 +157,7 @@ class HydrawiseIO extends IPSModule
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-		$duration = floor((microtime(true) - $time_start) * 100) / 100;
+        $duration = floor((microtime(true) - $time_start) * 100) / 100;
         $this->SendDebug(__FUNCTION__, ' => httpcode=' . $httpcode . ', duration=' . $duration . 's', 0);
 
         $statuscode = 0;
