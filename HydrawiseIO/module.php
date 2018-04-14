@@ -75,7 +75,7 @@ class HydrawiseIO extends IPSModule
                     break;
                 case 'CmdUrl':
                     $ret = $this->SendCommand($jdata->Url);
-                    $this->UpdateData();
+					$this->SetTimerInterval('UpdateData', 500);
                     break;
                 default:
                     $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata->Function . '"', 0);
@@ -120,6 +120,8 @@ class HydrawiseIO extends IPSModule
 
         $this->SendData($data);
         $this->SetBuffer('LastData', $data);
+
+		$this->SetUpdateInterval();
     }
 
     public function SendCommand(string $cmd_url)
@@ -142,6 +144,9 @@ class HydrawiseIO extends IPSModule
 
     private function do_HttpRequest($url)
     {
+        $this->SendDebug(__FUNCTION__, 'http-get: url=' . $url, 0);
+		$time_start = microtime(true);
+
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
@@ -152,7 +157,8 @@ class HydrawiseIO extends IPSModule
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        $this->SendDebug(__FUNCTION__, "url=$url, httpcode=$httpcode", 0);
+		$duration = floor((microtime(true) - $time_start) * 100) / 100;
+        $this->SendDebug(__FUNCTION__, ' => httpcode=' . $httpcode . ', duration=' . $duration . 's', 0);
 
         $statuscode = 0;
         $err = '';
@@ -182,7 +188,7 @@ class HydrawiseIO extends IPSModule
         }
 
         if ($statuscode) {
-            echo "statuscode=$statuscode, err=$err";
+            echo " => statuscode=$statuscode, err=$err";
             $this->SendDebug(__FUNCTION__, $err, 0);
             $this->SetStatus($statuscode);
         }
