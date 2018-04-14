@@ -339,7 +339,8 @@ class HydrawiseController extends IPSModule
                 $relay2running[$relay_id] = true;
 
                 $name = $relay2name[$relay_id];
-                $time_left = $running[$i]->time_left;
+                $time_left = $_running['time_left'];
+                $duration = $this->seconds2duration($time_left);
 
                 $running_zone = [
                         'name'     => $name,
