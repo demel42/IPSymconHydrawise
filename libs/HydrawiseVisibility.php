@@ -19,7 +19,7 @@ foreach ($triggerVars as $triggerVar) {
     switch ($triggerVar) {
         case 'duration':
             $hideVars = ['Duration', 'Duration_seconds'];
-            $do_hide = !($duration > 0 && !$suspended_until);
+            $do_hide = !($duration > 0 && $suspended_until == 0);
             break;
         case 'run':
             $hideVars = ['TimeLeft', 'WaterUsage'];
@@ -27,7 +27,7 @@ foreach ($triggerVars as $triggerVar) {
             break;
         case 'daily':
             $hideVars = ['DailyDuration', 'DailyDuration_seconds', 'DailyWaterUsage'];
-            $do_hide = !($with_daily_value && !$suspended_until);
+            $do_hide = !($with_daily_value && $suspended_until == 0);
             break;
         default:
             $vars = [];
