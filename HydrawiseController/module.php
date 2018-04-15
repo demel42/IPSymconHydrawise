@@ -36,7 +36,7 @@ class HydrawiseController extends IPSModule
 
         $this->RegisterPropertyBoolean('with_last_contact', true);
         $this->RegisterPropertyBoolean('with_last_message', true);
-        $this->RegisterPropertyBoolean('with_info', true);
+        $this->RegisterPropertyBoolean('with_info', false);
         $this->RegisterPropertyBoolean('with_observations', true);
         $this->RegisterPropertyInteger('num_forecast', 0);
         $this->RegisterPropertyBoolean('with_status_box', false);
@@ -96,8 +96,8 @@ class HydrawiseController extends IPSModule
 
         $this->MaintainVariable('WaterSaving', $this->Translate('Water saving'), IPS_INTEGER, 'Hydrawise.WaterSaving', $vpos++, $with_info);
 
-        $this->MaintainVariable('ObsRainDay', $this->Translate('Rainfall (today)'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
-        $this->MaintainVariable('ObsRainWeek', $this->Translate('Rainfall (week)'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
+        $this->MaintainVariable('ObsRainDay', $this->Translate('Rainfall (last day)'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
+        $this->MaintainVariable('ObsRainWeek', $this->Translate('Rainfall (last week)'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
         $this->MaintainVariable('ObsCurTemp', $this->Translate('currrent Temperature'), IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
         $this->MaintainVariable('ObsMaxTemp', $this->Translate('maximum Temperature (24h)'), IPS_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
 
@@ -145,6 +145,11 @@ class HydrawiseController extends IPSModule
         $formElements[] = ['type' => 'Select', 'name' => 'num_forecast', 'caption' => ' ... forecast', 'options' => $opts_forecast];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_status_box', 'caption' => ' ... html-box with state of irrigation'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
+        $formElements[] = ['type' => 'Label', 'label' => 'alternate script to use for ...'];
+        $formElements[] = ['type' => 'SelectScript', 'name' => 'statusbox_script', 'caption' => ' ... "StatusBox"'];
+        $formElements[] = ['type' => 'SelectScript', 'name' => 'webhook_script', 'caption' => ' ... Webhook'];
+        $formElements[] = ['type' => 'Label', 'label' => 'Duration until the connection to hydrawise is marked disturbed'];
+        $formElements[] = ['type' => 'IntervalBox', 'name' => 'minutes2fail', 'caption' => 'Minutes'];
 
         $formStatus = [];
         $formStatus[] = ['code' => '101', 'icon' => 'inactive', 'caption' => 'Instance getting created'];
@@ -401,11 +406,19 @@ class HydrawiseController extends IPSModule
                 $name = $relay['name'];
                 $lastwater = $relay['lastwater'];
 
-                $duration = '';
-                if (isset($relay['run_seconds'])) {
-                    $run_seconds = $relay['run_seconds'];
-                    $duration = $this->seconds2duration($run_seconds);
-                }
+				$run_seconds = 0;
+				$duration = '';
+				$instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
+				foreach ($instIDs as $instID) {
+					$cfg = IPS_GetConfiguration($instID);
+					$jcfg = json_decode($cfg, true);
+					if ($jcfg['relay_id'] == $relay_id) {
+						$varID = @IPS_GetObjectIDByIdent('LastDuration_seconds', $instID);
+						$run_seconds = GetValue($varID);
+						$duration = $this->seconds2duration($run_seconds);
+						break;
+					}
+				}
 
                 $is_today = false;
                 $ts = strtotime($lastwater);
