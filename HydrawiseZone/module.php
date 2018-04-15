@@ -64,17 +64,18 @@ class HydrawiseZone extends IPSModule
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
 
         $vpos = 1;
+
         $this->MaintainVariable('LastRun', $this->Translate('Last run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, true);
-        $this->MaintainVariable('NextRun', $this->Translate('Next run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, true);
-        $this->MaintainVariable('ZoneAction', $this->Translate('Zone operation'), IPS_INTEGER, 'Hydrawise.ZoneAction', $vpos++, true);
-        $this->MaintainVariable('SuspendUntil', $this->Translate('Suspended until end of'), IPS_INTEGER, '~UnixTimestampDate', $vpos++, true);
-        $this->MaintainVariable('SuspendAction', $this->Translate('Zone suspension'), IPS_INTEGER, 'Hydrawise.ZoneSuspend', $vpos++, true);
         $this->MaintainVariable('LastDuration', $this->Translate('Duration of last run'), IPS_STRING, '', $vpos++, true);
         $this->MaintainVariable('LastDuration_seconds', $this->Translate('Duration of last run'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, true);
+        $this->MaintainVariable('NextRun', $this->Translate('Next run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, true);
         $this->MaintainVariable('NextDuration', $this->Translate('Duration of next run'), IPS_STRING, '', $vpos++, true);
         $this->MaintainVariable('NextDuration_seconds', $this->Translate('Duration of next run'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, true);
         $this->MaintainVariable('TimeLeft', $this->Translate('Time left'), IPS_STRING, '', $vpos++, true);
         $this->MaintainVariable('WaterUsage', $this->Translate('Water usage'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
+        $this->MaintainVariable('ZoneAction', $this->Translate('Zone operation'), IPS_INTEGER, 'Hydrawise.ZoneAction', $vpos++, true);
+        $this->MaintainVariable('SuspendUntil', $this->Translate('Suspended until end of'), IPS_INTEGER, '~UnixTimestampDate', $vpos++, true);
+        $this->MaintainVariable('SuspendAction', $this->Translate('Zone suspension'), IPS_INTEGER, 'Hydrawise.ZoneSuspend', $vpos++, true);
         $this->MaintainVariable('DailyDuration', $this->Translate('Duration of runs (today)'), IPS_STRING, '', $vpos++, $with_daily_value);
         $this->MaintainVariable('DailyDuration_seconds', $this->Translate('Duration of runs (today)'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_daily_value);
         $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
