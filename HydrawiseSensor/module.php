@@ -113,6 +113,7 @@ class HydrawiseSensor extends IPSModule
 
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Sensor'];
+        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
         $formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
         $formElements[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
         $formElements[] = ['type' => 'Label', 'label' => 'optional sensor data'];
