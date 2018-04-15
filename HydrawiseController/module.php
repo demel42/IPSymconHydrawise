@@ -406,19 +406,19 @@ class HydrawiseController extends IPSModule
                 $name = $relay['name'];
                 $lastwater = $relay['lastwater'];
 
-				$run_seconds = 0;
-				$duration = '';
-				$instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
-				foreach ($instIDs as $instID) {
-					$cfg = IPS_GetConfiguration($instID);
-					$jcfg = json_decode($cfg, true);
-					if ($jcfg['relay_id'] == $relay_id) {
-						$varID = @IPS_GetObjectIDByIdent('LastDuration_seconds', $instID);
-						$run_seconds = GetValue($varID);
-						$duration = $this->seconds2duration($run_seconds);
-						break;
-					}
-				}
+                $run_seconds = 0;
+                $duration = '';
+                $instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
+                foreach ($instIDs as $instID) {
+                    $cfg = IPS_GetConfiguration($instID);
+                    $jcfg = json_decode($cfg, true);
+                    if ($jcfg['relay_id'] == $relay_id) {
+                        $varID = @IPS_GetObjectIDByIdent('LastDuration_seconds', $instID);
+                        $run_seconds = GetValue($varID);
+                        $duration = $this->seconds2duration($run_seconds);
+                        break;
+                    }
+                }
 
                 $is_today = false;
                 $ts = strtotime($lastwater);

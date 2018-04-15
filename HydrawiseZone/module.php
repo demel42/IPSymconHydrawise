@@ -109,8 +109,8 @@ class HydrawiseZone extends IPSModule
 
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Zone'];
-		$formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
-		$formElements[] = ['type' => 'ValidationTextBox', 'name' => 'relay_id', 'caption' => 'Zone-ID'];
+        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
+        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'relay_id', 'caption' => 'Zone-ID'];
         $formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
         $formElements[] = ['type' => 'Label', 'label' => 'optional zone data'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
@@ -245,7 +245,7 @@ class HydrawiseZone extends IPSModule
 
         $this->SetValue('SuspendAction', $is_suspended ? -1 : 1);
 
-		$run_seconds = isset($relay['run_seconds']) ? $relay['run_seconds'] : 0;
+        $run_seconds = isset($relay['run_seconds']) ? $relay['run_seconds'] : 0;
         $this->SetValue('NextDuration_seconds', $run_seconds);
         $this->SetValue('NextDuration', $this->seconds2duration($run_seconds));
 
@@ -310,7 +310,7 @@ class HydrawiseZone extends IPSModule
                     'time_left'        => $time_left,
                 ];
             $ret = IPS_RunScriptWaitEx($visibility_script, $opts);
-            $this->SendDebug(__FUNCTION__, 'visibility_script: '. $ret, 0);
+            $this->SendDebug(__FUNCTION__, 'visibility_script: ' . $ret, 0);
         }
 
         $this->SetStatus(102);

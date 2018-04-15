@@ -1,4 +1,4 @@
-<?
+<?php
 
 $instID = $_IPS['InstanceID'];
 
@@ -19,15 +19,15 @@ foreach ($triggerVars as $triggerVar) {
     switch ($triggerVar) {
         case 'next_duration':
             $hideVars = ['NextDuration', 'NextDuration_seconds'];
-            $do_hide = ! ($next_duration > 0 && $suspended_until == 0);
+            $do_hide = !($next_duration > 0 && $suspended_until == 0);
             break;
         case 'run':
             $hideVars = ['TimeLeft', 'WaterUsage'];
-            $do_hide = ! ($time_left > 0);
+            $do_hide = !($time_left > 0);
             break;
         case 'daily':
             $hideVars = ['DailyDuration', 'DailyDuration_seconds', 'DailyWaterUsage'];
-            $do_hide = ! ($with_daily_value && $suspended_until == 0);
+            $do_hide = !($with_daily_value && $suspended_until == 0);
             break;
         default:
             $vars = [];
@@ -62,5 +62,3 @@ if ($msg_h != []) {
 }
 
 echo $msg . "\n";
-
-?>
