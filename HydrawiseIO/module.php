@@ -15,7 +15,7 @@ class HydrawiseIO extends IPSModule
 
         $this->RegisterPropertyString('api_key', '');
 
-        $this->RegisterPropertyInteger('UpdateDataInterval', '5');
+        $this->RegisterPropertyInteger('UpdateDataInterval', '60');
 
         $this->RegisterTimer('UpdateData', 0, 'HydrawiseIO_UpdateData(' . $this->InstanceID . ');');
     }
@@ -49,8 +49,8 @@ class HydrawiseIO extends IPSModule
 
     protected function SetUpdateInterval()
     {
-        $min = $this->ReadPropertyInteger('UpdateDataInterval');
-        $msec = $min > 0 ? $min * 1000 * 60 : 0;
+        $sec = $this->ReadPropertyInteger('UpdateDataInterval');
+        $msec = $sec > 0 ? $sec * 1000 : 0;
         $this->SetTimerInterval('UpdateData', $msec);
     }
 

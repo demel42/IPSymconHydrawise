@@ -6,8 +6,8 @@
 				{ "type": "ValidationTextBox", "name": "api_key", "caption": "API-Key" },
 
 				{ "type": "Label", "label": "" },
-				{ "type": "Label", "label": "Update data every X minutes" },
-				{ "type": "IntervalBox", "name": "UpdateDataInterval", "caption": "Minutes" }
+				{ "type": "Label", "label": "Update data every X seconds" },
+				{ "type": "IntervalBox", "name": "UpdateDataInterval", "caption": "Seconds" }
 			],
 	"actions":
 			[

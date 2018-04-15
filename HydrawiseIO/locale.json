@@ -6,8 +6,8 @@
 				"API-Key von https://app.hydrawise.com/config/account",
 			"API-Key": "API-Key",
 
-			"Update data every X minutes": "Aktualisiere Daten alle X Minuten",
-			"Minutes": "Minuten",
+			"Update data every X seconds": "Aktualisiere Daten alle X Sekunden",
+			"Seconds": "Sekunden",
 
 			"Update Data": "Aktualisiere Daten",
 
