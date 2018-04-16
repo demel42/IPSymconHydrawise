@@ -244,8 +244,8 @@ class HydrawiseZone extends IPSModule
         $this->SetValue('SuspendAction', $is_suspended ? -1 : 1);
 
         $run_seconds = isset($relay['run_seconds']) ? $relay['run_seconds'] : 0;
-		// auf ganze Minuten aufrunden, weil Läufe im Minutenraster durchgeführt werden (Ausnahme: manueller Abbruch)
-		$run_seconds = ceil($run_seconds / 60);
+        // auf ganze Minuten aufrunden, weil Läufe im Minutenraster durchgeführt werden (Ausnahme: manueller Abbruch)
+        $run_seconds = ceil($run_seconds / 60);
         $this->SetValue('NextDuration', $run_seconds);
 
         $this->SendDebug(__FUNCTION__, "lastwater=$lastwater => $lastrun, nicetime=$nicetime => $nextrun, suspended=$suspended", 0);
@@ -279,8 +279,8 @@ class HydrawiseZone extends IPSModule
                 $water_usage = $current_run['water_usage'];
 
                 $time_duration = $time_end - $time_begin;
-				// auf ganze Minuten aufrunden, weil Läufe im Minutenraster durchgeführt werden (Ausnahme: manueller Abbruch)
-				$time_duration = ceil($time_duration / 60);
+                // auf ganze Minuten aufrunden, weil Läufe im Minutenraster durchgeführt werden (Ausnahme: manueller Abbruch)
+                $time_duration = ceil($time_duration / 60);
                 $time_done = $time_end - $time_begin - $time_left;
 
                 $water_estimated = $water_usage / $time_done * $time_duration;
@@ -288,9 +288,8 @@ class HydrawiseZone extends IPSModule
                 $this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
                 $this->SendDebug(__FUNCTION__, 'duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
 
-				$this->SetValue('LastDuration', $time_duration);
+                $this->SetValue('LastDuration', $time_duration);
                 if ($with_daily_value) {
-
                     $duration = $this->GetValue('DailyDuration') + $time_duration;
                     $this->SetValue('DailyDuration', $duration);
 

@@ -273,8 +273,8 @@ class HydrawiseController extends IPSModule
                     $this->SendDebug(__FUNCTION__, 'new_watering_time=' . $new_watering_time, 0);
                     $this->SetValue('DailyWateringTime', $new_watering_time);
                 } else {
-					$this->SendDebug(__FUNCTION__, 'weekly watering_time=' . $watering_time . ' => unchanged', 0);
-				}
+                    $this->SendDebug(__FUNCTION__, 'weekly watering_time=' . $watering_time . ' => unchanged', 0);
+                }
                 $this->SetBuffer('WateringTime', $watering_time);
             }
         }
@@ -353,7 +353,7 @@ class HydrawiseController extends IPSModule
 
                 $duration = '';
                 if (isset($relay['run_seconds'])) {
-					// auf Minuten aufrunden
+                    // auf Minuten aufrunden
                     $run_seconds = ceil($relay['run_seconds'] / 60) * 60;
                     $duration = $this->seconds2duration($run_seconds);
                 }
