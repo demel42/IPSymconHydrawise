@@ -214,12 +214,13 @@ class HydrawiseSensor extends IPSModule
                             $this->SetValue('Flow', $flow);
                             if ($with_daily_value) {
                                 $old_flow = $this->GetBuffer('Flow');
-                                $this->SendDebug(__FUNCTION__, 'flow=' . $flow . ', old_flow=' . $old_flow, 0);
                                 if ($old_flow != '' && $old_flow < $flow) {
                                     $new_flow = $this->GetValue('DailyFlow') + ($flow - $old_flow);
                                     $this->SendDebug(__FUNCTION__, 'new_flow=' . $new_flow, 0);
                                     $this->SetValue('DailyFlow', $new_flow);
-                                }
+                                } else {
+									$this->SendDebug(__FUNCTION__, 'weekly flow=' . $flow . ' => unchanged', 0);
+								}
                                 $this->SetBuffer('Flow', $flow);
                             }
                         }

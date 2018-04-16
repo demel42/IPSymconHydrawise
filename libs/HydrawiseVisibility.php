@@ -18,7 +18,7 @@ $triggerVars = ['next_duration', 'run', 'daily'];
 foreach ($triggerVars as $triggerVar) {
     switch ($triggerVar) {
         case 'next_duration':
-            $hideVars = ['NextDuration', 'NextDuration_seconds'];
+            $hideVars = ['NextDuration'];
             $do_hide = !($next_duration > 0 && $suspended_until == 0);
             break;
         case 'run':
@@ -26,7 +26,7 @@ foreach ($triggerVars as $triggerVar) {
             $do_hide = !($time_left > 0);
             break;
         case 'daily':
-            $hideVars = ['DailyDuration', 'DailyDuration_seconds', 'DailyWaterUsage'];
+            $hideVars = ['DailyDuration', 'DailyWaterUsage'];
             $do_hide = !($with_daily_value && $suspended_until == 0);
             break;
         default:

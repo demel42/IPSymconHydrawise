@@ -48,7 +48,7 @@ class HydrawiseController extends IPSModule
         $this->CreateVarProfile('Hydrawise.ProbabilityOfRain', IPS_INTEGER, ' %', 0, 0, 0, 0, 'Rainfall');
         $this->CreateVarProfile('Hydrawise.WindSpeed', IPS_FLOAT, ' km/h', 0, 100, 0, 0, 'WindSpeed');
         $this->CreateVarProfile('Hydrawise.Humidity', IPS_FLOAT, ' %', 0, 100, 0, 0, 'Drops');
-        $this->CreateVarProfile('Hydrawise.Duration', IPS_INTEGER, ' s', 0, 0, 0, 0, 'Hourglass');
+        $this->CreateVarProfile('Hydrawise.Duration', IPS_INTEGER, ' min', 0, 0, 0, 0, 'Hourglass');
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
 
@@ -85,15 +85,9 @@ class HydrawiseController extends IPSModule
         $this->MaintainVariable('Status', $this->Translate('State'), IPS_BOOLEAN, '~Alert.Reversed', $vpos++, true);
         $this->MaintainVariable('LastContact', $this->Translate('last contact'), IPS_INTEGER, '~UnixTimestamp', $vpos++, $with_last_contact);
         $this->MaintainVariable('LastMessage', $this->Translate('Message to last contact'), IPS_STRING, '', $vpos++, $with_last_message);
-
         $this->MaintainVariable('DailyReference', $this->Translate('day of cumulation'), IPS_INTEGER, '~UnixTimestampDate', $vpos++, $with_daily_value);
-
-        $this->MaintainVariable('DailyWateringTime', $this->Translate('Watering time (day)'), IPS_STRING, '', $vpos++, $with_info && $with_daily_value);
-        $this->MaintainVariable('DailyWateringTime_seconds', $this->Translate('Watering time (day)'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info && $with_daily_value);
-
-        $this->MaintainVariable('WateringTime', $this->Translate('Watering time (week)'), IPS_STRING, '', $vpos++, $with_info);
-        $this->MaintainVariable('WateringTime_seconds', $this->Translate('Watering time (week)'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info);
-
+        $this->MaintainVariable('DailyWateringTime', $this->Translate('Watering time (day)'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info && $with_daily_value);
+        $this->MaintainVariable('WateringTime', $this->Translate('Watering time (week)'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info);
         $this->MaintainVariable('WaterSaving', $this->Translate('Water saving'), IPS_INTEGER, 'Hydrawise.WaterSaving', $vpos++, $with_info);
 
         $this->MaintainVariable('ObsRainDay', $this->Translate('Rainfall (last day)'), IPS_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
@@ -267,23 +261,20 @@ class HydrawiseController extends IPSModule
 
         if ($with_info) {
             $watering_time = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['watering_time']);
-            $watering_time *= 60;
-
-            $this->SetValue('WateringTime', $this->seconds2duration($watering_time));
-            $this->SetValue('WateringTime_seconds', $watering_time);
+            $this->SetValue('WateringTime', $watering_time);
 
             $water_saving = $controller['water_saving'];
             $this->SetValue('WaterSaving', $water_saving);
 
             if ($with_daily_value) {
                 $old_watering_time = $this->GetBuffer('WateringTime');
-                $this->SendDebug(__FUNCTION__, 'watering_time=' . $watering_time . ', old_watering_time=' . $old_watering_time, 0);
                 if ($old_watering_time != '' && $old_watering_time < $watering_time) {
-                    $new_watering_time = $this->GetValue('DailyWateringTime_seconds') + ($watering_time - $old_watering_time);
+                    $new_watering_time = $this->GetValue('DailyWateringTime') + ($watering_time - $old_watering_time);
                     $this->SendDebug(__FUNCTION__, 'new_watering_time=' . $new_watering_time, 0);
-                    $this->SetValue('DailyWateringTime', $this->seconds2duration($new_watering_time));
-                    $this->SetValue('DailyWateringTime_seconds', $new_watering_time);
-                }
+                    $this->SetValue('DailyWateringTime', $new_watering_time);
+                } else {
+					$this->SendDebug(__FUNCTION__, 'weekly watering_time=' . $watering_time . ' => unchanged', 0);
+				}
                 $this->SetBuffer('WateringTime', $watering_time);
             }
         }
@@ -362,7 +353,8 @@ class HydrawiseController extends IPSModule
 
                 $duration = '';
                 if (isset($relay['run_seconds'])) {
-                    $run_seconds = $relay['run_seconds'];
+					// auf Minuten aufrunden
+                    $run_seconds = ceil($relay['run_seconds'] / 60) * 60;
                     $duration = $this->seconds2duration($run_seconds);
                 }
 
@@ -406,16 +398,16 @@ class HydrawiseController extends IPSModule
                 $name = $relay['name'];
                 $lastwater = $relay['lastwater'];
 
-                $run_seconds = 0;
+                $secs = 0;
                 $duration = '';
                 $instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
                 foreach ($instIDs as $instID) {
                     $cfg = IPS_GetConfiguration($instID);
                     $jcfg = json_decode($cfg, true);
                     if ($jcfg['relay_id'] == $relay_id) {
-                        $varID = @IPS_GetObjectIDByIdent('LastDuration_seconds', $instID);
-                        $run_seconds = GetValue($varID);
-                        $duration = $this->seconds2duration($run_seconds);
+                        $varID = @IPS_GetObjectIDByIdent('LastDuration', $instID);
+                        $secs = GetValue($varID) * 60;
+                        $duration = $this->seconds2duration($secs);
                         break;
                     }
                 }
@@ -508,8 +500,7 @@ class HydrawiseController extends IPSModule
         $this->SendDebug(__FUNCTION__, '', 0);
 
         if ($with_daily_value) {
-            $this->SetValue('DailyWateringTime', '');
-            $this->SetValue('DailyWateringTime_seconds', 0);
+            $this->SetValue('DailyWateringTime', 0);
         }
 
         $data = ['DataID' => '{5BF2F1ED-7782-457B-856F-D4F388CBF060}', 'Function' => 'ClearDailyValue', 'controller_id' => $controller_id];
