@@ -740,46 +740,6 @@ class HydrawiseController extends IPSModule
             $html .= "</table>\n";
         }
 
-        // was war heute?
-        $b = false;
-        foreach ($done_zones as $zone) {
-            $name = $zone['name'];
-            $timestamp = $zone['timestamp'];
-            $daily_duration = $zone['daily_duration'];
-            if (!($daily_duration > 0)) {
-                continue;
-            }
-            $_daily_duration = $this->seconds2duration($daily_duration * 60);
-            $daily_waterusage = $zone['daily_waterusage'];
-
-            if (!$b) {
-                $html .= "<br>\n";
-                $html .= "<table>\n";
-                $html .= "<colgroup><col></colgroup>\n";
-                $html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
-                $html .= "<colgroup><col id=\"spalte_volumen\"></colgroup>\n";
-                $html .= "<thead>\n";
-                $html .= "<tr>\n";
-                $html .= "<th>heute bereits durchgeführte Bewässerung</th>\n";
-                $html .= "<th>Dauer</th>\n";
-                $html .= "<th>Menge</th>\n";
-                $html .= "</tr>\n";
-                $html .= "</thead>\n";
-                $html .= "<tdata>\n";
-                $b = true;
-            }
-
-            $html .= "<tr>\n";
-            $html .= "<td>$name</td>\n";
-            $html .= "<td>$_daily_duration</td>\n";
-            $html .= "<td>$daily_waterusage l</td>\n";
-            $html .= "</tr>\n";
-        }
-        if ($b) {
-            $html .= "</tdata>\n";
-            $html .= "</table>\n";
-        }
-
         // was kommt in den nächsten Tagen
         $b = false;
         foreach ($future_zones as $zone) {
