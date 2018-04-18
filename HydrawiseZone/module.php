@@ -283,7 +283,7 @@ class HydrawiseZone extends IPSModule
                 $time_duration = ceil($time_duration / 60);
                 $time_done = $time_end - $time_begin - $time_left;
 
-                $water_estimated = $water_usage / $time_done * $time_duration;
+                $water_estimated = $water_usage / $time_done * ($time_duration * 60);
 
                 $this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
                 $this->SendDebug(__FUNCTION__, 'duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
