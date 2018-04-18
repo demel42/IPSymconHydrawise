@@ -398,20 +398,6 @@ class HydrawiseController extends IPSModule
                 $name = $relay['name'];
                 $lastwater = $relay['lastwater'];
 
-                $secs = 0;
-                $duration = '';
-                $instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
-                foreach ($instIDs as $instID) {
-                    $cfg = IPS_GetConfiguration($instID);
-                    $jcfg = json_decode($cfg, true);
-                    if ($jcfg['relay_id'] == $relay_id) {
-                        $varID = @IPS_GetObjectIDByIdent('LastDuration', $instID);
-                        $secs = GetValue($varID) * 60;
-                        $duration = $this->seconds2duration($secs);
-                        break;
-                    }
-                }
-
                 $is_today = false;
                 $ts = strtotime($lastwater);
                 if ($ts) {
@@ -429,10 +415,39 @@ class HydrawiseController extends IPSModule
                     continue;
                 }
 
+                $duration = '';
+                $daily_duration = '';
+                $daily_waterusage = '';
+                $instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
+                foreach ($instIDs as $instID) {
+                    $cfg = IPS_GetConfiguration($instID);
+                    $jcfg = json_decode($cfg, true);
+                    if ($jcfg['relay_id'] == $relay_id) {
+                        $varID = @IPS_GetObjectIDByIdent('LastDuration', $instID);
+						if ($varID) {
+							$secs = GetValue($varID) * 60;
+							$duration = $this->seconds2duration($secs);
+						}
+						if ($jcfg['with_daily_value']) {
+							$varID = @IPS_GetObjectIDByIdent('DailyDuration', $instID);
+							if ($varID) {
+								$daily_duration = GetValue($varID);
+							}
+							$varID = @IPS_GetObjectIDByIdent('DailyWaterUsage', $instID);
+							if ($varID) {
+								$daily_waterusage = GetValue($varID);
+							}
+						}
+                        break;
+                    }
+                }
+
                 $done_zone = [
-                        'name'      => $name,
-                        'timestamp' => $ts,
-                        'duration'  => $duration
+                        'name'              => $name,
+                        'timestamp'         => $ts,
+                        'duration'          => $duration,
+						'daily_duration'    => $daily_duration,
+						'daily_waterusage'  => $daily_waterusage,
                     ];
                 $done_zones[] = $done_zone;
             }
@@ -596,6 +611,7 @@ class HydrawiseController extends IPSModule
         $html .= "tbody th { text-align: left; }\n";
         $html .= "#spalte_zeitpunkt { width: 120px; }\n";
         $html .= "#spalte_dauer { width: 60px; }\n";
+        $html .= "#spalte_volumen { width: 100px; }\n";
         $html .= "#spalte_rest { width: 180px; }\n";
         $html .= "</style>\n";
 
@@ -700,6 +716,45 @@ class HydrawiseController extends IPSModule
             $html .= "<td>$name</td>\n";
             $html .= "<td>$time</td>\n";
             $html .= "<td>$duration</td>\n";
+            $html .= "</tr>\n";
+        }
+        if ($b) {
+            $html .= "</tdata>\n";
+            $html .= "</table>\n";
+        }
+
+        // was war heute?
+        $b = false;
+        foreach ($done_zones as $zone) {
+            $name = $zone['name'];
+            $timestamp = $zone['timestamp'];
+			$daily_duration = $zone['daily_duration'];
+			if (!($daily_duration > 0))
+				continue;
+			$_daily_duration = $this->seconds2duration($daily_duration * 60);
+			$daily_waterusage = $zone['daily_waterusage'];
+
+            if (!$b) {
+                $html .= "<br>\n";
+                $html .= "<table>\n";
+                $html .= "<colgroup><col></colgroup>\n";
+                $html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+                $html .= "<colgroup><col id=\"spalte_volumen\"></colgroup>\n";
+                $html .= "<thead>\n";
+                $html .= "<tr>\n";
+                $html .= "<th>heute bereits durchgeführte Bewässerung</th>\n";
+                $html .= "<th>Dauer</th>\n";
+                $html .= "<th>Menge</th>\n";
+                $html .= "</tr>\n";
+                $html .= "</thead>\n";
+                $html .= "<tdata>\n";
+                $b = true;
+            }
+
+            $html .= "<tr>\n";
+            $html .= "<td>$name</td>\n";
+            $html .= "<td>$_daily_duration</td>\n";
+            $html .= "<td>$daily_waterusage l</td>\n";
             $html .= "</tr>\n";
         }
         if ($b) {
