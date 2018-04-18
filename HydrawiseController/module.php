@@ -424,20 +424,20 @@ class HydrawiseController extends IPSModule
                     $jcfg = json_decode($cfg, true);
                     if ($jcfg['relay_id'] == $relay_id) {
                         $varID = @IPS_GetObjectIDByIdent('LastDuration', $instID);
-						if ($varID) {
-							$secs = GetValue($varID) * 60;
-							$duration = $this->seconds2duration($secs);
-						}
-						if ($jcfg['with_daily_value']) {
-							$varID = @IPS_GetObjectIDByIdent('DailyDuration', $instID);
-							if ($varID) {
-								$daily_duration = GetValue($varID);
-							}
-							$varID = @IPS_GetObjectIDByIdent('DailyWaterUsage', $instID);
-							if ($varID) {
-								$daily_waterusage = GetValue($varID);
-							}
-						}
+                        if ($varID) {
+                            $secs = GetValue($varID) * 60;
+                            $duration = $this->seconds2duration($secs);
+                        }
+                        if ($jcfg['with_daily_value']) {
+                            $varID = @IPS_GetObjectIDByIdent('DailyDuration', $instID);
+                            if ($varID) {
+                                $daily_duration = GetValue($varID);
+                            }
+                            $varID = @IPS_GetObjectIDByIdent('DailyWaterUsage', $instID);
+                            if ($varID) {
+                                $daily_waterusage = GetValue($varID);
+                            }
+                        }
                         break;
                     }
                 }
@@ -446,8 +446,8 @@ class HydrawiseController extends IPSModule
                         'name'              => $name,
                         'timestamp'         => $ts,
                         'duration'          => $duration,
-						'daily_duration'    => $daily_duration,
-						'daily_waterusage'  => $daily_waterusage,
+                        'daily_duration'    => $daily_duration,
+                        'daily_waterusage'  => $daily_waterusage,
                     ];
                 $done_zones[] = $done_zone;
             }
@@ -728,11 +728,12 @@ class HydrawiseController extends IPSModule
         foreach ($done_zones as $zone) {
             $name = $zone['name'];
             $timestamp = $zone['timestamp'];
-			$daily_duration = $zone['daily_duration'];
-			if (!($daily_duration > 0))
-				continue;
-			$_daily_duration = $this->seconds2duration($daily_duration * 60);
-			$daily_waterusage = $zone['daily_waterusage'];
+            $daily_duration = $zone['daily_duration'];
+            if (!($daily_duration > 0)) {
+                continue;
+            }
+            $_daily_duration = $this->seconds2duration($daily_duration * 60);
+            $daily_waterusage = $zone['daily_waterusage'];
 
             if (!$b) {
                 $html .= "<br>\n";
