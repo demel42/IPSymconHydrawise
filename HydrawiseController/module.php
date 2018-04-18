@@ -695,9 +695,9 @@ class HydrawiseController extends IPSModule
             $timestamp = $zone['timestamp'];
             $time = date('H:i', $timestamp);
             $duration = $zone['duration'];
-			$daily_duration = $zone['daily_duration'];
-			$_daily_duration = $this->seconds2duration($daily_duration * 60);
-			$daily_waterusage = ceil($zone['daily_waterusage']);
+            $daily_duration = $zone['daily_duration'];
+            $_daily_duration = $this->seconds2duration($daily_duration * 60);
+            $daily_waterusage = ceil($zone['daily_waterusage']);
 
             if (!$b) {
                 $html .= "<br>\n";
@@ -962,9 +962,9 @@ class HydrawiseController extends IPSModule
                 $timestamp = $zone['timestamp'];
                 $time = date('H:i', $timestamp);
                 $duration = $zone['duration'];
-				$daily_duration = $zone['daily_duration'];
-				$_daily_duration = $this->seconds2duration($daily_duration * 60);
-				$daily_waterusage = ceil($zone['daily_waterusage']);
+                $daily_duration = $zone['daily_duration'];
+                $_daily_duration = $this->seconds2duration($daily_duration * 60);
+                $daily_waterusage = ceil($zone['daily_waterusage']);
 
                 if (!$b) {
                     $html .= "heute bereits durchgeführte Bewässerung\n";
@@ -975,8 +975,8 @@ class HydrawiseController extends IPSModule
                     $html .= "<thead>\n";
                     $html .= "<tr>\n";
                     $html .= "<th>Bezeichnung</th>\n";
-					$html .= "<th>Dauer</th>\n";
-					$html .= "<th>Menge</th>\n";
+                    $html .= "<th>Dauer</th>\n";
+                    $html .= "<th>Menge</th>\n";
                     $html .= "</tr>\n";
                     $html .= "</thead>\n";
                     $html .= "<tdata>\n";
@@ -985,8 +985,8 @@ class HydrawiseController extends IPSModule
 
                 $html .= "<tr>\n";
                 $html .= "<td>$name</td>\n";
-				$html .= "<td align='right'>$_daily_duration</td>\n";
-				$html .= "<td align='right'>$daily_waterusage l</td>\n";
+                $html .= "<td align='right'>$_daily_duration</td>\n";
+                $html .= "<td align='right'>$daily_waterusage l</td>\n";
                 $html .= "</tr>\n";
             }
             if ($b) {
