@@ -398,20 +398,6 @@ class HydrawiseController extends IPSModule
                 $name = $relay['name'];
                 $lastwater = $relay['lastwater'];
 
-                $secs = 0;
-                $duration = '';
-                $instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
-                foreach ($instIDs as $instID) {
-                    $cfg = IPS_GetConfiguration($instID);
-                    $jcfg = json_decode($cfg, true);
-                    if ($jcfg['relay_id'] == $relay_id) {
-                        $varID = @IPS_GetObjectIDByIdent('LastDuration', $instID);
-                        $secs = GetValue($varID) * 60;
-                        $duration = $this->seconds2duration($secs);
-                        break;
-                    }
-                }
-
                 $is_today = false;
                 $ts = strtotime($lastwater);
                 if ($ts) {
@@ -429,10 +415,39 @@ class HydrawiseController extends IPSModule
                     continue;
                 }
 
+                $duration = '';
+                $daily_duration = '';
+                $daily_waterusage = '';
+                $instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
+                foreach ($instIDs as $instID) {
+                    $cfg = IPS_GetConfiguration($instID);
+                    $jcfg = json_decode($cfg, true);
+                    if ($jcfg['relay_id'] == $relay_id) {
+                        $varID = @IPS_GetObjectIDByIdent('LastDuration', $instID);
+						if ($varID) {
+							$secs = GetValue($varID) * 60;
+							$duration = $this->seconds2duration($secs);
+						}
+						if ($jcfg['with_daily_value']) {
+							$varID = @IPS_GetObjectIDByIdent('DailyDuration', $instID);
+							if ($varID) {
+								$daily_duration = GetValue($varID);
+							}
+							$varID = @IPS_GetObjectIDByIdent('DailyWaterUsage', $instID);
+							if ($varID) {
+								$daily_waterusage = GetValue($varID);
+							}
+						}
+                        break;
+                    }
+                }
+
                 $done_zone = [
-                        'name'      => $name,
-                        'timestamp' => $ts,
-                        'duration'  => $duration
+                        'name'              => $name,
+                        'timestamp'         => $ts,
+                        'duration'          => $duration,
+						'daily_duration'    => $daily_duration,
+						'daily_waterusage'  => $daily_waterusage,
                     ];
                 $done_zones[] = $done_zone;
             }
@@ -594,9 +609,11 @@ class HydrawiseController extends IPSModule
         $html .= "tr:first-child { border-top: 0 none; } \n";
         $html .= "th, td { border: 1px solid; margin: 1; padding: 3px; } \n";
         $html .= "tbody th { text-align: left; }\n";
-        $html .= "#spalte_zeitpunkt { width: 120px; }\n";
+        $html .= "#spalte_zeitpunkt { width: 110px; }\n";
+        $html .= "#spalte_uhrzeit { width: 70px; }\n";
         $html .= "#spalte_dauer { width: 60px; }\n";
-        $html .= "#spalte_rest { width: 180px; }\n";
+        $html .= "#spalte_volumen { width: 70px; }\n";
+        $html .= "#spalte_rest { width: 170px; }\n";
         $html .= "</style>\n";
 
         $running_zones = $controller_data['running_zones'];
@@ -614,7 +631,7 @@ class HydrawiseController extends IPSModule
                 $html .= "<br>\n";
                 $html .= "<table>\n";
                 $html .= "<colgroup><col></colgroup>\n";
-                $html .= "<colgroup><col id=\"spalte_rest\"></colgroup>\n";
+                $html .= "<colgroup><col id='spalte_rest'></colgroup>\n";
                 $html .= "<thead>\n";
                 $html .= "<tr>\n";
                 $html .= "<th>derzeitige Bewässerung</th>\n";
@@ -647,8 +664,8 @@ class HydrawiseController extends IPSModule
                 $html .= "<br>\n";
                 $html .= "<table>\n";
                 $html .= "<colgroup><col></colgroup>\n";
-                $html .= "<colgroup><col id=\"spalte_zeitpunkt\"></colgroup>\n";
-                $html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+                $html .= "<colgroup><col id='spalte_zeitpunkt'></colgroup>\n";
+                $html .= "<colgroup><col id='spalte_dauer'></colgroup>\n";
                 $html .= "<thead>\n";
                 $html .= "<tr>\n";
                 $html .= "<th>heute noch geplante Bewässerung</th>\n";
@@ -662,8 +679,8 @@ class HydrawiseController extends IPSModule
 
             $html .= "<tr>\n";
             $html .= "<td>$name</td>\n";
-            $html .= "<td>$time</td>\n";
-            $html .= "<td>$duration</td>\n";
+            $html .= "<td class='right-align'>$time</td>\n";
+            $html .= "<td class='right-align'>$duration</td>\n";
             $html .= "</tr>\n";
         }
         if ($b) {
@@ -678,19 +695,33 @@ class HydrawiseController extends IPSModule
             $timestamp = $zone['timestamp'];
             $time = date('H:i', $timestamp);
             $duration = $zone['duration'];
+			$daily_duration = $zone['daily_duration'];
+			$_daily_duration = $this->seconds2duration($daily_duration * 60);
+			$daily_waterusage = ceil($zone['daily_waterusage']);
 
             if (!$b) {
                 $html .= "<br>\n";
                 $html .= "<table>\n";
                 $html .= "<colgroup><col></colgroup>\n";
-                $html .= "<colgroup><col id=\"spalte_zeitpunkt\"></colgroup>\n";
-                $html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+                $html .= "<colgroup><col id='spalte_uhrzeit'></colgroup>\n";
+                $html .= "<colgroup><col id='spalte_dauer'></colgroup>\n";
+                $html .= "<colgroup><col id='spalte_dauer'></colgroup>\n";
+                $html .= "<colgroup><col id='spalte_volumen'></colgroup>\n";
                 $html .= "<thead>\n";
                 $html .= "<tr>\n";
                 $html .= "<th>heute bereits durchgeführte Bewässerung</th>\n";
-                $html .= "<th>Zeit</th>\n";
-                $html .= "<th>Dauer</th>\n";
+                $html .= "<th colspan='2'>zuletzt</th>\n";
+                $html .= "<th colspan='2'>gesamt</th>\n";
                 $html .= "</tr>\n";
+
+                $html .= "<tr>\n";
+                $html .= "<th>&nbsp;</th>\n";
+                $html .= "<th>Uhrzeit</th>\n";
+                $html .= "<th>Dauer</th>\n";
+                $html .= "<th>Dauer</th>\n";
+                $html .= "<th>Menge</th>\n";
+                $html .= "</tr>\n";
+
                 $html .= "</thead>\n";
                 $html .= "<tdata>\n";
                 $b = true;
@@ -698,8 +729,10 @@ class HydrawiseController extends IPSModule
 
             $html .= "<tr>\n";
             $html .= "<td>$name</td>\n";
-            $html .= "<td>$time</td>\n";
-            $html .= "<td>$duration</td>\n";
+            $html .= "<td class='right-align'>$time</td>\n";
+            $html .= "<td class='right-align'>$duration</td>\n";
+            $html .= "<td class='right-align'>$_daily_duration</td>\n";
+            $html .= "<td class='right-align'>$daily_waterusage l</td>\n";
             $html .= "</tr>\n";
         }
         if ($b) {
@@ -719,8 +752,8 @@ class HydrawiseController extends IPSModule
                 $html .= "<br>\n";
                 $html .= "<table>\n";
                 $html .= "<colgroup><col></colgroup>\n";
-                $html .= "<colgroup><col id=\"spalte_zeitpunkt\"></colgroup>\n";
-                $html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+                $html .= "<colgroup><col id='spalte_zeitpunkt'></colgroup>\n";
+                $html .= "<colgroup><col id='spalte_dauer'></colgroup>\n";
                 $html .= "<thead>\n";
                 $html .= "<tr>\n";
                 $html .= "<th>demnächst geplante Bewässerung</th>\n";
@@ -734,8 +767,8 @@ class HydrawiseController extends IPSModule
 
             $html .= "<tr>\n";
             $html .= "<td>$name</td>\n";
-            $html .= "<td>$date</td>\n";
-            $html .= "<td>$duration</td>\n";
+            $html .= "<td class='right-align'>$date</td>\n";
+            $html .= "<td class='right-align'>$duration</td>\n";
             $html .= "</tr>\n";
         }
         if ($b) {
@@ -757,8 +790,8 @@ class HydrawiseController extends IPSModule
 
         $html .= "<!DOCTYPE html>\n";
         $html .= "<html>\n";
-        $html .= "<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\">\n";
-        $html .= "<link href=\"https://fonts.googleapis.com/css?family=Open+Sans\" rel=\"stylesheet\">\n";
+        $html .= "<head><meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>\n";
+        $html .= "<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet'>\n";
         $html .= "<title>Status von Hydrawise</title>\n";
         $html .= "<style>\n";
         $html .= "html { height: 100%; background-color: darkgrey; overflow: hidden; }\n";
@@ -771,12 +804,14 @@ class HydrawiseController extends IPSModule
         $html .= "table { border-collapse: collapse; border: 1px solid; margin: 0.5em; width: 95%; }\n";
         $html .= "tr { border-top: 1px solid; border-bottom: 1px solid; } \n";
         $html .= "tr:first-child { border-top: 0 none; } \n";
-        $html .= "th, td { padding: 1; } \n";
+        $html .= "th, td { padding: 1px 2px; } \n";
         $html .= "thead tr, tr:nth-child(odd) { background-color: lightgrey; }\n";
         $html .= "thead tr, tr:nth-child(even) { background-color: white; }\n";
         $html .= "tbody th { text-align: left; }\n";
-        $html .= "#spalte_zeitpunkt { width: 90px; }\n";
+        $html .= "#spalte_zeitpunkt { width: 85px; }\n";
         $html .= "#spalte_dauer { width: 40px; }\n";
+        $html .= "#spalte_uhrzeit { width: 70px; }\n";
+        $html .= "#spalte_volumen { width: 50px; }\n";
         $html .= "#spalte_rest { width: 130px; }\n";
         $html .= "</style>\n";
 
@@ -804,7 +839,7 @@ class HydrawiseController extends IPSModule
             $s .= '<font size="-1">Status:</font> ';
             $s .= $status;
             if ($contact != '') {
-                $s .= " <font size=\"-2\">($contact)</font>";
+                $s .= " <font size='-2'>($contact)</font>";
             }
             $html .= "<center>$s</center><br>\n";
 
@@ -823,7 +858,7 @@ class HydrawiseController extends IPSModule
                     $html .= "derzeitige Bewässerung\n";
                     $html .= "<table>\n";
                     $html .= "<colgroup><col></colgroup>\n";
-                    $html .= "<colgroup><col id=\"spalte_rest\"></colgroup>\n";
+                    $html .= "<colgroup><col id='spalte_rest'></colgroup>\n";
                     $html .= "<thead>\n";
                     $html .= "<tr>\n";
                     $html .= "<th>Bezeichnung</th>\n";
@@ -856,8 +891,8 @@ class HydrawiseController extends IPSModule
                     $html .= "heute noch geplante Bewässerung\n";
                     $html .= "<table>\n";
                     $html .= "<colgroup><col></colgroup>\n";
-                    $html .= "<colgroup><col id=\"spalte_zeitpunkt\"></colgroup>\n";
-                    $html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+                    $html .= "<colgroup><col id='spalte_zeitpunkt'></colgroup>\n";
+                    $html .= "<colgroup><col id='spalte_dauer'></colgroup>\n";
                     $html .= "<thead>\n";
                     $html .= "<tr>\n";
                     $html .= "<th>Bezeichnung</th>\n";
@@ -871,8 +906,8 @@ class HydrawiseController extends IPSModule
 
                 $html .= "<tr>\n";
                 $html .= "<td>$name</td>\n";
-                $html .= "<td>$time</td>\n";
-                $html .= "<td>$duration</td>\n";
+                $html .= "<td align='right'>$time</td>\n";
+                $html .= "<td align='right'>$duration</td>\n";
                 $html .= "</tr>\n";
             }
             if ($b) {
@@ -887,18 +922,21 @@ class HydrawiseController extends IPSModule
                 $timestamp = $zone['timestamp'];
                 $time = date('H:i', $timestamp);
                 $duration = $zone['duration'];
+				$daily_duration = $zone['daily_duration'];
+				$_daily_duration = $this->seconds2duration($daily_duration * 60);
+				$daily_waterusage = ceil($zone['daily_waterusage']);
 
                 if (!$b) {
                     $html .= "heute bereits durchgeführte Bewässerung\n";
                     $html .= "<table>\n";
                     $html .= "<colgroup><col></colgroup>\n";
-                    $html .= "<colgroup><col id=\"spalte_zeitpunkt\"></colgroup>\n";
-                    $html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+                    $html .= "<colgroup><col id='spalte_dauer'></colgroup>\n";
+                    $html .= "<colgroup><col id='spalte_volumen'></colgroup>\n";
                     $html .= "<thead>\n";
                     $html .= "<tr>\n";
                     $html .= "<th>Bezeichnung</th>\n";
-                    $html .= "<th>Zeit</th>\n";
-                    $html .= "<th>Dauer</th>\n";
+					$html .= "<th>Dauer</th>\n";
+					$html .= "<th>Menge</th>\n";
                     $html .= "</tr>\n";
                     $html .= "</thead>\n";
                     $html .= "<tdata>\n";
@@ -907,8 +945,8 @@ class HydrawiseController extends IPSModule
 
                 $html .= "<tr>\n";
                 $html .= "<td>$name</td>\n";
-                $html .= "<td>$time</td>\n";
-                $html .= "<td>$duration</td>\n";
+				$html .= "<td align='right'>$_daily_duration</td>\n";
+				$html .= "<td align='right'>$daily_waterusage l</td>\n";
                 $html .= "</tr>\n";
             }
             if ($b) {
@@ -928,8 +966,8 @@ class HydrawiseController extends IPSModule
                     $html .= "demnächst geplante Bewässerung\n";
                     $html .= "<table>\n";
                     $html .= "<colgroup><col></colgroup>\n";
-                    $html .= "<colgroup><col id=\"spalte_zeitpunkt\"></colgroup>\n";
-                    $html .= "<colgroup><col id=\"spalte_dauer\"></colgroup>\n";
+                    $html .= "<colgroup><col id='spalte_zeitpunkt'></colgroup>\n";
+                    $html .= "<colgroup><col id='spalte_dauer'></colgroup>\n";
                     $html .= "<thead>\n";
                     $html .= "<tr>\n";
                     $html .= "<th>Bezeichnung</th>\n";
@@ -943,8 +981,8 @@ class HydrawiseController extends IPSModule
 
                 $html .= "<tr>\n";
                 $html .= "<td>$name</td>\n";
-                $html .= "<td>$date</td>\n";
-                $html .= "<td>$duration</td>\n";
+                $html .= "<td align='right'>$date</td>\n";
+                $html .= "<td align='right'>$duration</td>\n";
                 $html .= "</tr>\n";
             }
             if ($b) {
