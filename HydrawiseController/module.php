@@ -247,16 +247,24 @@ class HydrawiseController extends IPSModule
 
         if ($with_observations) {
             $obs_rain_day = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_rain']);
-            $this->SetValue('ObsRainDay', $obs_rain_day);
+			if ($obs_rain_day != '') {
+            	$this->SetValue('ObsRainDay', $obs_rain_day);
+			}
 
             $obs_rain_week = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_rain_week']);
-            $this->SetValue('ObsRainWeek', $obs_rain_week);
+			if ($obs_rain_week != '') {
+				$this->SetValue('ObsRainWeek', $obs_rain_week);
+			}
 
             $obs_curtemp = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_currenttemp']);
-            $this->SetValue('ObsCurTemp', $obs_curtemp);
+			if ($obs_curtemp != '') {
+				$this->SetValue('ObsCurTemp', $obs_curtemp);
+			}
 
             $obs_maxtemp = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_maxtemp']);
-            $this->SetValue('ObsMaxTemp', $obs_maxtemp);
+			if ($obs_maxtemp != '') {
+				$this->SetValue('ObsMaxTemp', $obs_maxtemp);
+			}
         }
 
         if ($with_info) {
