@@ -376,7 +376,7 @@ class HydrawiseController extends IPSModule
                             'timestamp' => $ts,
                             'duration'  => $duration
                         ];
-                    $today_zone[] = $today_zone;
+                    $today_zones[] = $today_zone;
                 } elseif ($ts) {
                     // was kommt in den nächsten Tagen
                     if ($nicetime == 'Not scheduled') {
@@ -609,7 +609,7 @@ class HydrawiseController extends IPSModule
         $html .= "tr:first-child { border-top: 0 none; } \n";
         $html .= "th, td { border: 1px solid; margin: 1; padding: 3px; } \n";
         $html .= "tbody th { text-align: left; }\n";
-        $html .= "#spalte_zeitpunkt { width: 110px; }\n";
+        $html .= "#spalte_zeitpunkt { width: 120px; }\n";
         $html .= "#spalte_uhrzeit { width: 70px; }\n";
         $html .= "#spalte_dauer { width: 60px; }\n";
         $html .= "#spalte_volumen { width: 70px; }\n";
@@ -669,7 +669,7 @@ class HydrawiseController extends IPSModule
                 $html .= "<thead>\n";
                 $html .= "<tr>\n";
                 $html .= "<th>heute noch geplante Bewässerung</th>\n";
-                $html .= "<th>Zeit</th>\n";
+                $html .= "<th>Uhrzeit</th>\n";
                 $html .= "<th>Dauer</th>\n";
                 $html .= "</tr>\n";
                 $html .= "</thead>\n";
@@ -896,7 +896,7 @@ class HydrawiseController extends IPSModule
                     $html .= "<thead>\n";
                     $html .= "<tr>\n";
                     $html .= "<th>Bezeichnung</th>\n";
-                    $html .= "<th>Zeit</th>\n";
+                    $html .= "<th>Uhrzeit</th>\n";
                     $html .= "<th>Dauer</th>\n";
                     $html .= "</tr>\n";
                     $html .= "</thead>\n";
