@@ -226,6 +226,10 @@ class HydrawiseController extends IPSModule
         }
 
         $controller_status = true;
+        $status = $controller['status'];
+		if ($status != 'All good!') {
+			$controller_status = fail;
+		}
 
         $controller_name = $controller['name'];
 
@@ -418,11 +422,6 @@ class HydrawiseController extends IPSModule
                     continue;
                 }
 
-                $is_running = isset($relay2running[$relay_id]) ? $relay2running[$relay_id] : false;
-                if ($is_running) {
-                    continue;
-                }
-
                 $duration = '';
                 $daily_duration = '';
                 $daily_waterusage = '';
@@ -450,10 +449,13 @@ class HydrawiseController extends IPSModule
                     }
                 }
 
+                $is_running = isset($relay2running[$relay_id]) ? $relay2running[$relay_id] : false;
+
                 $done_zone = [
                         'name'              => $name,
                         'timestamp'         => $ts,
                         'duration'          => $duration,
+						'is_running'        => $is_running,
                         'daily_duration'    => $daily_duration,
                         'daily_waterusage'  => $daily_waterusage,
                     ];
@@ -621,7 +623,7 @@ class HydrawiseController extends IPSModule
         $html .= "#spalte_uhrzeit { width: 70px; }\n";
         $html .= "#spalte_dauer { width: 60px; }\n";
         $html .= "#spalte_volumen { width: 70px; }\n";
-        $html .= "#spalte_rest { width: 170px; }\n";
+        $html .= "#spalte_rest { width: 180px; }\n";
         $html .= "</style>\n";
 
         $running_zones = $controller_data['running_zones'];
@@ -706,6 +708,11 @@ class HydrawiseController extends IPSModule
             $daily_duration = $zone['daily_duration'];
             $_daily_duration = $this->seconds2duration($daily_duration * 60);
             $daily_waterusage = ceil($zone['daily_waterusage']);
+            $is_running = $zone['is_running'];
+			if ($is_running) {
+				$time = 'aktuell';
+				$duration = '-&nbsp';
+			}
 
             if (!$b) {
                 $html .= "<br>\n";
