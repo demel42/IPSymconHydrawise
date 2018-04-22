@@ -227,9 +227,9 @@ class HydrawiseController extends IPSModule
 
         $controller_status = true;
         $status = $controller['status'];
-		if ($status != 'All good!') {
-			$controller_status = fail;
-		}
+        if ($status != 'All good!') {
+            $controller_status = fail;
+        }
 
         $controller_name = $controller['name'];
 
@@ -455,7 +455,7 @@ class HydrawiseController extends IPSModule
                         'name'              => $name,
                         'timestamp'         => $ts,
                         'duration'          => $duration,
-						'is_running'        => $is_running,
+                        'is_running'        => $is_running,
                         'daily_duration'    => $daily_duration,
                         'daily_waterusage'  => $daily_waterusage,
                     ];
@@ -709,10 +709,10 @@ class HydrawiseController extends IPSModule
             $_daily_duration = $this->seconds2duration($daily_duration * 60);
             $daily_waterusage = ceil($zone['daily_waterusage']);
             $is_running = $zone['is_running'];
-			if ($is_running) {
-				$time = 'aktuell';
-				$duration = '-&nbsp';
-			}
+            if ($is_running) {
+                $time = 'aktuell';
+                $duration = '-&nbsp';
+            }
 
             if (!$b) {
                 $html .= "<br>\n";
