@@ -15,8 +15,8 @@ Modul für IP-Symcon ab Version 4.
 
 ## 1. Funktionsumfang
 
-Es gibt ein System _Hydrawise_ zur Bewässerungssteuerung (https://www.hydrawise.com); _Hydrawise_ wurde vor einigen Jahren von _Fa. Hunter_ gekauft.
-Es ist ein Bewässerungssystem, das über eine kleines Steuerungssystem die Bewässerung steuert, bei der Berechnung der Anpassung der Bewässerungszeiten an lokale klimatische Bedingungen (Regenmenge sowie Verdunstung) über das Internet auf eine Hydrawise-eigenen Steuerung zugreift. Die Wetterinformationen bezieht das System lokalen Wetterstationen, die dem Controller zugeordnete werden (öffentliche Wetterstationen und bei Wunderground registrierte Stationen).
+Es gibt ein System _Hydrawise_ zur Bewässerungssteuerung (https://www.hydrawise.com); _Hydrawise_ wurde vor einigen Jahren von _Fa. Hunter_ gekauft.<br>
+Es ist ein Bewässerungssystem, das über eine kleine Appliance die Bewässerung steuert, bei der Berechnung der Anpassung der Bewässerungszeiten an lokale klimatische Bedingungen (Regenmenge sowie Verdunstung) über das Internet auf eine Hydrawise-eigenen Steuerung zugreift. Die Wetterinformationen bezieht das System lokalen Wetterstationen, die dem Controller zugeordnete werden (öffentliche Wetterstationen und bei Wunderground registrierte Stationen).
 Für die Administration gibt es eine App und einen Zugriff über einen Browser mit identischen Funktionsumfang.
 Es gibt Ausbaustufen von 6-36 Bewässerungskreise und 2 Sensoren.
 
