@@ -191,12 +191,15 @@ Erläuterung zu _visibility_script_: diese optionale Script ermöglicht es dem A
 #### Statusvariablen
 
 _LastRun_, _NextRun_: letzter bzw. nächster geplanten Zyklus.
+
 _Daily*_: Tageswerte
 
 #### editerbare Statusvariablen
 
 _ZoneAction_: Stoppen und Starten eines Bewässerungzyklus (siehe Variablenprofil _Hydrawise.ZoneAction_).
+
 _SuspendAction_: Bewässerung aussetzen bzw. eine Rücknahme der Aussetzung (siehe Variablenprofil _Hydrawise.SuspendAction_).
+
 _SuspendUntil_: Ausgabe einer aktuellen Aussetzung der Bewässerung als auch die Möglichkeit, eine neuen End-Zeitpunkt anzugeben.
 
 ### Variablenprofile
