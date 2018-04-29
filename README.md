@@ -193,7 +193,7 @@ Erläuterung zu _visibility_script_: diese optionale Script ermöglicht es dem A
 _LastRun_, _NextRun_: letzter bzw. nächster geplanten Zyklus.
 _Daily*_: Tageswerte
 
-#### editerbar Statusvariablen
+#### editerbare Statusvariablen
 
 _ZoneAction_: Stoppen und Starten eines Bewässerungzyklus (siehe Variablenprofil _Hydrawise.ZoneAction_).
 _SuspendAction_: Bewässerung aussetzen bzw. eine Rücknahme der Aussetzung (siehe Variablenprofil _Hydrawise.SuspendAction_).
@@ -210,6 +210,20 @@ Eine Anpassung an eigene Bedürfnisse ist möglich, der Wert der Assoziation ist
 
 * Float<br>
 Hydrawise.Flowmeter
+
+### Funktionen
+
+`bool HydrawiseZone_Run(int $InstanzID, int $duration = null)`
+startet die Bewässerung dieser Zone für eine bestimmte Zeit (in Minuten). Ist _duration_ nicht angegeben bzw. _null_, wird die in Hydrawise für die Zone aktuell ermittelte Dauer verwendet.
+
+`bool HydrawiseZone_Stop(int $InstanzID)`
+stoppt eine laufende Bewässerung.
+
+`bool HydrawiseZone_Suspend(int $InstanzID, int $timestamp)`
+setzt die Bewässerung bis zum angegebenen Zeitpunkt aus.
+
+`bool HydrawiseZone_Resume(int $InstanzID)`
+aktiviet wieder die normale Bewässerung.
 
 ## 6. Anhang
 
