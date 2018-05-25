@@ -4,10 +4,9 @@
 	"name": "Hydrawise",
 	"url": "",
 	"compatibility": {
-		"version": "4.2",
-		"date": 1491343200
+		"version": "4.4"
 	},
-	"version": "0.1",
+	"version": "1.0",
 	"build": 0,
-	"date": 0
+	"date": 1527250078
 }

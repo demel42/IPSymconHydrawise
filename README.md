@@ -1,6 +1,6 @@
 # Hydrawise
 
-Modul für IP-Symcon ab Version 4.
+Modul für IP-Symcon ab Version 4.4
 
 ## Dokumentation
 
