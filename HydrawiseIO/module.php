@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
+require_once __DIR__ . '/../libs/library.php';  // modul-bezogene Funktionen
+
 // Constants will be defined with IP-Symcon 5.0 and newer
 if (!defined('IPS_KERNELMESSAGE')) {
     define('IPS_KERNELMESSAGE', 10100);
@@ -9,6 +12,9 @@ if (!defined('KR_READY')) {
 }
 class HydrawiseIO extends IPSModule
 {
+    use HydrawiseCommon;
+    use HydrawiseLibrary;
+
     public function Create()
     {
         parent::Create();
@@ -166,22 +172,22 @@ class HydrawiseIO extends IPSModule
         if ($httpcode != 200) {
             if ($httpcode == 400 || $httpcode == 401) {
                 $statuscode = 201;
-                $err = "got http-code $httpcode (unauthorized) from hydrawise";
+                $err = "got http-code $httpcode (unauthorized)";
             } elseif ($httpcode >= 500 && $httpcode <= 599) {
                 $statuscode = 202;
-                $err = "got http-code $httpcode (server error) from hydrawise";
+                $err = "got http-code $httpcode (server error)";
             } else {
                 $statuscode = 203;
-                $err = "got http-code $httpcode from hydrawise";
+                $err = "got http-code $httpcode";
             }
         } elseif ($cdata == '') {
             $statuscode = 204;
-            $err = 'no data from hydrawise';
+            $err = 'no data';
         } else {
             $jdata = json_decode($cdata, true);
             if ($jdata == '') {
                 $statuscode = 204;
-                $err = 'malformed response from hydrawise';
+                $err = 'malformed response';
             } else {
                 $data = $cdata;
             }

@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
+require_once __DIR__ . '/../libs/library.php';  // modul-bezogene Funktionen
+
 // Constants will be defined with IP-Symcon 5.0 and newer
 if (!defined('IPS_KERNELMESSAGE')) {
     define('IPS_KERNELMESSAGE', 10100);
@@ -23,6 +26,9 @@ if (!defined('IPS_STRING')) {
 
 class HydrawiseZone extends IPSModule
 {
+    use HydrawiseCommon;
+    use HydrawiseLibrary;
+
     public function Create()
     {
         parent::Create();
@@ -411,69 +417,5 @@ class HydrawiseZone extends IPSModule
         $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
-    }
-
-    protected function GetValue($Ident)
-    {
-        return GetValue($this->GetIDForIdent($Ident));
-    }
-
-    protected function SetValue($Ident, $Value)
-    {
-        @$varID = $this->GetIDForIdent($Ident);
-        if ($varID == false) {
-            $this->SendDebug(__FUNCTION__, 'missing variable ' . $Ident, 0);
-            return;
-        }
-
-        if (IPS_GetKernelVersion() >= 5) {
-            $ret = parent::SetValue($Ident, $Value);
-        } else {
-            $ret = SetValue($varID, $Value);
-        }
-        if ($ret == false) {
-            $this->SendDebug(__FUNCTION__, 'mismatch of value "' . $Value . '" for variable ' . $Ident, 0);
-        }
-    }
-
-    // Variablenprofile erstellen
-    private function CreateVarProfile($Name, $ProfileType, $Suffix, $MinValue, $MaxValue, $StepSize, $Digits, $Icon, $Asscociations = '')
-    {
-        if (!IPS_VariableProfileExists($Name)) {
-            IPS_CreateVariableProfile($Name, $ProfileType);
-            IPS_SetVariableProfileText($Name, '', $Suffix);
-            IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
-            IPS_SetVariableProfileDigits($Name, $Digits);
-            IPS_SetVariableProfileIcon($Name, $Icon);
-            if ($Asscociations != '') {
-                foreach ($Asscociations as $a) {
-                    $w = isset($a['Wert']) ? $a['Wert'] : '';
-                    $n = isset($a['Name']) ? $a['Name'] : '';
-                    $i = isset($a['Icon']) ? $a['Icon'] : '';
-                    $f = isset($a['Farbe']) ? $a['Farbe'] : 0;
-                    IPS_SetVariableProfileAssociation($Name, $w, $n, $i, $f);
-                }
-            }
-        }
-    }
-
-    // Sekunden in Menschen-lesbares Format umwandeln
-    private function seconds2duration(int $sec)
-    {
-        $duration = '';
-        if ($sec > 3600) {
-            $duration .= sprintf('%dh', floor($sec / 3600));
-            $sec = $sec % 3600;
-        }
-        if ($sec > 60) {
-            $duration .= sprintf('%dm', floor($sec / 60));
-            $sec = $sec % 60;
-        }
-        if ($sec > 0) {
-            $duration .= sprintf('%ds', $sec);
-            $sec = floor($sec);
-        }
-
-        return $duration;
     }
 }

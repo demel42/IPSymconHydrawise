@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
+require_once __DIR__ . '/../libs/library.php';  // modul-bezogene Funktionen
+
 // Model of Sensor
 if (!defined('SENSOR_NORMALLY_CLOSE_START')) {
     define('SENSOR_NORMALLY_CLOSE_START', 11);
@@ -19,6 +22,9 @@ if (!defined('SENSOR_FLOW_METER')) {
 
 class HydrawiseConfig extends IPSModule
 {
+    use HydrawiseCommon;
+    use HydrawiseLibrary;
+
     public function Create()
     {
         parent::Create();
