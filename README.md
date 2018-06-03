@@ -28,7 +28,7 @@ Das Modul besteht aus folgenden Instanzen
 
 ## 2. Voraussetzungen
 
- - ab IPS 4.4
+ - IP-Symcon ab Version 4.4
  - Bewässerungscomputer Hydrawise von Fa. Hunter
 
 ## 3. Installation
