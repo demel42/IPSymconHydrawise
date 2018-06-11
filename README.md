@@ -210,9 +210,10 @@ Es werden folgende Variableprofile angelegt:
 Eine Anpassung an eigene Bedürfnisse ist möglich, der Wert der Assoziation ist die zu verwendende Bewässerungsdater in Minuten.
   - Hydrawise.ZoneSuspend;  ist standrdmässig mit folgenden Ausprägungen angelegt: Löschen, 1 Tag, ...<br>
 Eine Anpassung an eigene Bedürfnisse ist möglich, der Wert der Assoziation ist die Dauer der Aussetzung der Bewässerung in Tagen
+  - Hydrawise.Duration, Hydrawise.ProbabilityOfRain, Hydrawise.WaterSaving
 
 * Float<br>
-Hydrawise.Flowmeter
+Hydrawise.Flowmeter, Hydrawise.Humidity, Hydrawise.Rainfall, Hydrawise.Temperatur, Hydrawise.WindSpeed
 
 ### Funktionen
 
