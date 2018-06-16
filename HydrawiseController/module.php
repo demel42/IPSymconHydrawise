@@ -234,7 +234,7 @@ class HydrawiseController extends IPSModule
         $controller_status = true;
         $status = $controller['status'];
         if ($status != 'All good!') {
-            $controller_status = fail;
+            $controller_status = false;
         }
 
         $controller_name = $controller['name'];
