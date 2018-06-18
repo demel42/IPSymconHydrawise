@@ -389,16 +389,17 @@ class HydrawiseZone extends IPSModule
                 } else {
                     $workflow = ZONE_WORKFLOW_DONE;
                 }
-            } elseif ($nextrun && date('d.m.Y', $nextrun) != date('d.m.Y', $now)) {
-                $workflow = ZONE_WORKFLOW_SCHEDULED;
+            } elseif ($nextrun) {
+				if (date('d.m.Y', $nextrun) == date('d.m.Y', $now)) {
+					$workflow = ZONE_WORKFLOW_SCHEDULED;
+				} else {
+					$workflow = ZONE_WORKFLOW_SOON;
+				}
             }
         }
         if ($is_suspended) {
             $zone_status = ZONE_STATUS_SUSPENDED;
             $workflow = ZONE_WORKFLOW_SUSPENDED;
-        }
-        if ($workflow == ZONE_WORKFLOW_MANUAL && $nextrun) {
-            $workflow = ZONE_WORKFLOW_SOON;
         }
         if ($with_status) {
             $this->SetValue('Status', $zone_status);
