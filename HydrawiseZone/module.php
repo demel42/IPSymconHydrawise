@@ -24,6 +24,53 @@ if (!defined('IPS_STRING')) {
     define('IPS_STRING', 3);
 }
 
+// Zone-Action
+if (!defined('ZONE_ACTION_STOP')) {
+    define('ZONE_ACTION_STOP', -1);
+}
+if (!defined('ZONE_ACTION_DEFAULT')) {
+    define('ZONE_ACTION_DEFAULT', 0);
+}
+
+// Zone-Suspend
+if (!defined('ZONE_SUSPEND_CLEAR')) {
+    define('ZONE_SUSPEND_CLEAR', -1);
+}
+
+// aktuelle Aktivität
+if (!defined('ZONE_WORKFLOW_SUSPENDED')) {
+	define('ZONE_WORKFLOW_SUSPENDED', -1);
+}
+if (!defined('ZONE_WORKFLOW_MANUAL')) {
+	define('ZONE_WORKFLOW_MANUAL', 0);
+}
+if (!defined('ZONE_WORKFLOW_SOON')) {
+	define('ZONE_WORKFLOW_SOON', 1);
+}
+if (!defined('ZONE_WORKFLOW_SCHEDULED')) {
+	define('ZONE_WORKFLOW_SCHEDULED', 2);
+}
+if (!defined('ZONE_WORKFLOW_WATERING')) {
+	define('ZONE_WORKFLOW_WATERING', 3);
+}
+if (!defined('ZONE_WORKFLOW_DONE')) {
+	define('ZONE_WORKFLOW_DONE', 4);
+}
+if (!defined('ZONE_WORKFLOW_PARTIALLY')) {
+	define('ZONE_WORKFLOW_PARTIALLY', 5);
+}
+
+// aktueller Status
+if (!defined('ZONE_STATUS_SUSPENDED')) {
+	define('ZONE_STATUS_SUSPENDED', -1);
+}
+if (!defined('ZONE_STATUS_IDLE')) {
+	define('ZONE_STATUS_IDLE', 0);
+}
+if (!defined('ZONE_STATUS_WATERING')) {
+	define('ZONE_STATUS_WATERING', 1);
+}
+
 class HydrawiseZone extends IPSModule
 {
     use HydrawiseCommon;
@@ -37,11 +84,13 @@ class HydrawiseZone extends IPSModule
         $this->RegisterPropertyString('relay_id', '');
         $this->RegisterPropertyInteger('connector', -1);
         $this->RegisterPropertyBoolean('with_daily_value', true);
+        $this->RegisterPropertyBoolean('with_workflow', true);
+        $this->RegisterPropertyBoolean('with_status', true);
         $this->RegisterPropertyInteger('visibility_script', 0);
 
         $associations = [];
-        $associations[] = ['Wert' => -1, 'Name' => $this->Translate('Stop'), 'Farbe' => 0xEE0000];
-        $associations[] = ['Wert' =>  0, 'Name' => $this->Translate('Default'), 'Farbe' => 0x32CD32];
+        $associations[] = ['Wert' => ZONE_ACTION_STOP, 'Name' => $this->Translate('Stop'), 'Farbe' => 0xEE0000];
+        $associations[] = ['Wert' => ZONE_ACTION_DEFAULT, 'Name' => $this->Translate('Default'), 'Farbe' => 0x32CD32];
         $associations[] = ['Wert' =>  1, 'Name' => $this->Translate('1 min'), 'Farbe' => -1];
         $associations[] = ['Wert' =>  2, 'Name' => $this->Translate('2 min'), 'Farbe' => -1];
         $associations[] = ['Wert' =>  5, 'Name' => $this->Translate('5 min'), 'Farbe' => -1];
@@ -51,11 +100,25 @@ class HydrawiseZone extends IPSModule
         $this->CreateVarProfile('Hydrawise.ZoneAction', IPS_INTEGER, '', 0, 0, 0, 1, '', $associations);
 
         $associations = [];
-        $associations[] = ['Wert' => -1, 'Name' => $this->Translate('Clear'), 'Farbe' => 0xEE0000];
-        $associations[] = ['Wert' =>  1, 'Name' => $this->Translate('1 day'), 'Farbe' => -1];
-        $associations[] = ['Wert' =>  2, 'Name' => $this->Translate('2 days'), 'Farbe' => -1];
-        $associations[] = ['Wert' =>  7, 'Name' => $this->Translate('1 week'), 'Farbe' => -1];
+        $associations[] = ['Wert' => ZONE_SUSPEND_CLEAR, 'Name' => $this->Translate('Clear'), 'Farbe' => 0xEE0000];
+        $associations[] = ['Wert' => 1, 'Name' => $this->Translate('1 day'), 'Farbe' => -1];
+        $associations[] = ['Wert' => 2, 'Name' => $this->Translate('2 days'), 'Farbe' => -1];
+        $associations[] = ['Wert' => 7, 'Name' => $this->Translate('1 week'), 'Farbe' => -1];
         $this->CreateVarProfile('Hydrawise.ZoneSuspend', IPS_INTEGER, '', 0, 0, 0, 1, '', $associations);
+
+        $associations[] = ['Wert' => ZONE_WORKFLOW_SUSPENDED, 'Name' => $this->Translate('suspended'), 'Farbe' => 0xFF5D5D];
+        $associations[] = ['Wert' => ZONE_WORKFLOW_MANUAL, 'Name' => $this->Translate('manual'), 'Farbe' => 0xC0C0C0];
+        $associations[] = ['Wert' => ZONE_WORKFLOW_SOON, 'Name' => $this->Translate('soon'), 'Farbe' => 0x6CB6FF];
+        $associations[] = ['Wert' => ZONE_WORKFLOW_SCHEDULED, 'Name' => $this->Translate('scheduled'), 'Farbe' => 0x0080C0];
+        $associations[] = ['Wert' => ZONE_WORKFLOW_WATERING, 'Name' => $this->Translate('watering'), 'Farbe' => 0xFFFF00];
+        $associations[] = ['Wert' => ZONE_WORKFLOW_DONE, 'Name' => $this->Translate('done'), 'Farbe' => 0x008000];
+        $associations[] = ['Wert' => ZONE_WORKFLOW_PARTIALLY, 'Name' => $this->Translate('partially'), 'Farbe' => 0x80FF00];
+        $this->CreateVarProfile('Hydrawise.ZoneWorkflow', IPS_INTEGER, '', 0, 0, 0, 1, '', $associations);
+
+        $associations[] = ['Wert' => ZONE_STATUS_SUSPENDED, 'Name' => $this->Translate('suspended'), 'Farbe' => 0xFF5D5D];
+        $associations[] = ['Wert' => ZONE_STATUS_IDLE, 'Name' => $this->Translate('idle'), 'Farbe' => 0xC0C0C0];
+        $associations[] = ['Wert' => ZONE_STATUS_WATERING, 'Name' => $this->Translate('watering'), 'Farbe' => 0xFFFF00];
+        $this->CreateVarProfile('Hydrawise.ZoneStatus', IPS_INTEGER, '', 0, 0, 0, 1, '', $associations);
 
         $this->ConnectParent('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}');
     }
@@ -68,6 +131,8 @@ class HydrawiseZone extends IPSModule
         $relay_id = $this->ReadPropertyString('relay_id');
         $connector = $this->ReadPropertyInteger('connector');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
+        $with_workflow = $this->ReadPropertyBoolean('with_workflow');
+        $with_status = $this->ReadPropertyBoolean('with_status');
 
         $vpos = 1;
 
@@ -82,6 +147,8 @@ class HydrawiseZone extends IPSModule
         $this->MaintainVariable('SuspendAction', $this->Translate('Zone suspension'), IPS_INTEGER, 'Hydrawise.ZoneSuspend', $vpos++, true);
         $this->MaintainVariable('DailyDuration', $this->Translate('Duration of runs (today)'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_daily_value);
         $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
+        $this->MaintainVariable('Workflow', $this->Translate('Current workflow'), IPS_INTEGER, 'Hydrawise.ZoneWorkflow', $vpos++, $with_workflow);
+        $this->MaintainVariable('Status', $this->Translate('Zone status'), IPS_INTEGER, 'Hydrawise.ZoneStatus', $vpos++, $with_status);
 
         $this->MaintainAction('ZoneAction', true);
         $this->MaintainAction('SuspendUntil', true);
@@ -118,6 +185,8 @@ class HydrawiseZone extends IPSModule
         $formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
         $formElements[] = ['type' => 'Label', 'label' => 'optional zone data'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_workflow', 'caption' => ' ... watering workflow'];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_status', 'caption' => ' ... watering status'];
         $formElements[] = ['type' => 'Label', 'label' => 'optional script to hide/show variables'];
         $formElements[] = ['type' => 'SelectScript', 'name' => 'visibility_script', 'caption' => 'visibility'];
 
@@ -165,6 +234,8 @@ class HydrawiseZone extends IPSModule
         $controller_id = $this->ReadPropertyString('controller_id');
         $relay_id = $this->ReadPropertyString('relay_id');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
+        $with_workflow = $this->ReadPropertyBoolean('with_workflow');
+        $with_status = $this->ReadPropertyBoolean('with_status');
         $visibility_script = $this->ReadPropertyInteger('visibility_script');
 
         $err = '';
@@ -304,7 +375,37 @@ class HydrawiseZone extends IPSModule
                 }
                 $this->SetBuffer('currentRun', '');
             }
+		}
+
+		$zone_status = ZONE_STATUS_IDLE;
+		$workflow = ZONE_WORKFLOW_MANUAL;
+        if ($is_running) {
+			$zone_status = ZONE_STATUS_WATERING;
+			$workflow = ZONE_WORKFLOW_WATERING;
+		} else {
+			if ($lastrun && date('d.m.Y', $lastrun) == date('d.m.Y', $now)) {
+				if ($nextrun && date('d.m.Y', $nextrun) == date('d.m.Y', $now)) {
+					$workflow = ZONE_WORKFLOW_PARTIALLY;
+				} else {
+					$workflow = ZONE_WORKFLOW_DONE;
+				}
+			} elseif ($nextrun && date('d.m.Y', $nextrun) != date('d.m.Y', $now)) {
+				$workflow = ZONE_WORKFLOW_SCHEDULED;
+			}
         }
+		if ($is_suspended) {
+			$zone_status = ZONE_STATUS_SUSPENDED;
+			$workflow = ZONE_WORKFLOW_SUSPENDED;
+		}
+		if ($workflow == ZONE_WORKFLOW_MANUAL && $nextrun) {
+			$workflow = ZONE_WORKFLOW_SOON;
+		}
+		if ($with_status) {
+			$this->SetValue('Status', $zone_status);
+		}
+		if ($with_workflow) {
+			$this->SetValue('Workflow', $workflow);
+		}
 
         if ($visibility_script > 0) {
             $opts = [
@@ -342,7 +443,7 @@ class HydrawiseZone extends IPSModule
                 break;
             case 'SuspendAction':
                 $this->SendDebug(__FUNCTION__, "$Ident=$Value", 0);
-                if ($Value == -1) {
+                if ($Value == ZONE_SUSPEND_CLEAR) {
                     $this->Resume($Value);
                 } else {
                     $sec = $Value * 86400;
@@ -354,9 +455,9 @@ class HydrawiseZone extends IPSModule
                 }
                 break;
             case 'ZoneAction':
-                if ($Value == -1) {
+                if ($Value == ZONE_ACTION_STOP) {
                     $this->Stop();
-                } elseif ($Value == 0) {
+                } elseif ($Value == ZONE_ACTION_STOP) {
                     $this->Run();
                 } else {
                     $sec = $Value * 60;
@@ -383,6 +484,9 @@ class HydrawiseZone extends IPSModule
         $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
+
+		$jdata = json_decode($data, true);
+		return $jdata['status'];
     }
 
     public function Stop()
@@ -395,6 +499,9 @@ class HydrawiseZone extends IPSModule
         $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
+
+		$jdata = json_decode($data, true);
+		return $jdata['status'];
     }
 
     public function Suspend(int $timestamp)
@@ -406,6 +513,9 @@ class HydrawiseZone extends IPSModule
         $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
+
+		$jdata = json_decode($data, true);
+		return $jdata['status'];
     }
 
     public function Resume()
@@ -417,5 +527,8 @@ class HydrawiseZone extends IPSModule
         $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
+
+		$jdata = json_decode($data, true);
+		return $jdata['status'];
     }
 }

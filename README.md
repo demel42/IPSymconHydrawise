@@ -183,6 +183,8 @@ Das sind die einzelnen Bewässerungskreise, hier sind alle Zonen-spezifischen Da
 | connector              | integer |              | Anschluss am Controller                                   |
 |                        |         |              |                                                           |
 | with_daily_value       | boolean | true         | Tageswerte                                                |
+| with_workflow          | boolean | false        | Ablauf der Bewässerung (siehe Hydrawise.ZoneWorkflow)     |
+| with_status            | boolean | false        | Bewässerungsstatus (siehe Hydrawise.ZoneStatus)           |
 |                        |         |              |                                                           |
 | visibility_script      | integer | 0            | Script um die Sichtbarkeit von Variablen zu steuern       |
 
@@ -210,7 +212,7 @@ Es werden folgende Variableprofile angelegt:
 Eine Anpassung an eigene Bedürfnisse ist möglich, der Wert der Assoziation ist die zu verwendende Bewässerungsdater in Minuten.
   - Hydrawise.ZoneSuspend:  ist standrdmässig mit folgenden Ausprägungen angelegt: Löschen, 1 Tag, ...<br>
 Eine Anpassung an eigene Bedürfnisse ist möglich, der Wert der Assoziation ist die Dauer der Aussetzung der Bewässerung in Tagen
-  - Hydrawise.Duration, Hydrawise.ProbabilityOfRain, Hydrawise.WaterSaving
+  - Hydrawise.Duration, Hydrawise.ProbabilityOfRain, Hydrawise.WaterSaving, Hydrawise.ZoneWorkflow, Hydrawise.ZoneStatus
 
 * Float<br>
   - Hydrawise.Flowmeter, Hydrawise.Humidity, Hydrawise.Rainfall, Hydrawise.Temperatur, Hydrawise.WindSpeed
