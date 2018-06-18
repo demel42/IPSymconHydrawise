@@ -136,31 +136,31 @@ class HydrawiseIO extends IPSModule
 
         $url = "https://app.hydrawise.com/api/v1/setzone.php?api_key=$api_key&" . $cmd_url;
 
-		$ret = '';
+        $ret = '';
 
         $data = $this->do_HttpRequest($url);
-		$this->SendDebug(__FUNCTION__, 'data=' . $data, 0);
+        $this->SendDebug(__FUNCTION__, 'data=' . $data, 0);
 
         if ($data != '') {
             $jdata = json_decode($data, true);
-			if (isset($jdata['error_msg'])) {
-				$status = false;
-				$msg = $jdata['error_msg'];
-			} elseif (isset($jdata['message_type'])) {
-				$mtype = $jdata['message_type'];
-				$status = $mtype == 'error';
-				$msg = $jdata['message'];
-			} else {
-				$status = false;
-				$msg = 'unknown';
-			}
+            if (isset($jdata['error_msg'])) {
+                $status = false;
+                $msg = $jdata['error_msg'];
+            } elseif (isset($jdata['message_type'])) {
+                $mtype = $jdata['message_type'];
+                $status = $mtype == 'error';
+                $msg = $jdata['message'];
+            } else {
+                $status = false;
+                $msg = 'unknown';
+            }
         } else {
-			$status = false;
-			$msg = 'no data';
-		}
+            $status = false;
+            $msg = 'no data';
+        }
 
-		$ret = json_encode(['status' => $status, 'msg' => $msg]);
-		$this->SendDebug(__FUNCTION__, 'ret=' . print_r($ret, true), 0);
+        $ret = json_encode(['status' => $status, 'msg' => $msg]);
+        $this->SendDebug(__FUNCTION__, 'ret=' . print_r($ret, true), 0);
         return $ret;
     }
 

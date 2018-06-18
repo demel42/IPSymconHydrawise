@@ -39,36 +39,36 @@ if (!defined('ZONE_SUSPEND_CLEAR')) {
 
 // aktuelle Aktivität
 if (!defined('ZONE_WORKFLOW_SUSPENDED')) {
-	define('ZONE_WORKFLOW_SUSPENDED', -1);
+    define('ZONE_WORKFLOW_SUSPENDED', -1);
 }
 if (!defined('ZONE_WORKFLOW_MANUAL')) {
-	define('ZONE_WORKFLOW_MANUAL', 0);
+    define('ZONE_WORKFLOW_MANUAL', 0);
 }
 if (!defined('ZONE_WORKFLOW_SOON')) {
-	define('ZONE_WORKFLOW_SOON', 1);
+    define('ZONE_WORKFLOW_SOON', 1);
 }
 if (!defined('ZONE_WORKFLOW_SCHEDULED')) {
-	define('ZONE_WORKFLOW_SCHEDULED', 2);
+    define('ZONE_WORKFLOW_SCHEDULED', 2);
 }
 if (!defined('ZONE_WORKFLOW_WATERING')) {
-	define('ZONE_WORKFLOW_WATERING', 3);
+    define('ZONE_WORKFLOW_WATERING', 3);
 }
 if (!defined('ZONE_WORKFLOW_DONE')) {
-	define('ZONE_WORKFLOW_DONE', 4);
+    define('ZONE_WORKFLOW_DONE', 4);
 }
 if (!defined('ZONE_WORKFLOW_PARTIALLY')) {
-	define('ZONE_WORKFLOW_PARTIALLY', 5);
+    define('ZONE_WORKFLOW_PARTIALLY', 5);
 }
 
 // aktueller Status
 if (!defined('ZONE_STATUS_SUSPENDED')) {
-	define('ZONE_STATUS_SUSPENDED', -1);
+    define('ZONE_STATUS_SUSPENDED', -1);
 }
 if (!defined('ZONE_STATUS_IDLE')) {
-	define('ZONE_STATUS_IDLE', 0);
+    define('ZONE_STATUS_IDLE', 0);
 }
 if (!defined('ZONE_STATUS_WATERING')) {
-	define('ZONE_STATUS_WATERING', 1);
+    define('ZONE_STATUS_WATERING', 1);
 }
 
 class HydrawiseZone extends IPSModule
@@ -375,37 +375,37 @@ class HydrawiseZone extends IPSModule
                 }
                 $this->SetBuffer('currentRun', '');
             }
-		}
-
-		$zone_status = ZONE_STATUS_IDLE;
-		$workflow = ZONE_WORKFLOW_MANUAL;
-        if ($is_running) {
-			$zone_status = ZONE_STATUS_WATERING;
-			$workflow = ZONE_WORKFLOW_WATERING;
-		} else {
-			if ($lastrun && date('d.m.Y', $lastrun) == date('d.m.Y', $now)) {
-				if ($nextrun && date('d.m.Y', $nextrun) == date('d.m.Y', $now)) {
-					$workflow = ZONE_WORKFLOW_PARTIALLY;
-				} else {
-					$workflow = ZONE_WORKFLOW_DONE;
-				}
-			} elseif ($nextrun && date('d.m.Y', $nextrun) != date('d.m.Y', $now)) {
-				$workflow = ZONE_WORKFLOW_SCHEDULED;
-			}
         }
-		if ($is_suspended) {
-			$zone_status = ZONE_STATUS_SUSPENDED;
-			$workflow = ZONE_WORKFLOW_SUSPENDED;
-		}
-		if ($workflow == ZONE_WORKFLOW_MANUAL && $nextrun) {
-			$workflow = ZONE_WORKFLOW_SOON;
-		}
-		if ($with_status) {
-			$this->SetValue('Status', $zone_status);
-		}
-		if ($with_workflow) {
-			$this->SetValue('Workflow', $workflow);
-		}
+
+        $zone_status = ZONE_STATUS_IDLE;
+        $workflow = ZONE_WORKFLOW_MANUAL;
+        if ($is_running) {
+            $zone_status = ZONE_STATUS_WATERING;
+            $workflow = ZONE_WORKFLOW_WATERING;
+        } else {
+            if ($lastrun && date('d.m.Y', $lastrun) == date('d.m.Y', $now)) {
+                if ($nextrun && date('d.m.Y', $nextrun) == date('d.m.Y', $now)) {
+                    $workflow = ZONE_WORKFLOW_PARTIALLY;
+                } else {
+                    $workflow = ZONE_WORKFLOW_DONE;
+                }
+            } elseif ($nextrun && date('d.m.Y', $nextrun) != date('d.m.Y', $now)) {
+                $workflow = ZONE_WORKFLOW_SCHEDULED;
+            }
+        }
+        if ($is_suspended) {
+            $zone_status = ZONE_STATUS_SUSPENDED;
+            $workflow = ZONE_WORKFLOW_SUSPENDED;
+        }
+        if ($workflow == ZONE_WORKFLOW_MANUAL && $nextrun) {
+            $workflow = ZONE_WORKFLOW_SOON;
+        }
+        if ($with_status) {
+            $this->SetValue('Status', $zone_status);
+        }
+        if ($with_workflow) {
+            $this->SetValue('Workflow', $workflow);
+        }
 
         if ($visibility_script > 0) {
             $opts = [
@@ -485,8 +485,8 @@ class HydrawiseZone extends IPSModule
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
 
-		$jdata = json_decode($data, true);
-		return $jdata['status'];
+        $jdata = json_decode($data, true);
+        return $jdata['status'];
     }
 
     public function Stop()
@@ -500,8 +500,8 @@ class HydrawiseZone extends IPSModule
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
 
-		$jdata = json_decode($data, true);
-		return $jdata['status'];
+        $jdata = json_decode($data, true);
+        return $jdata['status'];
     }
 
     public function Suspend(int $timestamp)
@@ -514,8 +514,8 @@ class HydrawiseZone extends IPSModule
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
 
-		$jdata = json_decode($data, true);
-		return $jdata['status'];
+        $jdata = json_decode($data, true);
+        return $jdata['status'];
     }
 
     public function Resume()
@@ -528,7 +528,7 @@ class HydrawiseZone extends IPSModule
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
 
-		$jdata = json_decode($data, true);
-		return $jdata['status'];
+        $jdata = json_decode($data, true);
+        return $jdata['status'];
     }
 }
