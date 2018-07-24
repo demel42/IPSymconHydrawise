@@ -218,17 +218,27 @@ class HydrawiseSensor extends IPSModule
                         if (isset($sensor['flow']['week'])) {
                             $flow = preg_replace('/^([0-9\.,]*).*$/', '$1', $sensor['flow']['week']);
                             $this->SetValue('Flow', $flow);
-                            if ($with_daily_value) {
-                                $old_flow = $this->GetBuffer('Flow');
-                                if ($old_flow != '' && $old_flow < $flow) {
-                                    $new_flow = $this->GetValue('DailyFlow') + ($flow - $old_flow);
-                                    $this->SendDebug(__FUNCTION__, 'new_flow=' . $new_flow, 0);
-                                    $this->SetValue('DailyFlow', $new_flow);
-                                } else {
-                                    $this->SendDebug(__FUNCTION__, 'weekly flow=' . $flow . ' => unchanged', 0);
-                                }
-                                $this->SetBuffer('Flow', $flow);
-                            }
+                        }
+						if ($with_daily_value) {
+							$daily_waterusage = 0;
+							if (isset($sensor['relays'])) {
+								$relays = $sensor['relays'];
+								$instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
+								foreach ($instIDs as $instID) {
+									$relay_id = IPS_GetProperty($instID, 'relay_id');
+									foreach ($relays as $relay) {
+										if ($relay['id'] == $relay_id) {
+											$varID = @IPS_GetObjectIDByIdent('DailyWaterUsage', $instID);
+											if ($varID) {
+												$daily_waterusage += GetValueFloat($varID);
+											}
+											$this->SendDebug(__FUNCTION__, 'relay_id=' . $relay_id . ', daily_waterusage=' . $daily_waterusage, 0);
+											break;
+										}
+									}
+								}
+							}
+							$this->SetValue('DailyFlow', $daily_waterusage);
                         }
                         break;
                     default:
