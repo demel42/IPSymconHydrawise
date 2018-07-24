@@ -232,7 +232,7 @@ class HydrawiseSensor extends IPSModule
                                             if ($varID) {
                                                 $daily_waterusage = GetValueFloat($varID);
                                                 $daily_flow += $daily_waterusage;
-												$this->SendDebug(__FUNCTION__, 'relay_id=' . $relay_id . ', daily_waterusage=' . $daily_waterusage . ', daily_flow=' . $daily_flow, 0);
+                                                $this->SendDebug(__FUNCTION__, 'relay_id=' . $relay_id . ', daily_waterusage=' . $daily_waterusage . ', daily_flow=' . $daily_flow, 0);
                                             }
                                             break;
                                         }
