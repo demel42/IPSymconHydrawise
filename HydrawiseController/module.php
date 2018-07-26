@@ -367,6 +367,7 @@ class HydrawiseController extends IPSModule
         if (count($relays) > 0) {
             usort($relays, ['HydrawiseController', 'cmp_relays_nextrun']);
             foreach ($relays as $relay) {
+                $relay_id = $relay['relay_id'];
                 $name = $relay['name'];
 
                 $duration = '';
@@ -388,6 +389,10 @@ class HydrawiseController extends IPSModule
                 }
 
                 if ($is_today) {
+					$is_running = isset($relay2running[$relay_id]) ? $relay2running[$relay_id] : false;
+					if ($is_running) {
+						continue;
+					}
                     // was kommt heute noch?
                     $today_zone = [
                             'name'      => $name,
