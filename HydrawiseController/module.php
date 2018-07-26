@@ -389,10 +389,10 @@ class HydrawiseController extends IPSModule
                 }
 
                 if ($is_today) {
-					$is_running = isset($relay2running[$relay_id]) ? $relay2running[$relay_id] : false;
-					if ($is_running) {
-						continue;
-					}
+                    $is_running = isset($relay2running[$relay_id]) ? $relay2running[$relay_id] : false;
+                    if ($is_running) {
+                        continue;
+                    }
                     // was kommt heute noch?
                     $today_zone = [
                             'name'      => $name,
