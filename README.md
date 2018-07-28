@@ -80,7 +80,7 @@ Hierüber findet die http-Kommunikation statt.
 | :-----------------------: | :-----:  | :----------: | :----------------------------------------------------------------------------------------------------------: |
 | Hydrawise-Zugangsdaten    | string   |              | Benutzername und Passwort von https://app.hydrawise.com/config/login                                         |
 |                           |          |              | |
-| UpdateDataInterval        | integer  | 60           | Angabe in Sekunden                          |
+| Aktualisiere Daten ...    | integer  | 60           | Aktualisierungsintervall, Angabe in Sekunden |
 
 #### Schaltflächen
 
