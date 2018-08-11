@@ -24,6 +24,7 @@ class HydrawiseIO extends IPSModule
         $this->RegisterPropertyInteger('UpdateDataInterval', '60');
 
         $this->RegisterTimer('UpdateData', 0, 'HydrawiseIO_UpdateData(' . $this->InstanceID . ');');
+		$this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
 
     public function ApplyChanges()
@@ -33,10 +34,12 @@ class HydrawiseIO extends IPSModule
         $api_key = $this->ReadPropertyString('api_key');
 
         if ($api_key != '') {
+            $this->SetUpdateInterval();
             // Inspired by module SymconTest/HookServe
             // We need to call the RegisterHook function on Kernel READY
-            $this->RegisterMessage(0, IPS_KERNELMESSAGE);
-            $this->SetUpdateInterval();
+			if (IPS_GetKernelRunlevel() == KR_READY) {
+				$this->UpdateData();
+			}
             $this->SetStatus(102);
         } else {
             $this->SetStatus(104);
