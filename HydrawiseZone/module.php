@@ -11,17 +11,13 @@ if (!defined('KR_READY')) {
     define('KR_READY', 10103);
 }
 
-if (!defined('IPS_BOOLEAN')) {
-    define('IPS_BOOLEAN', 0);
-}
-if (!defined('IPS_INTEGER')) {
-    define('IPS_INTEGER', 1);
-}
-if (!defined('IPS_FLOAT')) {
-    define('IPS_FLOAT', 2);
-}
-if (!defined('IPS_STRING')) {
-    define('IPS_STRING', 3);
+if (!defined('vtBoolean')) {
+    define('vtBoolean', 0);
+	define('vtInteger', 1);
+	define('vtFloat', 2);
+	define('vtString', 3);
+	define('vtArray', 8);
+	define('vtObject', 9);
 }
 
 // Zone-Action
@@ -97,14 +93,14 @@ class HydrawiseZone extends IPSModule
         $associations[] = ['Wert' => 10, 'Name' => $this->Translate('10 min'), 'Farbe' => -1];
         $associations[] = ['Wert' => 15, 'Name' => $this->Translate('15 min'), 'Farbe' => -1];
         $associations[] = ['Wert' => 20, 'Name' => $this->Translate('20 min'), 'Farbe' => -1];
-        $this->CreateVarProfile('Hydrawise.ZoneAction', IPS_INTEGER, '', 0, 0, 0, 1, '', $associations);
+        $this->CreateVarProfile('Hydrawise.ZoneAction', vtInteger, '', 0, 0, 0, 1, '', $associations);
 
         $associations = [];
         $associations[] = ['Wert' => ZONE_SUSPEND_CLEAR, 'Name' => $this->Translate('Clear'), 'Farbe' => 0xEE0000];
         $associations[] = ['Wert' => 1, 'Name' => $this->Translate('1 day'), 'Farbe' => -1];
         $associations[] = ['Wert' => 2, 'Name' => $this->Translate('2 days'), 'Farbe' => -1];
         $associations[] = ['Wert' => 7, 'Name' => $this->Translate('1 week'), 'Farbe' => -1];
-        $this->CreateVarProfile('Hydrawise.ZoneSuspend', IPS_INTEGER, '', 0, 0, 0, 1, '', $associations);
+        $this->CreateVarProfile('Hydrawise.ZoneSuspend', vtInteger, '', 0, 0, 0, 1, '', $associations);
 
         $associations[] = ['Wert' => ZONE_WORKFLOW_SUSPENDED, 'Name' => $this->Translate('suspended'), 'Farbe' => 0xFF5D5D];
         $associations[] = ['Wert' => ZONE_WORKFLOW_MANUAL, 'Name' => $this->Translate('manual'), 'Farbe' => 0xC0C0C0];
@@ -113,12 +109,12 @@ class HydrawiseZone extends IPSModule
         $associations[] = ['Wert' => ZONE_WORKFLOW_WATERING, 'Name' => $this->Translate('watering'), 'Farbe' => 0xFFFF00];
         $associations[] = ['Wert' => ZONE_WORKFLOW_DONE, 'Name' => $this->Translate('done'), 'Farbe' => 0x008000];
         $associations[] = ['Wert' => ZONE_WORKFLOW_PARTIALLY, 'Name' => $this->Translate('partially'), 'Farbe' => 0x80FF00];
-        $this->CreateVarProfile('Hydrawise.ZoneWorkflow', IPS_INTEGER, '', 0, 0, 0, 1, '', $associations);
+        $this->CreateVarProfile('Hydrawise.ZoneWorkflow', vtInteger, '', 0, 0, 0, 1, '', $associations);
 
         $associations[] = ['Wert' => ZONE_STATUS_SUSPENDED, 'Name' => $this->Translate('suspended'), 'Farbe' => 0xFF5D5D];
         $associations[] = ['Wert' => ZONE_STATUS_IDLE, 'Name' => $this->Translate('idle'), 'Farbe' => 0xC0C0C0];
         $associations[] = ['Wert' => ZONE_STATUS_WATERING, 'Name' => $this->Translate('watering'), 'Farbe' => 0xFFFF00];
-        $this->CreateVarProfile('Hydrawise.ZoneStatus', IPS_INTEGER, '', 0, 0, 0, 1, '', $associations);
+        $this->CreateVarProfile('Hydrawise.ZoneStatus', vtInteger, '', 0, 0, 0, 1, '', $associations);
 
         $this->ConnectParent('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}');
     }
@@ -136,19 +132,19 @@ class HydrawiseZone extends IPSModule
 
         $vpos = 1;
 
-        $this->MaintainVariable('LastRun', $this->Translate('Last run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, true);
-        $this->MaintainVariable('LastDuration', $this->Translate('Duration of last run'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, true);
-        $this->MaintainVariable('NextRun', $this->Translate('Next run'), IPS_INTEGER, '~UnixTimestamp', $vpos++, true);
-        $this->MaintainVariable('NextDuration', $this->Translate('Duration of next run'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, true);
-        $this->MaintainVariable('TimeLeft', $this->Translate('Time left'), IPS_STRING, '', $vpos++, true);
-        $this->MaintainVariable('WaterUsage', $this->Translate('Water usage'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
-        $this->MaintainVariable('ZoneAction', $this->Translate('Zone operation'), IPS_INTEGER, 'Hydrawise.ZoneAction', $vpos++, true);
-        $this->MaintainVariable('SuspendUntil', $this->Translate('Suspended until end of'), IPS_INTEGER, '~UnixTimestampDate', $vpos++, true);
-        $this->MaintainVariable('SuspendAction', $this->Translate('Zone suspension'), IPS_INTEGER, 'Hydrawise.ZoneSuspend', $vpos++, true);
-        $this->MaintainVariable('DailyDuration', $this->Translate('Duration of runs (today)'), IPS_INTEGER, 'Hydrawise.Duration', $vpos++, $with_daily_value);
-        $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
-        $this->MaintainVariable('Workflow', $this->Translate('Current workflow'), IPS_INTEGER, 'Hydrawise.ZoneWorkflow', $vpos++, $with_workflow);
-        $this->MaintainVariable('Status', $this->Translate('Zone status'), IPS_INTEGER, 'Hydrawise.ZoneStatus', $vpos++, $with_status);
+        $this->MaintainVariable('LastRun', $this->Translate('Last run'), vtInteger, '~UnixTimestamp', $vpos++, true);
+        $this->MaintainVariable('LastDuration', $this->Translate('Duration of last run'), vtInteger, 'Hydrawise.Duration', $vpos++, true);
+        $this->MaintainVariable('NextRun', $this->Translate('Next run'), vtInteger, '~UnixTimestamp', $vpos++, true);
+        $this->MaintainVariable('NextDuration', $this->Translate('Duration of next run'), vtInteger, 'Hydrawise.Duration', $vpos++, true);
+        $this->MaintainVariable('TimeLeft', $this->Translate('Time left'), vtString, '', $vpos++, true);
+        $this->MaintainVariable('WaterUsage', $this->Translate('Water usage'), vtFloat, 'Hydrawise.Flowmeter', $vpos++, true);
+        $this->MaintainVariable('ZoneAction', $this->Translate('Zone operation'), vtInteger, 'Hydrawise.ZoneAction', $vpos++, true);
+        $this->MaintainVariable('SuspendUntil', $this->Translate('Suspended until end of'), vtInteger, '~UnixTimestampDate', $vpos++, true);
+        $this->MaintainVariable('SuspendAction', $this->Translate('Zone suspension'), vtInteger, 'Hydrawise.ZoneSuspend', $vpos++, true);
+        $this->MaintainVariable('DailyDuration', $this->Translate('Duration of runs (today)'), vtInteger, 'Hydrawise.Duration', $vpos++, $with_daily_value);
+        $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), vtFloat, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
+        $this->MaintainVariable('Workflow', $this->Translate('Current workflow'), vtInteger, 'Hydrawise.ZoneWorkflow', $vpos++, $with_workflow);
+        $this->MaintainVariable('Status', $this->Translate('Zone status'), vtInteger, 'Hydrawise.ZoneStatus', $vpos++, $with_status);
 
         $this->MaintainAction('ZoneAction', true);
         $this->MaintainAction('SuspendUntil', true);
@@ -190,6 +186,14 @@ class HydrawiseZone extends IPSModule
         $formElements[] = ['type' => 'Label', 'label' => 'optional script to hide/show variables'];
         $formElements[] = ['type' => 'SelectScript', 'name' => 'visibility_script', 'caption' => 'visibility'];
 
+        $formActions = [];
+        $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
+        $formActions[] = [
+                            'type'    => 'Button',
+                            'caption' => 'Module description',
+                            'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
+                        ];
+
         $formStatus = [];
         $formStatus[] = ['code' => '101', 'icon' => 'inactive', 'caption' => 'Instance getting created'];
         $formStatus[] = ['code' => '102', 'icon' => 'active', 'caption' => 'Instance is active'];
@@ -199,7 +203,7 @@ class HydrawiseZone extends IPSModule
         $formStatus[] = ['code' => '202', 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
         $formStatus[] = ['code' => '205', 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
 
-        return json_encode(['elements' => $formElements, 'status' => $formStatus]);
+		return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
     }
 
     public function ReceiveData($data)

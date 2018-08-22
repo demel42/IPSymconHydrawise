@@ -11,17 +11,13 @@ if (!defined('KR_READY')) {
     define('KR_READY', 10103);
 }
 
-if (!defined('IPS_BOOLEAN')) {
-    define('IPS_BOOLEAN', 0);
-}
-if (!defined('IPS_INTEGER')) {
-    define('IPS_INTEGER', 1);
-}
-if (!defined('IPS_FLOAT')) {
-    define('IPS_FLOAT', 2);
-}
-if (!defined('IPS_STRING')) {
-    define('IPS_STRING', 3);
+if (!defined('vtBoolean')) {
+    define('vtBoolean', 0);
+	define('vtInteger', 1);
+	define('vtFloat', 2);
+	define('vtString', 3);
+	define('vtArray', 8);
+	define('vtObject', 9);
 }
 
 // Model of Sensor
@@ -55,7 +51,7 @@ class HydrawiseSensor extends IPSModule
         $this->RegisterPropertyInteger('model', 0);
         $this->RegisterPropertyBoolean('with_daily_value', true);
 
-        $this->CreateVarProfile('Hydrawise.Flowmeter', IPS_FLOAT, ' l', 0, 0, 0, 0, 'Gauge');
+        $this->CreateVarProfile('Hydrawise.Flowmeter', vtFloat, ' l', 0, 0, 0, 0, 'Gauge');
 
         $this->ConnectParent('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}');
     }
@@ -73,8 +69,8 @@ class HydrawiseSensor extends IPSModule
 
         switch ($model) {
             case SENSOR_FLOW_METER:
-                $this->MaintainVariable('DailyFlow', $this->Translate('Water usage (day)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
-                $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), IPS_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
+                $this->MaintainVariable('DailyFlow', $this->Translate('Water usage (day)'), vtFloat, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
+                $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), vtFloat, 'Hydrawise.Flowmeter', $vpos++, true);
                 $mode_txt = 'flow meter';
                 break;
             case SENSOR_NORMALLY_CLOSE_START:
@@ -125,6 +121,14 @@ class HydrawiseSensor extends IPSModule
         $formElements[] = ['type' => 'Label', 'label' => 'optional sensor data'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
 
+        $formActions = [];
+        $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
+        $formActions[] = [
+                            'type'    => 'Button',
+                            'caption' => 'Module description',
+                            'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
+                        ];
+
         $formStatus = [];
         $formStatus[] = ['code' => '101', 'icon' => 'inactive', 'caption' => 'Instance getting created'];
         $formStatus[] = ['code' => '102', 'icon' => 'active', 'caption' => 'Instance is active'];
@@ -133,7 +137,7 @@ class HydrawiseSensor extends IPSModule
         $formStatus[] = ['code' => '201', 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
         $formStatus[] = ['code' => '202', 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
 
-        return json_encode(['elements' => $formElements, 'status' => $formStatus]);
+		return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
     }
 
     public function ReceiveData($data)

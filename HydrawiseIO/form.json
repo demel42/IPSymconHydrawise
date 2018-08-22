@@ -11,7 +11,9 @@
 			],
 	"actions":
 			[
-				{ "type": "Button", "label": "Update Data", "onClick": "HydrawiseIO_UpdateData($id);" }
+				{ "type": "Button", "label": "Update Data", "onClick": "HydrawiseIO_UpdateData($id);" },
+				{ "type": "Label", "label": "____________________________________________________________________________________________________" },
+				{ "type": "Button", "label": "Module description", "onClick": "echo 'https://github.com/demel42/IPSymconHydrawise/blob/master/README.md';" }
 			],		
 	"status":
 			[

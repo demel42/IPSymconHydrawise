@@ -1,7 +1,7 @@
 # IPSymconHydrawise
 
-[![IPS-Version](https://img.shields.io/badge/Symcon_Version-4.4+-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.2-blue.svg)
+[![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0+-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.3-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/128397152/shield?branch=master)](https://github.styleci.io/repos/128397152)
@@ -16,6 +16,7 @@
 4. [Funktionsreferenz](#4-funktionsreferenz)
 5. [Konfiguration](#5-konfiguration)  
 6. [Anhang](#6-anhang)  
+7. [Versions-Historie](#7-versions-historie)
 
 ## 1. Funktionsumfang
 
@@ -32,7 +33,8 @@ Das Modul besteht aus folgenden Instanzen
 
 ## 2. Voraussetzungen
 
- - IP-Symcon ab Version 4.4
+ - IP-Symcon ab Version 5<br>
+   Version 4.4 mit Branch _ips_4.4_ (nur noch Fehlerkorrekturen)
  - Bewässerungscomputer Hydrawise von Fa. Hunter
 
 ## 3. Installation
@@ -47,7 +49,7 @@ In dem sich öffnenden Fenster folgende URL hinzufügen:
 
 `https://github.com/demel42/IPSymconHydrawise.git`
     
-und mit _OK_ bestätigen.    
+und mit _OK_ bestätigen. Ggfs. auf anderen Branch wechseln (Modul-Eintrag editieren, _Zweig_ auswählen).
         
 Anschließend erscheint ein Eintrag für das Modul in der Liste der Instanz _Modules_    
 
@@ -254,3 +256,11 @@ GUIDs
   - `{B54B579C-3992-4C1D-B7A8-4A129A78ED03}`: an HydrawiseIO
   - `{5BF2F1ED-7782-457B-856F-D4F388CBF060}`: an HydrawiseSensor, HydrawiseZone
   - `{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}`: an HydrawiseController
+
+## 7. Versions-Historie
+
+- 1.3 @ 22.08.2018 17:42<br>
+  - Anpassungen IPS 5, Abspaltung Branch _ips_4.4_
+  - Versionshistorie dazu
+  - define's der Variablentypen
+  - Schaltfläche mit Link zu README.md in den Konfigurationsdialogen
