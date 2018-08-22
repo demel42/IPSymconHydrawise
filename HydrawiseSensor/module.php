@@ -13,11 +13,11 @@ if (!defined('KR_READY')) {
 
 if (!defined('vtBoolean')) {
     define('vtBoolean', 0);
-	define('vtInteger', 1);
-	define('vtFloat', 2);
-	define('vtString', 3);
-	define('vtArray', 8);
-	define('vtObject', 9);
+    define('vtInteger', 1);
+    define('vtFloat', 2);
+    define('vtString', 3);
+    define('vtArray', 8);
+    define('vtObject', 9);
 }
 
 // Model of Sensor
@@ -137,7 +137,7 @@ class HydrawiseSensor extends IPSModule
         $formStatus[] = ['code' => '201', 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
         $formStatus[] = ['code' => '202', 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
 
-		return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
+        return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
     }
 
     public function ReceiveData($data)
