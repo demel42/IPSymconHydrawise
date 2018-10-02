@@ -1,7 +1,7 @@
 # IPSymconHydrawise
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.3-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.4-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/128397152/shield?branch=master)](https://github.styleci.io/repos/128397152)
@@ -258,6 +258,9 @@ GUIDs
   - `{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}`: an HydrawiseController
 
 ## 7. Versions-Historie
+
+- 1.4 @ 02.10.2018 10:47<br>
+  - Schreibfehler
 
 - 1.3 @ 22.08.2018 17:42<br>
   - Anpassungen IPS 5, Abspaltung Branch _ips_4.4_

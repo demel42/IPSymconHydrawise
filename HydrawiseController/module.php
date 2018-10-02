@@ -98,8 +98,8 @@ class HydrawiseController extends IPSModule
             $with_forecast = $i < $num_forecast;
             $s = ' (' . $this->Translate($words[$i]) . ')';
             $this->MaintainVariable('Forecast' . $i . 'Conditions', $this->Translate('Conditions') . $s, vtString, '', $vpos++, $with_forecast);
-            $this->MaintainVariable('Forecast' . $i . 'TempMax', $this->Translate('maximum Temperatur') . $s, vtFloat, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
-            $this->MaintainVariable('Forecast' . $i . 'TempMin', $this->Translate('minimum Temperatur') . $s, vtFloat, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'TempMax', $this->Translate('maximum Temperature') . $s, vtFloat, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'TempMin', $this->Translate('minimum Temperature') . $s, vtFloat, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
             $this->MaintainVariable('Forecast' . $i . 'ProbabilityOfRain', $this->Translate('Probability of rainfall') . $s, vtInteger, 'Hydrawise.ProbabilityOfRain', $vpos++, $with_forecast);
             $this->MaintainVariable('Forecast' . $i . 'WindSpeed', $this->Translate('Windspeed') . $s, vtFloat, 'Hydrawise.WindSpeed', $vpos++, $with_forecast);
             $this->MaintainVariable('Forecast' . $i . 'Humidity', $this->Translate('Humidity') . $s, vtFloat, 'Hydrawise.Humidity', $vpos++, $with_forecast);
