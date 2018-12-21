@@ -7,13 +7,11 @@ require_once __DIR__ . '/../libs/library.php';  // modul-bezogene Funktionen
 if (!defined('IPS_KERNELMESSAGE')) {
     define('IPS_KERNELMESSAGE', 10100);
 }
-if (!defined('vtBoolean')) {
-    define('vtBoolean', 0);
-    define('vtInteger', 1);
-    define('vtFloat', 2);
-    define('vtString', 3);
-    define('vtArray', 8);
-    define('vtObject', 9);
+if (!defined('VARIABLETYPE_BOOLEAN')) {
+    define('VARIABLETYPE_BOOLEAN', 0);
+    define('VARIABLETYPE_INTEGER', 1);
+    define('VARIABLETYPE_FLOAT', 2);
+    define('VARIABLETYPE_STRING', 3);
 }
 
 class HydrawiseController extends IPSModule
@@ -40,13 +38,13 @@ class HydrawiseController extends IPSModule
         $this->RegisterPropertyBoolean('with_status_box', false);
         $this->RegisterPropertyBoolean('with_daily_value', true);
 
-        $this->CreateVarProfile('Hydrawise.Temperatur', vtFloat, ' °C', -10, 30, 0, 1, 'Temperature');
-        $this->CreateVarProfile('Hydrawise.WaterSaving', vtInteger, ' %', 0, 0, 0, 0, 'Drops');
-        $this->CreateVarProfile('Hydrawise.Rainfall', vtFloat, ' mm', 0, 60, 0, 1, 'Rainfall');
-        $this->CreateVarProfile('Hydrawise.ProbabilityOfRain', vtInteger, ' %', 0, 0, 0, 0, 'Rainfall');
-        $this->CreateVarProfile('Hydrawise.WindSpeed', vtFloat, ' km/h', 0, 100, 0, 0, 'WindSpeed');
-        $this->CreateVarProfile('Hydrawise.Humidity', vtFloat, ' %', 0, 100, 0, 0, 'Drops');
-        $this->CreateVarProfile('Hydrawise.Duration', vtInteger, ' min', 0, 0, 0, 0, 'Hourglass');
+        $this->CreateVarProfile('Hydrawise.Temperatur', VARIABLETYPE_FLOAT, ' °C', -10, 30, 0, 1, 'Temperature');
+        $this->CreateVarProfile('Hydrawise.WaterSaving', VARIABLETYPE_INTEGER, ' %', 0, 0, 0, 0, 'Drops');
+        $this->CreateVarProfile('Hydrawise.Rainfall', VARIABLETYPE_FLOAT, ' mm', 0, 60, 0, 1, 'Rainfall');
+        $this->CreateVarProfile('Hydrawise.ProbabilityOfRain', VARIABLETYPE_INTEGER, ' %', 0, 0, 0, 0, 'Rainfall');
+        $this->CreateVarProfile('Hydrawise.WindSpeed', VARIABLETYPE_FLOAT, ' km/h', 0, 100, 0, 0, 'WindSpeed');
+        $this->CreateVarProfile('Hydrawise.Humidity', VARIABLETYPE_FLOAT, ' %', 0, 100, 0, 0, 'Drops');
+        $this->CreateVarProfile('Hydrawise.Duration', VARIABLETYPE_INTEGER, ' min', 0, 0, 0, 0, 'Hourglass');
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
 
@@ -80,32 +78,32 @@ class HydrawiseController extends IPSModule
 
         $vpos = 1;
 
-        $this->MaintainVariable('Status', $this->Translate('State'), vtBoolean, '~Alert.Reversed', $vpos++, true);
-        $this->MaintainVariable('LastContact', $this->Translate('last contact'), vtInteger, '~UnixTimestamp', $vpos++, $with_last_contact);
-        $this->MaintainVariable('LastMessage', $this->Translate('Message to last contact'), vtString, '', $vpos++, $with_last_message);
-        $this->MaintainVariable('DailyReference', $this->Translate('day of cumulation'), vtInteger, '~UnixTimestampDate', $vpos++, $with_daily_value);
-        $this->MaintainVariable('DailyWateringTime', $this->Translate('Watering time (day)'), vtInteger, 'Hydrawise.Duration', $vpos++, $with_info && $with_daily_value);
-        $this->MaintainVariable('WateringTime', $this->Translate('Watering time (week)'), vtInteger, 'Hydrawise.Duration', $vpos++, $with_info);
-        $this->MaintainVariable('WaterSaving', $this->Translate('Water saving'), vtInteger, 'Hydrawise.WaterSaving', $vpos++, $with_info);
+        $this->MaintainVariable('Status', $this->Translate('State'), VARIABLETYPE_BOOLEAN, '~Alert.Reversed', $vpos++, true);
+        $this->MaintainVariable('LastContact', $this->Translate('last contact'), VARIABLETYPE_INTEGER, '~UnixTimestamp', $vpos++, $with_last_contact);
+        $this->MaintainVariable('LastMessage', $this->Translate('Message to last contact'), VARIABLETYPE_STRING, '', $vpos++, $with_last_message);
+        $this->MaintainVariable('DailyReference', $this->Translate('day of cumulation'), VARIABLETYPE_INTEGER, '~UnixTimestampDate', $vpos++, $with_daily_value);
+        $this->MaintainVariable('DailyWateringTime', $this->Translate('Watering time (day)'), VARIABLETYPE_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info && $with_daily_value);
+        $this->MaintainVariable('WateringTime', $this->Translate('Watering time (week)'), VARIABLETYPE_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info);
+        $this->MaintainVariable('WaterSaving', $this->Translate('Water saving'), VARIABLETYPE_INTEGER, 'Hydrawise.WaterSaving', $vpos++, $with_info);
 
-        $this->MaintainVariable('ObsRainDay', $this->Translate('Rainfall (last day)'), vtFloat, 'Hydrawise.Rainfall', $vpos++, $with_observations);
-        $this->MaintainVariable('ObsRainWeek', $this->Translate('Rainfall (last week)'), vtFloat, 'Hydrawise.Rainfall', $vpos++, $with_observations);
-        $this->MaintainVariable('ObsCurTemp', $this->Translate('currrent Temperature'), vtFloat, 'Hydrawise.Temperatur', $vpos++, $with_observations);
-        $this->MaintainVariable('ObsMaxTemp', $this->Translate('maximum Temperature (24h)'), vtFloat, 'Hydrawise.Temperatur', $vpos++, $with_observations);
+        $this->MaintainVariable('ObsRainDay', $this->Translate('Rainfall (last day)'), VARIABLETYPE_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
+        $this->MaintainVariable('ObsRainWeek', $this->Translate('Rainfall (last week)'), VARIABLETYPE_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
+        $this->MaintainVariable('ObsCurTemp', $this->Translate('currrent Temperature'), VARIABLETYPE_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
+        $this->MaintainVariable('ObsMaxTemp', $this->Translate('maximum Temperature (24h)'), VARIABLETYPE_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
 
         $words = ['today', 'tomorrow', 'overmorrow'];
         for ($i = 0; $i < 3; $i++) {
             $with_forecast = $i < $num_forecast;
             $s = ' (' . $this->Translate($words[$i]) . ')';
-            $this->MaintainVariable('Forecast' . $i . 'Conditions', $this->Translate('Conditions') . $s, vtString, '', $vpos++, $with_forecast);
-            $this->MaintainVariable('Forecast' . $i . 'TempMax', $this->Translate('maximum Temperature') . $s, vtFloat, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
-            $this->MaintainVariable('Forecast' . $i . 'TempMin', $this->Translate('minimum Temperature') . $s, vtFloat, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
-            $this->MaintainVariable('Forecast' . $i . 'ProbabilityOfRain', $this->Translate('Probability of rainfall') . $s, vtInteger, 'Hydrawise.ProbabilityOfRain', $vpos++, $with_forecast);
-            $this->MaintainVariable('Forecast' . $i . 'WindSpeed', $this->Translate('Windspeed') . $s, vtFloat, 'Hydrawise.WindSpeed', $vpos++, $with_forecast);
-            $this->MaintainVariable('Forecast' . $i . 'Humidity', $this->Translate('Humidity') . $s, vtFloat, 'Hydrawise.Humidity', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'Conditions', $this->Translate('Conditions') . $s, VARIABLETYPE_STRING, '', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'TempMax', $this->Translate('maximum Temperature') . $s, VARIABLETYPE_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'TempMin', $this->Translate('minimum Temperature') . $s, VARIABLETYPE_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'ProbabilityOfRain', $this->Translate('Probability of rainfall') . $s, VARIABLETYPE_INTEGER, 'Hydrawise.ProbabilityOfRain', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'WindSpeed', $this->Translate('Windspeed') . $s, VARIABLETYPE_FLOAT, 'Hydrawise.WindSpeed', $vpos++, $with_forecast);
+            $this->MaintainVariable('Forecast' . $i . 'Humidity', $this->Translate('Humidity') . $s, VARIABLETYPE_FLOAT, 'Hydrawise.Humidity', $vpos++, $with_forecast);
         }
 
-        $this->MaintainVariable('StatusBox', $this->Translate('State of irrigation'), vtString, '~HTMLBox', $vpos++, $with_status_box);
+        $this->MaintainVariable('StatusBox', $this->Translate('State of irrigation'), VARIABLETYPE_STRING, '~HTMLBox', $vpos++, $with_status_box);
 
         // Inspired by module SymconTest/HookServe
         // Only call this in READY state. On startup the WebHook instance might not be available yet

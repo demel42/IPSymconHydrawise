@@ -11,13 +11,11 @@ if (!defined('KR_READY')) {
     define('KR_READY', 10103);
 }
 
-if (!defined('vtBoolean')) {
-    define('vtBoolean', 0);
-    define('vtInteger', 1);
-    define('vtFloat', 2);
-    define('vtString', 3);
-    define('vtArray', 8);
-    define('vtObject', 9);
+if (!defined('VARIABLETYPE_BOOLEAN')) {
+    define('VARIABLETYPE_BOOLEAN', 0);
+    define('VARIABLETYPE_INTEGER', 1);
+    define('VARIABLETYPE_FLOAT', 2);
+    define('VARIABLETYPE_STRING', 3);
 }
 
 // Model of Sensor
@@ -51,7 +49,7 @@ class HydrawiseSensor extends IPSModule
         $this->RegisterPropertyInteger('model', 0);
         $this->RegisterPropertyBoolean('with_daily_value', true);
 
-        $this->CreateVarProfile('Hydrawise.Flowmeter', vtFloat, ' l', 0, 0, 0, 0, 'Gauge');
+        $this->CreateVarProfile('Hydrawise.Flowmeter', VARIABLETYPE_FLOAT, ' l', 0, 0, 0, 0, 'Gauge');
 
         $this->ConnectParent('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}');
     }
@@ -69,8 +67,8 @@ class HydrawiseSensor extends IPSModule
 
         switch ($model) {
             case SENSOR_FLOW_METER:
-                $this->MaintainVariable('DailyFlow', $this->Translate('Water usage (day)'), vtFloat, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
-                $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), vtFloat, 'Hydrawise.Flowmeter', $vpos++, true);
+                $this->MaintainVariable('DailyFlow', $this->Translate('Water usage (day)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
+                $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
                 $mode_txt = 'flow meter';
                 break;
             case SENSOR_NORMALLY_CLOSE_START:
