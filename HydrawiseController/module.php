@@ -198,7 +198,7 @@ class HydrawiseController extends IPSModule
         }
 
         if ($do_abort) {
-			$this->LogMessage('statuscode=' . $statuscode . ', err=' . $err, KL_WARNING);
+            $this->LogMessage('statuscode=' . $statuscode . ', err=' . $err, KL_WARNING);
             $this->SendDebug(__FUNCTION__, $err, 0);
             $this->SetStatus($statuscode);
 
