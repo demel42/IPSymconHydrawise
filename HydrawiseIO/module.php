@@ -15,7 +15,7 @@ class HydrawiseIO extends IPSModule
         $this->RegisterPropertyString('api_key', '');
 
         $this->RegisterPropertyInteger('UpdateDataInterval', '60');
-		$this->RegisterPropertyInteger('ignore_http_error', '0');
+        $this->RegisterPropertyInteger('ignore_http_error', '0');
 
         $this->RegisterTimer('UpdateData', 0, 'HydrawiseIO_UpdateData(' . $this->InstanceID . ');');
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
@@ -162,7 +162,7 @@ class HydrawiseIO extends IPSModule
 
     private function do_HttpRequest($url)
     {
-		$ignore_http_error = $this->ReadPropertyInteger('ignore_http_error');
+        $ignore_http_error = $this->ReadPropertyInteger('ignore_http_error');
 
         $this->SendDebug(__FUNCTION__, 'http-get: url=' . $url, 0);
         $time_start = microtime(true);
@@ -174,8 +174,8 @@ class HydrawiseIO extends IPSModule
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         $cdata = curl_exec($ch);
-		$cerrno = curl_errno ($ch);
-		$cerror = $cerrno ? curl_error($ch) : '';
+        $cerrno = curl_errno($ch);
+        $cerror = $cerrno ? curl_error($ch) : '';
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
@@ -185,10 +185,10 @@ class HydrawiseIO extends IPSModule
         $statuscode = 0;
         $err = '';
         $data = '';
-		if ($cerrno) {
+        if ($cerrno) {
             $statuscode = 204;
             $err = 'got curl-errno ' . $cerrno . ' (' . $cerror . ')';
-		} elseif ($httpcode != 200) {
+        } elseif ($httpcode != 200) {
             if ($httpcode == 400 || $httpcode == 401) {
                 $statuscode = 201;
                 $err = 'got http-code ' . $httpcode . ' (unauthorized)';
