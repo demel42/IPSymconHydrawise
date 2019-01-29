@@ -1,7 +1,7 @@
 # IPSymconHydrawise
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.6-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.7-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/128397152/shield?branch=master)](https://github.styleci.io/repos/128397152)
@@ -258,6 +258,11 @@ GUIDs
   - `{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}`: an HydrawiseController
 
 ## 7. Versions-Historie
+
+- 1.7 @ 26.01.2019 10:55<br>
+  - curl_errno() abfragen
+  - es gibt ab und an Timeout-Fehler bei HTTP-Abruf, daher  wird optional erst nach dem X. Fehler reagiert
+  - I/O-Fehler werden nicht mehr an die Instanzen weitergeleitet
 
 - 1.6 @ 22.12.2018 11:35<br>
   - Fehler in der http-Kommunikation nun nicht mehr mit _echo_ (also als **ERROR**) sondern mit _LogMessage_ als **NOTIFY**

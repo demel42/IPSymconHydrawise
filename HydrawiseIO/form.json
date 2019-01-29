@@ -5,6 +5,9 @@
 				{ "type": "Label", "label": "API-Key from https://app.hydrawise.com/config/account" },
 				{ "type": "ValidationTextBox", "name": "api_key", "caption": "API-Key" },
 
+				{ "type": "Label", "label": "Ignore HTTP-Error X times" },
+                { "type": "IntervalBox", "name": "ignore_http_error", "caption": "Count" },
+
 				{ "type": "Label", "label": "" },
 				{ "type": "Label", "label": "Update data every X seconds" },
 				{ "type": "IntervalBox", "name": "UpdateDataInterval", "caption": "Seconds" }

@@ -6,6 +6,9 @@
 				"API-Key von https://app.hydrawise.com/config/account",
 			"API-Key": "API-Key",
 
+			"Ignore HTTP-Error X times": "HTTP-Fehler X-fach ignorieren",
+            "Count": "Anzahl",
+
 			"Update data every X seconds": "Aktualisiere Daten alle X Sekunden",
 			"Seconds": "Sekunden",
 

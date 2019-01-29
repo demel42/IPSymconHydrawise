@@ -2,11 +2,11 @@
 	"id": "{CCB22FB7-9262-4387-98E4-256A07E37816}",
 	"author": "Ch. Damsky",
 	"name": "Hydrawise",
-	"url": "",
+	"url": "https://github.com/demel42/IPSymconHydrawise",
 	"compatibility": {
 		"version": "5.0"
 	},
-	"version": "1.6",
+	"version": "1.7",
 	"build": 0,
-	"date": 1545474913
+	"date": 1548496504
 }

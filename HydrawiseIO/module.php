@@ -15,6 +15,7 @@ class HydrawiseIO extends IPSModule
         $this->RegisterPropertyString('api_key', '');
 
         $this->RegisterPropertyInteger('UpdateDataInterval', '60');
+		$this->RegisterPropertyInteger('ignore_http_error', '0');
 
         $this->RegisterTimer('UpdateData', 0, 'HydrawiseIO_UpdateData(' . $this->InstanceID . ');');
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
@@ -112,9 +113,8 @@ class HydrawiseIO extends IPSModule
         }
 
         if ($do_abort) {
-            $this->SendData('');
+            // $this->SendData('');
             $this->SetBuffer('LastData', '');
-
             return -1;
         }
 
@@ -162,6 +162,8 @@ class HydrawiseIO extends IPSModule
 
     private function do_HttpRequest($url)
     {
+		$ignore_http_error = $this->ReadPropertyInteger('ignore_http_error');
+
         $this->SendDebug(__FUNCTION__, 'http-get: url=' . $url, 0);
         $time_start = microtime(true);
 
@@ -172,25 +174,30 @@ class HydrawiseIO extends IPSModule
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30);
         $cdata = curl_exec($ch);
+		$cerrno = curl_errno ($ch);
+		$cerror = $cerrno ? curl_error($ch) : '';
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
         $duration = round(microtime(true) - $time_start, 2);
-        $this->SendDebug(__FUNCTION__, ' => httpcode=' . $httpcode . ', duration=' . $duration . 's', 0);
+        $this->SendDebug(__FUNCTION__, ' => errno=' . $cerrno . ', httpcode=' . $httpcode . ', duration=' . $duration . 's', 0);
 
         $statuscode = 0;
         $err = '';
         $data = '';
-        if ($httpcode != 200) {
+		if ($cerrno) {
+            $statuscode = 204;
+            $err = 'got curl-errno ' . $cerrno . ' (' . $cerror . ')';
+		} elseif ($httpcode != 200) {
             if ($httpcode == 400 || $httpcode == 401) {
                 $statuscode = 201;
-                $err = "got http-code $httpcode (unauthorized)";
+                $err = 'got http-code ' . $httpcode . ' (unauthorized)';
             } elseif ($httpcode >= 500 && $httpcode <= 599) {
                 $statuscode = 202;
-                $err = "got http-code $httpcode (server error)";
+                $err = 'got http-code ' . $httpcode . ' (server error)';
             } else {
                 $statuscode = 203;
-                $err = "got http-code $httpcode";
+                $err = 'got http-code ' . $httpcode;
             }
         } elseif ($cdata == '') {
             $statuscode = 204;
@@ -206,10 +213,26 @@ class HydrawiseIO extends IPSModule
         }
 
         if ($statuscode) {
-            $this->LogMessage('url=' . $url . ' => statuscode=' . $statuscode . ', err=' . $err, KL_WARNING);
-            $this->SendDebug(__FUNCTION__, ' => statuscode=' . $statuscode . ', err=' . $err, 0);
-            $this->SetStatus($statuscode);
+            $cstat = $this->GetBuffer('LastStatus');
+            if ($cstat != '') {
+                $jstat = json_decode($cstat, true);
+            } else {
+                $jstat = [];
+            }
+            $jstat[] = ['statuscode' => $statuscode, 'err' => $err, 'tstamp' => time()];
+            $n_stat = count($jstat);
+            $cstat = json_encode($jstat);
+            $this->LogMessage('url=' . $url . ' => statuscode=' . $statuscode . ', err=' . $err . ', status #' . $n_stat, KL_WARNING);
+
+            if ($n_stat >= $ignore_http_error) {
+                $this->SetStatus($statuscode);
+                $cstat = '';
+            }
+            $this->SendDebug(__FUNCTION__, ' => statuscode=' . $statuscode . ', err=' . $err . ', status #' . $n_stat, 0);
+        } else {
+            $cstat = '';
         }
+        $this->SetBuffer('LastStatus', $cstat);
 
         return $data;
     }
