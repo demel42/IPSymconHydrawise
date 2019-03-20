@@ -80,6 +80,8 @@ Hierüber findet die http-Kommunikation statt.
 
 | Eigenschaft               | Typ      | Standardwert | Beschreibung |
 | :-----------------------: | :-----:  | :----------: | :----------------------------------------------------------------------------------------------------------: |
+| Modul ist deaktiviert     | boolean  | false        | Modul temporär deaktivieren |
+|                           |          |              | |
 | Hydrawise-Zugangsdaten    | string   |              | Benutzername und Passwort von https://app.hydrawise.com/config/login                                         |
 |                           |          |              | |
 | Aktualisiere Daten ...    | integer  | 60           | Aktualisierungsintervall, Angabe in Sekunden |
