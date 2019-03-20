@@ -12,7 +12,7 @@ class HydrawiseIO extends IPSModule
     {
         parent::Create();
 
-		$this->RegisterPropertyBoolean('module_disable', false);
+        $this->RegisterPropertyBoolean('module_disable', false);
 
         $this->RegisterPropertyString('api_key', '');
 
@@ -27,12 +27,12 @@ class HydrawiseIO extends IPSModule
     {
         parent::ApplyChanges();
 
-		$module_disable = $this->ReadPropertyBoolean('module_disable');
-		if ($module_disable) {
+        $module_disable = $this->ReadPropertyBoolean('module_disable');
+        if ($module_disable) {
             $this->SetTimerInterval('UpdateData', 0);
-			$this->SetStatus(IS_INACTIVE);
-			return;
-		}
+            $this->SetStatus(IS_INACTIVE);
+            return;
+        }
 
         $api_key = $this->ReadPropertyString('api_key');
         if ($api_key != '') {
@@ -51,7 +51,7 @@ class HydrawiseIO extends IPSModule
     public function GetConfigurationForm()
     {
         $formElements = [];
-		$formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Module is disabled'];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Module is disabled'];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Access-Details'];
         $formElements[] = ['type' => 'Label', 'label' => 'API-Key from https://app.hydrawise.com/config/account'];
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'api_key', 'caption' => 'API-Key'];
@@ -111,11 +111,11 @@ class HydrawiseIO extends IPSModule
 
     public function ForwardData($data)
     {
-		$inst = IPS_GetInstance($this->InstanceID);
-		if ($inst['InstanceStatus'] == IS_INACTIVE) {
-			$this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
-			return;
-		}
+        $inst = IPS_GetInstance($this->InstanceID);
+        if ($inst['InstanceStatus'] == IS_INACTIVE) {
+            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            return;
+        }
 
         $jdata = json_decode($data);
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
@@ -145,11 +145,11 @@ class HydrawiseIO extends IPSModule
 
     public function UpdateData()
     {
-		$inst = IPS_GetInstance($this->InstanceID);
-		if ($inst['InstanceStatus'] == IS_INACTIVE) {
-			$this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
-			return;
-		}
+        $inst = IPS_GetInstance($this->InstanceID);
+        if ($inst['InstanceStatus'] == IS_INACTIVE) {
+            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            return;
+        }
 
         $api_key = $this->ReadPropertyString('api_key');
 
@@ -184,11 +184,11 @@ class HydrawiseIO extends IPSModule
 
     public function SendCommand(string $cmd_url)
     {
-		$inst = IPS_GetInstance($this->InstanceID);
-		if ($inst['InstanceStatus'] == IS_INACTIVE) {
-			$this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
-			return false;
-		}
+        $inst = IPS_GetInstance($this->InstanceID);
+        if ($inst['InstanceStatus'] == IS_INACTIVE) {
+            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            return false;
+        }
 
         $api_key = $this->ReadPropertyString('api_key');
 
