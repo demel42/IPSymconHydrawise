@@ -76,7 +76,7 @@ class HydrawiseSensor extends IPSModule
         $info = 'Sensor ' . $connector . ' (' . $mode_txt . ')';
         $this->SetSummary($info);
 
-        $this->SetStatus(102);
+        $this->SetStatus(IS_ACTIVE);
     }
 
     public function GetConfigurationForm()
@@ -113,12 +113,20 @@ class HydrawiseSensor extends IPSModule
                         ];
 
         $formStatus = [];
-        $formStatus[] = ['code' => '101', 'icon' => 'inactive', 'caption' => 'Instance getting created'];
-        $formStatus[] = ['code' => '102', 'icon' => 'active', 'caption' => 'Instance is active'];
-        $formStatus[] = ['code' => '104', 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
+        $formStatus[] = ['code' => IS_CREATING, 'icon' => 'inactive', 'caption' => 'Instance getting created'];
+        $formStatus[] = ['code' => IS_ACTIVE, 'icon' => 'active', 'caption' => 'Instance is active'];
+        $formStatus[] = ['code' => IS_DELETING, 'icon' => 'inactive', 'caption' => 'Instance is deleted'];
+        $formStatus[] = ['code' => IS_INACTIVE, 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
+        $formStatus[] = ['code' => IS_NOTCREATED, 'icon' => 'inactive', 'caption' => 'Instance is not created'];
 
-        $formStatus[] = ['code' => '201', 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
-        $formStatus[] = ['code' => '202', 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
+		$formStatus[] = ['code' => IS_UNAUTHORIZED, 'icon' => 'error', 'caption' => 'Instance is inactive (unauthorized)'];
+		$formStatus[] = ['code' => IS_SERVERERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (server error)'];
+		$formStatus[] = ['code' => IS_HTTPERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (http error)'];
+		$formStatus[] = ['code' => IS_INVALIDDATA, 'icon' => 'error', 'caption' => 'Instance is inactive (invalid data)'];
+		$formStatus[] = ['code' => IS_NODATA, 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
+		$formStatus[] = ['code' => IS_NOCONROLLER, 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
+		$formStatus[] = ['code' => IS_CONTROLLER_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
+		$formStatus[] = ['code' => IS_ZONE_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
 
         return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
     }
@@ -173,12 +181,12 @@ class HydrawiseSensor extends IPSModule
             }
             if ($controller_found == false) {
                 $err = "controller_id \"$controller_id\" not found";
-                $statuscode = 202;
+                $statuscode = IS_CONTROLLER_MISSING;
                 $do_abort = true;
             }
         } else {
             $err = 'no data';
-            $statuscode = 201;
+            $statuscode = IS_NODATA;
             $do_abort = true;
         }
 
@@ -236,7 +244,7 @@ class HydrawiseSensor extends IPSModule
             }
         }
 
-        $this->SetStatus(102);
+        $this->SetStatus(IS_ACTIVE);
     }
 
     protected function ClearDailyValue()

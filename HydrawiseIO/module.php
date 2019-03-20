@@ -12,6 +12,8 @@ class HydrawiseIO extends IPSModule
     {
         parent::Create();
 
+		$this->RegisterPropertyBoolean('module_disable', false);
+
         $this->RegisterPropertyString('api_key', '');
 
         $this->RegisterPropertyInteger('UpdateDataInterval', '60');
@@ -25,8 +27,14 @@ class HydrawiseIO extends IPSModule
     {
         parent::ApplyChanges();
 
-        $api_key = $this->ReadPropertyString('api_key');
+		$module_disable = $this->ReadPropertyBoolean('module_disable');
+		if ($module_disable) {
+            $this->SetTimerInterval('UpdateData', 0);
+			$this->SetStatus(IS_INACTIVE);
+			return;
+		}
 
+        $api_key = $this->ReadPropertyString('api_key');
         if ($api_key != '') {
             $this->SetUpdateInterval();
             // Inspired by module SymconTest/HookServe
@@ -34,10 +42,52 @@ class HydrawiseIO extends IPSModule
             if (IPS_GetKernelRunlevel() == KR_READY) {
                 $this->UpdateData();
             }
-            $this->SetStatus(102);
+            $this->SetStatus(IS_ACTIVE);
         } else {
-            $this->SetStatus(104);
+            $this->SetStatus(IS_INACTIVE);
         }
+    }
+
+    public function GetConfigurationForm()
+    {
+        $formElements = [];
+		$formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Module is disabled'];
+        $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Access-Details'];
+        $formElements[] = ['type' => 'Label', 'label' => 'API-Key from https://app.hydrawise.com/config/account'];
+        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'api_key', 'caption' => 'API-Key'];
+        $formElements[] = ['type' => 'Label', 'label' => 'Ignore HTTP-Error X times'];
+        $formElements[] = ['type' => 'NumberSpinner', 'name' => 'ignore_http_error', 'caption' => 'Count'];
+        $formElements[] = ['type' => 'Label', 'label' => ''];
+        $formElements[] = ['type' => 'Label', 'label' => 'Update data every X seconds'];
+        $formElements[] = ['type' => 'NumberSpinner', 'name' => 'UpdateDataInterval', 'caption' => 'Seconds'];
+
+        $formActions = [];
+        $formActions[] = ['type' => 'Button', 'label' => 'Update Data', 'onClick' => 'HydrawiseIO_UpdateData($id);'];
+        $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
+        $formActions[] = ['type' => 'Button', 'label' => 'Module description', 'onClick' => 'echo \'https://github.com/demel42/IPSymconHydrawise/blob/master/README.md\';'];
+
+        $formStatus = [];
+        $formStatus[] = ['code' => IS_CREATING, 'icon' => 'inactive', 'caption' => 'Instance getting created'];
+        $formStatus[] = ['code' => IS_ACTIVE, 'icon' => 'active', 'caption' => 'Instance is active'];
+        $formStatus[] = ['code' => IS_DELETING, 'icon' => 'inactive', 'caption' => 'Instance is deleted'];
+        $formStatus[] = ['code' => IS_INACTIVE, 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
+        $formStatus[] = ['code' => IS_NOTCREATED, 'icon' => 'inactive', 'caption' => 'Instance is not created'];
+
+        $formStatus[] = ['code' => '201', 'icon' => 'error', 'caption' => 'Instance is inactive (unauthorized)'];
+        $formStatus[] = ['code' => '202', 'icon' => 'error', 'caption' => 'Instance is inactive (server error)'];
+        $formStatus[] = ['code' => '203', 'icon' => 'error', 'caption' => 'Instance is inactive (http error)'];
+        $formStatus[] = ['code' => '204', 'icon' => 'error', 'caption' => 'Instance is inactive (invalid data)'];
+
+		$formStatus[] = ['code' => IS_UNAUTHORIZED, 'icon' => 'error', 'caption' => 'Instance is inactive (unauthorized)'];
+		$formStatus[] = ['code' => IS_SERVERERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (server error)'];
+		$formStatus[] = ['code' => IS_HTTPERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (http error)'];
+		$formStatus[] = ['code' => IS_INVALIDDATA, 'icon' => 'error', 'caption' => 'Instance is inactive (invalid data)'];
+		$formStatus[] = ['code' => IS_NODATA, 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
+		$formStatus[] = ['code' => IS_NOCONROLLER, 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
+		$formStatus[] = ['code' => IS_CONTROLLER_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
+		$formStatus[] = ['code' => IS_ZONE_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
+
+        return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
     }
 
     // Inspired by module SymconTest/HookServe
@@ -66,6 +116,12 @@ class HydrawiseIO extends IPSModule
 
     public function ForwardData($data)
     {
+		$inst = IPS_GetInstance($this->InstanceID);
+		if ($inst['InstanceStatus'] == IS_INACTIVE) {
+			$this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+			return;
+		}
+
         $jdata = json_decode($data);
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
 
@@ -94,6 +150,12 @@ class HydrawiseIO extends IPSModule
 
     public function UpdateData()
     {
+		$inst = IPS_GetInstance($this->InstanceID);
+		if ($inst['InstanceStatus'] == IS_INACTIVE) {
+			$this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+			return;
+		}
+
         $api_key = $this->ReadPropertyString('api_key');
 
         $url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key=' . $api_key . '&tag=hydrawise_all';
@@ -113,12 +175,11 @@ class HydrawiseIO extends IPSModule
         }
 
         if ($do_abort) {
-            // $this->SendData('');
             $this->SetBuffer('LastData', '');
-            return -1;
+            return;
         }
 
-        $this->SetStatus(102);
+        $this->SetStatus(IS_ACTIVE);
 
         $this->SendData($data);
         $this->SetBuffer('LastData', $data);
@@ -128,6 +189,12 @@ class HydrawiseIO extends IPSModule
 
     public function SendCommand(string $cmd_url)
     {
+		$inst = IPS_GetInstance($this->InstanceID);
+		if ($inst['InstanceStatus'] == IS_INACTIVE) {
+			$this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+			return false;
+		}
+
         $api_key = $this->ReadPropertyString('api_key');
 
         $url = "https://app.hydrawise.com/api/v1/setzone.php?api_key=$api_key&" . $cmd_url;
@@ -186,26 +253,26 @@ class HydrawiseIO extends IPSModule
         $err = '';
         $data = '';
         if ($cerrno) {
-            $statuscode = 204;
+            $statuscode = IS_HTTPERROR;
             $err = 'got curl-errno ' . $cerrno . ' (' . $cerror . ')';
         } elseif ($httpcode != 200) {
             if ($httpcode == 400 || $httpcode == 401) {
-                $statuscode = 201;
+                $statuscode = IS_UNAUTHORIZED;
                 $err = 'got http-code ' . $httpcode . ' (unauthorized)';
             } elseif ($httpcode >= 500 && $httpcode <= 599) {
-                $statuscode = 202;
+                $statuscode = IS_SERVERERROR;
                 $err = 'got http-code ' . $httpcode . ' (server error)';
             } else {
-                $statuscode = 203;
+                $statuscode = IS_HTTPERROR;
                 $err = 'got http-code ' . $httpcode;
             }
         } elseif ($cdata == '') {
-            $statuscode = 204;
+            $statuscode = IS_INVALIDDATA;
             $err = 'no data';
         } else {
             $jdata = json_decode($cdata, true);
             if ($jdata == '') {
-                $statuscode = 204;
+                $statuscode = IS_INVALIDDATA;
                 $err = 'malformed response';
             } else {
                 $data = $cdata;

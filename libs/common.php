@@ -30,6 +30,17 @@ if (!defined('VARIABLETYPE_BOOLEAN')) {
     define('VARIABLETYPE_STRING', 3);
 }
 
+if (!defined('IS_UNAUTHORIZED')) {
+    define('IS_UNAUTHORIZED', IS_EBASE + 1);
+    define('IS_SERVERERROR', IS_EBASE + 2);
+    define('IS_HTTPERROR', IS_EBASE + 3);
+    define('IS_INVALIDDATA', IS_EBASE + 4);
+    define('IS_NODATA', IS_EBASE + 5);
+    define('IS_NOCONROLLER', IS_EBASE + 6);
+    define('IS_CONTROLLER_MISSING', IS_EBASE + 7);
+    define('IS_ZONE_MISSING', IS_EBASE + 8);
+}
+
 trait HydrawiseCommon
 {
     protected function SetValue($Ident, $Value)

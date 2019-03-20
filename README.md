@@ -1,7 +1,7 @@
 # IPSymconHydrawise
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.7-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.8-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/128397152/shield?branch=master)](https://github.styleci.io/repos/128397152)
@@ -258,6 +258,10 @@ GUIDs
   - `{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}`: an HydrawiseController
 
 ## 7. Versions-Historie
+
+- 1.8 @ 20.03.2019 14:08<br>
+  - form.json in GetConfigurationForm() abgebildet
+  - Schalter, um das I/O-Modul (temporär) zu deaktivieren
 
 - 1.7 @ 26.01.2019 10:55<br>
   - curl_errno() abfragen
