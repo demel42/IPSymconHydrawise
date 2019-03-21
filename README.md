@@ -264,6 +264,7 @@ GUIDs
 - 1.8 @ 20.03.2019 14:08<br>
   - form.json in GetConfigurationForm() abgebildet
   - Schalter, um die I/O-Instanz (temporär) zu deaktivieren
+  - Anpassungen IPS 5
 
 - 1.7 @ 26.01.2019 10:55<br>
   - curl_errno() abfragen
