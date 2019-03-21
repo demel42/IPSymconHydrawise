@@ -80,7 +80,7 @@ Hierüber findet die http-Kommunikation statt.
 
 | Eigenschaft               | Typ      | Standardwert | Beschreibung |
 | :-----------------------: | :-----:  | :----------: | :----------------------------------------------------------------------------------------------------------: |
-| Modul ist deaktiviert     | boolean  | false        | Modul temporär deaktivieren |
+| Instanz ist deaktiviert   | boolean  | false        | Instanz temporär deaktivieren |
 |                           |          |              | |
 | Hydrawise-Zugangsdaten    | string   |              | Benutzername und Passwort von https://app.hydrawise.com/config/login                                         |
 |                           |          |              | |
@@ -263,7 +263,7 @@ GUIDs
 
 - 1.8 @ 20.03.2019 14:08<br>
   - form.json in GetConfigurationForm() abgebildet
-  - Schalter, um das I/O-Modul (temporär) zu deaktivieren
+  - Schalter, um die I/O-Instanz (temporär) zu deaktivieren
 
 - 1.7 @ 26.01.2019 10:55<br>
   - curl_errno() abfragen

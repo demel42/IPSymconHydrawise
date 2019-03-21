@@ -1,7 +1,7 @@
 {
 	"translations": {
 		"de": {
-			"Module is disabled": "Modul ist deaktiviert",
+			"Instance is disabled": "Instanz ist deaktiviert",
 
 			"Hydrawise Access-Details": "Hydrawise Zugangsdaten",
 			"API-Key from https://app.hydrawise.com/config/account":
