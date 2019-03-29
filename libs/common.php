@@ -28,7 +28,7 @@ trait HydrawiseCommon
             return;
         }
 
-        $ret = parent::SetValue($Ident, $Value);
+        @$ret = parent::SetValue($Ident, $Value);
         if ($ret == false) {
             $this->SendDebug(__FUNCTION__, 'mismatch of value "' . $Value . '" for variable ' . $Ident, 0);
         }
