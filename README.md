@@ -78,19 +78,19 @@ Hierüber findet die http-Kommunikation statt.
 
 #### Variablen
 
-| Eigenschaft               | Typ      | Standardwert | Beschreibung |
-| :-----------------------: | :-----:  | :----------: | :----------------------------------------------------------------------------------------------------------: |
-| Instanz ist deaktiviert   | boolean  | false        | Instanz temporär deaktivieren |
-|                           |          |              | |
-| Hydrawise-Zugangsdaten    | string   |              | Benutzername und Passwort von https://app.hydrawise.com/config/login                                         |
-|                           |          |              | |
-| Aktualisiere Daten ...    | integer  | 60           | Aktualisierungsintervall, Angabe in Sekunden |
+| Eigenschaft              | Typ     | Standardwert | Beschreibung |
+| :----------------------- | :------ | :----------- | :----------- |
+| Instanz ist deaktiviert  | boolean | false        | Instanz temporär deaktivieren |
+|                          |         |              | |
+| Hydrawise-Zugangsdaten   | string  |              | Benutzername und Passwort von https://app.hydrawise.com/config/login |
+|                          |         |              | |
+| Aktualisiere Daten ...   | integer | 60           | Aktualisierungsintervall, Angabe in Sekunden |
 
 #### Schaltflächen
 
-| Bezeichnung                  | Beschreibung |
-| :--------------------------: | :------------------------------------------------: |
-| Aktualisiere Daten           | führt eine sofortige Aktualisierung durch |
+| Bezeichnung         | Beschreibung |
+| :------------------ | :----------- |
+| Aktualisiere Daten  | führt eine sofortige Aktualisierung durch |
 
 ### HydrawiseConfig
 
@@ -102,9 +102,9 @@ Es werden alle Controller zu dem konfigurierten Account zur Auswahl angeboten.
 
 #### Schaltflächen
 
-| Bezeichnung                  | Beschreibung |
-| :--------------------------: | :------------------------------------------------: |
-| Import des Controller        | richtet die Geräte-Instanzen ein |
+| Bezeichnung           | Beschreibung |
+| :-------------------- | :----------- |
+| Import des Controller | richtet die Geräte-Instanzen ein |
   
 ### HydrawiseController
 
@@ -116,20 +116,20 @@ Prop Account können mehrere Bewässerungseinheiten angelegt werden, das wären 
 
 werden vom Konfigurator beim Anlegen der Instanz gesetzt.
 
-| Eigenschaft            | Typ     | Standardwert | Beschreibung                                  |
-| :--------------------: | :-----: | :----------: | :-------------------------------------------: |
-| with_last_contact      | boolean | true         | letzter Kontakt mit Hydrawise                 |
-| with_last_message      | boolean | false        | eventuell Nachricht zu der letzten Kommunikation |
-| with_info              | boolean | true         | Informationen zur Gesamt-Bewässerungszeit etc. |
-| with_observations      | boolean | true         | Wetterbeobachtungen (der verknüpften Wetterstationen) |
-| num_forecast           | integer | 0            | Wettervorhersage (__0__=_keine_, __1__=_heute_, __2__=_morgen_, __3__=_übermorgen_ |
-| with_status_box        | boolean | false        | HTML-Box mit einer Zusammenfassung der altuellen Bewässerung |
-| with_daily_value       | boolean | true         | Ermittlung von Tageswerten für Gesamtbewässerungszeit |
-|                        |         |              |                                               |
-| statusbox_script       | integer | 0            | Script zum Füllen der Variable _StatusBox_    |
-| webhook_script         | integer | 0            | Script zur Verwendung im WebHook              |
-|                        |         |              |                                               |
-| minutes2fail           | integer | 30           | Dauer, bis die Kommunikation als gestört gilt |
+| Eigenschaft       | Typ     | Standardwert | Beschreibung |
+| :---------------- | :------ | :----------- | :----------- |
+| with_last_contact | boolean | true         | letzter Kontakt mit Hydrawise |
+| with_last_message | boolean | false        | eventuell Nachricht zu der letzten Kommunikation |
+| with_info         | boolean | true         | Informationen zur Gesamt-Bewässerungszeit etc. |
+| with_observations | boolean | true         | Wetterbeobachtungen (der verknüpften Wetterstationen) |
+| num_forecast      | integer | 0            | Wettervorhersage (__0__=_keine_, __1__=_heute_, __2__=_morgen_, __3__=_übermorgen_ |
+| with_status_box   | boolean | false        | HTML-Box mit einer Zusammenfassung der altuellen Bewässerung |
+| with_daily_value  | boolean | true         | Ermittlung von Tageswerten für Gesamtbewässerungszeit |
+|                   |         |              | |
+| statusbox_script  | integer | 0            | Script zum Füllen der Variable _StatusBox_ |
+| webhook_script    | integer | 0            | Script zur Verwendung im WebHook |
+|                   |         |              | |
+| minutes2fail      | integer | 30           | Dauer, bis die Kommunikation als gestört gilt |
 
 Das hier angebbare Minuten-Intervall dient zu Überprüfung der Kommunikation zwischen dem Controller und dem Hydrawise-Server.
   ist die Zeit überschritten, wird die Variable _Status_ des Controllers auf Fehler gesetzt.
@@ -165,13 +165,13 @@ Entspricht den bis zu 2 Sensoren; bisher unterstützt wird der Typ _flow meter_,
 
 #### Properties
 
-| Eigenschaft            | Typ     | Standardwert | Beschreibung                                              |
-| :--------------------: | :-----: | :----------: | :-------------------------------------------------------: |
-| controller_id          | string  |              | interne ID des Controllers, wird vom Konfigurator gefüllt |
-| connector              | integer |              | Anschluss am Controller                                   |
-| model                  | integer |              | Modell des Sensors                                        |
-|                        |         |              |                                                           |
-| with_daily_value       | boolean | true         | Tageswerte                                                |
+| Eigenschaft      | Typ     | Standardwert | Beschreibung |
+| :--------------- | :------ | :----------- | :----------- |
+| controller_id    | string  |              | interne ID des Controllers, wird vom Konfigurator gefüllt |
+| connector        | integer |              | Anschluss am Controller |
+| model            | integer |              | Modell des Sensors |
+|                  |         |              | |
+| with_daily_value | boolean | true         | Tageswerte |
 
 #### Statusvariablen
 
@@ -184,17 +184,17 @@ Das sind die einzelnen Bewässerungskreise, hier sind alle Zonen-spezifischen Da
 
 #### Properties
 
-| Eigenschaft            | Typ     | Standardwert | Beschreibung                                              |
-| :--------------------: | :-----: | :----------: | :-------------------------------------------------------: |
-| controller_id          | string  |              | interne ID des Controllers, wird vom Konfigurator gefüllt |
-| relay_id               | string  |              | interne ID der Zone, wird vom Konfigurator gefüllt        |
-| connector              | integer |              | Anschluss am Controller                                   |
-|                        |         |              |                                                           |
-| with_daily_value       | boolean | true         | Tageswerte                                                |
-| with_workflow          | boolean | false        | Ablauf der Bewässerung (siehe Hydrawise.ZoneWorkflow)     |
-| with_status            | boolean | false        | Bewässerungsstatus (siehe Hydrawise.ZoneStatus)           |
-|                        |         |              |                                                           |
-| visibility_script      | integer | 0            | Script um die Sichtbarkeit von Variablen zu steuern       |
+| Eigenschaft       | Typ     | Standardwert | Beschreibung |
+| :---------------- | :------ | :----------- | :----------- |
+| controller_id     | string  |              | interne ID des Controllers, wird vom Konfigurator gefüllt |
+| relay_id          | string  |              | interne ID der Zone, wird vom Konfigurator gefüllt |
+| connector         | integer |              | Anschluss am Controller |
+|                   |         |              | |
+| with_daily_value  | boolean | true         | Tageswerte |
+| with_workflow     | boolean | false        | Ablauf der Bewässerung (siehe Hydrawise.ZoneWorkflow) |
+| with_status       | boolean | false        | Bewässerungsstatus (siehe Hydrawise.ZoneStatus) |
+|                   |         |              | |
+| visibility_script | integer | 0            | Script um die Sichtbarkeit von Variablen zu steuern |
 
 Erläuterung zu _visibility_script_: diese optionale Script ermöglicht es dem Anwender, Variablen in Abhängigkeit von Variable auszublenden (z.B. keine Rest-Bewässerungsdauer, wenn keine Bewässerung aktiv ist). Ein Muster eines solchen Scriptes ist _libs/HydrawiseVisibility.php_.
 
