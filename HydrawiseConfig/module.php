@@ -58,7 +58,12 @@ class HydrawiseConfig extends IPSModule
 
         $formActions = [];
         $formActions[] = ['type' => 'Select', 'name' => 'controller_id', 'caption' => 'Controller', 'options' => $options];
-        $formActions[] = ['type' => 'Button', 'label' => 'Import of controller', 'onClick' => 'HydrawiseConfig_Doit($id, $controller_id);'];
+        $formActions[] = [
+							'type'    => 'Button',
+							'caption' => 'Import of controller',
+							'confirm' => 'Triggering the function creates the missing instances for the base-unit and all zones and sensors of the selected Hydrawise-Controller. Are you sure?',
+							'onClick' => 'HydrawiseConfig_Doit($id, $controller_id);'
+						];
         $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
         $formActions[] = [
                             'type'    => 'Button',

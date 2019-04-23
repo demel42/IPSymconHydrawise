@@ -1,7 +1,7 @@
 # IPSymconHydrawise
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.9-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.10-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/128397152/shield?branch=master)](https://github.styleci.io/repos/128397152)
@@ -260,6 +260,9 @@ GUIDs
   - `{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}`: an HydrawiseController
 
 ## 7. Versions-Historie
+
+- 1.10 @ @ 23.04.2019 17:08<br>
+  - Konfigurator um Sicherheitsabfrage ergänzt
 
 - 1.9 @ 29.03.2019 16:19<br>
   - SetValue() abgesichert
