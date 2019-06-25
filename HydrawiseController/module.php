@@ -500,7 +500,7 @@ class HydrawiseController extends IPSModule
     {
         $controller_id = $this->ReadPropertyString('controller_id');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
-		$with_info = $this->ReadPropertyBoolean('with_info');
+        $with_info = $this->ReadPropertyBoolean('with_info');
 
         $this->SendDebug(__FUNCTION__, '', 0);
 

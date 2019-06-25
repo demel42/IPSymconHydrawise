@@ -132,9 +132,9 @@ class HydrawiseIO extends IPSModule
                     $this->SetTimerInterval('UpdateData', 500);
                     break;
                 case 'ClearDailyValue':
-					$data = ['DataID' => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}', 'Function' => 'ClearDailyValue', 'controller_id' => $jdata->controller_id];
-					$this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-					$this->SendDataToChildren(json_encode($data));
+                    $data = ['DataID' => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}', 'Function' => 'ClearDailyValue', 'controller_id' => $jdata->controller_id];
+                    $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
+                    $this->SendDataToChildren(json_encode($data));
                     break;
                 default:
                     $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata->Function . '"', 0);
