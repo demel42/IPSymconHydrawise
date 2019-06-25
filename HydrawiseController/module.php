@@ -163,8 +163,8 @@ class HydrawiseController extends IPSModule
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
         if (isset($jdata->Buffer)) {
             $this->DecodeData($jdata->Buffer);
-		} elseif (isset($jdata->Function)) {
-			$this->SendDebug(__FUNCTION__, 'ignore function "' . $jdata->Function . '"', 0);
+        } elseif (isset($jdata->Function)) {
+            $this->SendDebug(__FUNCTION__, 'ignore function "' . $jdata->Function . '"', 0);
         } else {
             $this->SendDebug(__FUNCTION__, 'unknown message-structure', 0);
         }
