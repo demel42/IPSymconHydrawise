@@ -36,7 +36,7 @@ class HydrawiseSensor extends IPSModule
 
         $this->CreateVarProfile('Hydrawise.Flowmeter', VARIABLETYPE_FLOAT, ' l', 0, 0, 0, 0, 'Gauge');
 
-        $this->ConnectParent('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}');
+        $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
     }
 
     public function ApplyChanges()

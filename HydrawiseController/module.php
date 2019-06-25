@@ -493,57 +493,24 @@ class HydrawiseController extends IPSModule
             $this->SetValue('StatusBox', $html);
         }
 
-        $this->SendData($buf);
-
         $this->SetStatus(IS_ACTIVE);
-    }
-
-    public function ForwardData($data)
-    {
-        $jdata = json_decode($data);
-        $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
-
-        $ret = '';
-
-        if (isset($jdata->Function)) {
-            switch ($jdata->Function) {
-                case 'CmdUrl':
-                    $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => $jdata->Function, 'Url' => $jdata->Url];
-                    $ret = $this->SendDataToParent(json_encode($SendData));
-                    break;
-                default:
-                    $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata->Function . '"', 0);
-                    break;
-            }
-        } else {
-            $this->SendDebug(__FUNCTION__, 'unknown message-structure', 0);
-        }
-
-        $this->SendDebug(__FUNCTION__, 'ret=' . print_r($ret, true), 0);
-        return $ret;
     }
 
     protected function ClearDailyValue()
     {
         $controller_id = $this->ReadPropertyString('controller_id');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
+		$with_info = $this->ReadPropertyBoolean('with_info');
 
         $this->SendDebug(__FUNCTION__, '', 0);
 
-        if ($with_daily_value) {
+        if ($with_daily_value && $with_info) {
             $this->SetValue('DailyWateringTime', 0);
         }
 
-        $data = ['DataID' => '{5BF2F1ED-7782-457B-856F-D4F388CBF060}', 'Function' => 'ClearDailyValue', 'controller_id' => $controller_id];
+        $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'ClearDailyValue', 'controller_id' => $controller_id];
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-        $this->SendDataToChildren(json_encode($data));
-    }
-
-    protected function SendData($buf)
-    {
-        $data = ['DataID' => '{5BF2F1ED-7782-457B-856F-D4F388CBF060}', 'Buffer' => $buf];
-        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-        $this->SendDataToChildren(json_encode($data));
+        $this->SendDataToParent(json_encode($data));
     }
 
     private function Build_StatusBox($controller_data)

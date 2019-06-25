@@ -99,7 +99,7 @@ class HydrawiseZone extends IPSModule
         $associations[] = ['Wert' => ZONE_STATUS_WATERING, 'Name' => $this->Translate('watering'), 'Farbe' => 0xFFFF00];
         $this->CreateVarProfile('Hydrawise.ZoneStatus', VARIABLETYPE_INTEGER, '', 0, 0, 0, 1, '', $associations);
 
-        $this->ConnectParent('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}');
+        $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
     }
 
     public function ApplyChanges()
@@ -475,7 +475,7 @@ class HydrawiseZone extends IPSModule
             $url .= '&custom=' . $duration;
         }
 
-        $SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
+        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CmdUrl', 'Url' => $url];
         $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
@@ -490,7 +490,7 @@ class HydrawiseZone extends IPSModule
 
         $url = 'relay_id=' . $relay_id . '&action=stop';
 
-        $SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
+        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CmdUrl', 'Url' => $url];
         $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
@@ -504,7 +504,7 @@ class HydrawiseZone extends IPSModule
         $relay_id = $this->ReadPropertyString('relay_id');
         $url = 'relay_id=' . $relay_id . '&action=suspend&custom=' . $timestamp;
 
-        $SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
+        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CmdUrl', 'Url' => $url];
         $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
@@ -518,7 +518,7 @@ class HydrawiseZone extends IPSModule
         $relay_id = $this->ReadPropertyString('relay_id');
         $url = 'relay_id=' . $relay_id . '&action=suspend&custom=' . time();
 
-        $SendData = ['DataID' => '{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}', 'Function' => 'CmdUrl', 'Url' => $url];
+        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CmdUrl', 'Url' => $url];
         $data = $this->SendDataToParent(json_encode($SendData));
 
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);

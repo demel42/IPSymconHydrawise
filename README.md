@@ -1,7 +1,7 @@
 # IPSymconHydrawise
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.10-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.11-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/128397152/shield?branch=master)](https://github.styleci.io/repos/128397152)
@@ -254,14 +254,15 @@ GUIDs
   - HydrawiseZone: `{6A0DAE44-B86A-4D50-A76F-532365FD88AE}`
   - HydrawiseSensor: `{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}`
 - Nachrichten:
-  - `{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}`: an HydrawiseConfig, HydrawiseController
+  - `{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}`: an HydrawiseConfig, HydrawiseController, HydrawiseSensor, HydrawiseZone
   - `{B54B579C-3992-4C1D-B7A8-4A129A78ED03}`: an HydrawiseIO
-  - `{5BF2F1ED-7782-457B-856F-D4F388CBF060}`: an HydrawiseSensor, HydrawiseZone
-  - `{5361495C-0EF7-4319-8D2C-BEFA5BCC7F25}`: an HydrawiseController
 
 ## 7. Versions-Historie
 
-- 1.10 @ @ 23.04.2019 17:08<br>
+- 1.11 @ 25.06.2019 18:25<br>
+  - Anpaasung an IPS 5.1: Überarbeitung der Datenkommunikation
+
+- 1.10 @ 23.04.2019 17:08<br>
   - Konfigurator um Sicherheitsabfrage ergänzt
 
 - 1.9 @ 29.03.2019 16:19<br>
