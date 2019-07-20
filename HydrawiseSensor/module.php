@@ -122,10 +122,10 @@ class HydrawiseSensor extends IPSModule
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
         $formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
         $formElements[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
-		if ($model == SENSOR_FLOW_METER) {
-			$formElements[] = ['type' => 'Label', 'label' => 'optional sensor data'];
-			$formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
-		}
+        if ($model == SENSOR_FLOW_METER) {
+            $formElements[] = ['type' => 'Label', 'label' => 'optional sensor data'];
+            $formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
+        }
 
         $formActions = [];
         $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
@@ -231,7 +231,7 @@ class HydrawiseSensor extends IPSModule
                 if ($connector != ($sensor['input'] + 1)) {
                     continue;
                 }
-				$this->SendDebug(__FUNCTION__, 'sensor=' . print_r($sensor, true), 0);
+                $this->SendDebug(__FUNCTION__, 'sensor=' . print_r($sensor, true), 0);
                 switch ($model) {
                     case SENSOR_FLOW_METER:
                         if (isset($sensor['flow']['week'])) {
@@ -261,18 +261,18 @@ class HydrawiseSensor extends IPSModule
                             $this->SetValue('DailyFlow', $daily_flow);
                         }
                         break;
-					case SENSOR_NORMALLY_CLOSE_START:
-					case SENSOR_NORMALLY_OPEN_STOP:
-					case SENSOR_NORMALLY_CLOSE_STOP:
-					case SENSOR_NORMALLY_OPEN_START:
-						$mode = $sensor['mode'];
-						$active = $sensor['active'];
-						$timer = $sensor['timer'];
-						$offtimer = $sensor['offtimer'];
-						$offlevel = $sensor['offlevel'];
-						$this->SendDebug(__FUNCTION__, 'active=' . $this->bool2str($active) . ', timer=' . $timer . ', offtimer=' . $offtimer . ', offlevel=' . $offlevel, 0);
-						$this->SetValue('State', $active);
-						break;
+                    case SENSOR_NORMALLY_CLOSE_START:
+                    case SENSOR_NORMALLY_OPEN_STOP:
+                    case SENSOR_NORMALLY_CLOSE_STOP:
+                    case SENSOR_NORMALLY_OPEN_START:
+                        $mode = $sensor['mode'];
+                        $active = $sensor['active'];
+                        $timer = $sensor['timer'];
+                        $offtimer = $sensor['offtimer'];
+                        $offlevel = $sensor['offlevel'];
+                        $this->SendDebug(__FUNCTION__, 'active=' . $this->bool2str($active) . ', timer=' . $timer . ', offtimer=' . $offtimer . ', offlevel=' . $offlevel, 0);
+                        $this->SetValue('State', $active);
+                        break;
                     default:
                         $this->SendDebug(__FUNCTION__, 'unsupported model ' . $model, 0);
                         break;
