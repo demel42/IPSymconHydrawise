@@ -238,7 +238,7 @@ class HydrawiseSensor extends IPSModule
                         }
                         break;
                     default:
-                        $this->SendDebug(__FUNCTION_, 'unsupported model ' . $model, 0);
+                        $this->SendDebug(__FUNCTION__, 'unsupported model ' . $model, 0);
                         break;
                 }
             }

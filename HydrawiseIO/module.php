@@ -158,19 +158,28 @@ class HydrawiseIO extends IPSModule
 
         $api_key = $this->ReadPropertyString('api_key');
 
-        $url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key=' . $api_key . '&tag=hydrawise_all';
-
         $do_abort = false;
+
+		$url = 'https://app.hydrawise.com/api/v1/customerdetails.php?api_key=' . $api_key . '&type=controllers';;
         $data = $this->do_HttpRequest($url);
         if ($data != '') {
-            $jdata = json_decode($data);
-            // wenn man mehrere Controller hat, ist es ein array, wenn es nur einen Controller gibt, leider nicht
-            if (!is_array($jdata)) {
-                $controllers = [];
-                $controllers[] = $jdata;
-                $data = json_encode($controllers);
-            }
-        } else {
+			$all_controllers = [];
+            $jdata = json_decode($data, true);
+            $this->SendDebug(__FUNCTION__, 'jdata=' . print_r($jdata, true), 0);
+			$controllers = $jdata['controllers'];
+            $this->SendDebug(__FUNCTION__, 'controllers=' . print_r($controllers, true), 0);
+			foreach ($controllers as $controller) {
+				$controller_id = $controller['controller_id'];
+				$url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key=' . $api_key . '&controller_id=' . $controller_id;
+				$data = $this->do_HttpRequest($url);
+				if ($data != '') {
+					$all_controllers[] = json_decode($data);
+				} else {
+					$do_abort = true;
+					break;
+				}
+			}
+		} else {
             $do_abort = true;
         }
 
@@ -178,6 +187,8 @@ class HydrawiseIO extends IPSModule
             $this->SetBuffer('LastData', '');
             return;
         }
+
+		$data = json_encode($all_controllers);
 
         $this->SetStatus(IS_ACTIVE);
 
