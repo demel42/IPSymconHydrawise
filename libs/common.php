@@ -112,4 +112,12 @@ trait HydrawiseCommon
     {
         return isset($data[$var]) ? $data[$var] : $dflt;
     }
+
+    private function bool2str($bval)
+    {
+        if (is_bool($bval)) {
+            return $bval ? 'true' : 'false';
+        }
+        return $bval;
+    }
 }

@@ -36,6 +36,11 @@ class HydrawiseSensor extends IPSModule
 
         $this->CreateVarProfile('Hydrawise.Flowmeter', VARIABLETYPE_FLOAT, ' l', 0, 0, 0, 0, 'Gauge');
 
+        $associations = [];
+        $associations[] = ['Wert' => false, 'Name' => $this->Translate('inactive'), 'Farbe' => -1];
+        $associations[] = ['Wert' => true, 'Name' => $this->Translate('active'), 'Farbe' => 0xFF5D5D];
+        $this->CreateVarProfile('Hydrawise.RainSensor', VARIABLETYPE_BOOLEAN, '', 0, 0, 0, 1, '', $associations);
+
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
     }
 
@@ -54,6 +59,20 @@ class HydrawiseSensor extends IPSModule
             case SENSOR_FLOW_METER:
                 $this->MaintainVariable('DailyFlow', $this->Translate('Water usage (day)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
                 $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
+                break;
+            case SENSOR_NORMALLY_CLOSE_START:
+            case SENSOR_NORMALLY_OPEN_STOP:
+            case SENSOR_NORMALLY_CLOSE_STOP:
+            case SENSOR_NORMALLY_OPEN_START:
+                $this->MaintainVariable('State', $this->Translate('State'), VARIABLETYPE_BOOLEAN, 'Hydrawise.RainSensor', $vpos++, true);
+                break;
+            default:
+                $mode_txt = 'unsupported';
+                break;
+        }
+
+        switch ($model) {
+            case SENSOR_FLOW_METER:
                 $mode_txt = 'flow meter';
                 break;
             case SENSOR_NORMALLY_CLOSE_START:
@@ -81,6 +100,8 @@ class HydrawiseSensor extends IPSModule
 
     public function GetConfigurationForm()
     {
+        $model = $this->ReadPropertyInteger('model');
+
         $opts_connector = [];
         $opts_connector[] = ['label' => $this->Translate('no'), 'value' => 0];
         for ($s = 1; $s <= 2; $s++) {
@@ -101,8 +122,10 @@ class HydrawiseSensor extends IPSModule
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
         $formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
         $formElements[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
-        $formElements[] = ['type' => 'Label', 'label' => 'optional sensor data'];
-        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
+		if ($model == SENSOR_FLOW_METER) {
+			$formElements[] = ['type' => 'Label', 'label' => 'optional sensor data'];
+			$formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
+		}
 
         $formActions = [];
         $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
@@ -208,6 +231,7 @@ class HydrawiseSensor extends IPSModule
                 if ($connector != ($sensor['input'] + 1)) {
                     continue;
                 }
+				$this->SendDebug(__FUNCTION__, 'sensor=' . print_r($sensor, true), 0);
                 switch ($model) {
                     case SENSOR_FLOW_METER:
                         if (isset($sensor['flow']['week'])) {
@@ -237,6 +261,18 @@ class HydrawiseSensor extends IPSModule
                             $this->SetValue('DailyFlow', $daily_flow);
                         }
                         break;
+					case SENSOR_NORMALLY_CLOSE_START:
+					case SENSOR_NORMALLY_OPEN_STOP:
+					case SENSOR_NORMALLY_CLOSE_STOP:
+					case SENSOR_NORMALLY_OPEN_START:
+						$mode = $sensor['mode'];
+						$active = $sensor['active'];
+						$timer = $sensor['timer'];
+						$offtimer = $sensor['offtimer'];
+						$offlevel = $sensor['offlevel'];
+						$this->SendDebug(__FUNCTION__, 'active=' . $this->bool2str($active) . ', timer=' . $timer . ', offtimer=' . $offtimer . ', offlevel=' . $offlevel, 0);
+						$this->SetValue('State', $active);
+						break;
                     default:
                         $this->SendDebug(__FUNCTION__, 'unsupported model ' . $model, 0);
                         break;

@@ -261,6 +261,7 @@ GUIDs
 
 - 1.12 @ 20.07.2019 15:19<br>
   - Handhabung von mehreren Controllern
+  - Regensensor wird nun erkannt
 
 - 1.11 @ 25.06.2019 18:25<br>
   - Anpassung an IPS 5.1: Überarbeitung der Datenkommunikation

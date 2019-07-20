@@ -17,6 +17,10 @@
 			"normally open, action start": "Ruhezustand offen, Aktion Start",
 			"flow meter": "Durchflussmesser",
 
+			"State": "Zustand",
+			"active": "aktiv",
+			"inactive": "inaktiv",
+
 			"Module description": "Modulbeschreibung",
 
 			"Instance getting created": "Instanz wird erstellt",
