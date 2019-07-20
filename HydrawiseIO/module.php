@@ -160,26 +160,26 @@ class HydrawiseIO extends IPSModule
 
         $do_abort = false;
 
-		$url = 'https://app.hydrawise.com/api/v1/customerdetails.php?api_key=' . $api_key . '&type=controllers';;
+        $url = 'https://app.hydrawise.com/api/v1/customerdetails.php?api_key=' . $api_key . '&type=controllers';
         $data = $this->do_HttpRequest($url);
         if ($data != '') {
-			$all_controllers = [];
+            $all_controllers = [];
             $jdata = json_decode($data, true);
             $this->SendDebug(__FUNCTION__, 'jdata=' . print_r($jdata, true), 0);
-			$controllers = $jdata['controllers'];
+            $controllers = $jdata['controllers'];
             $this->SendDebug(__FUNCTION__, 'controllers=' . print_r($controllers, true), 0);
-			foreach ($controllers as $controller) {
-				$controller_id = $controller['controller_id'];
-				$url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key=' . $api_key . '&controller_id=' . $controller_id;
-				$data = $this->do_HttpRequest($url);
-				if ($data != '') {
-					$all_controllers[] = json_decode($data);
-				} else {
-					$do_abort = true;
-					break;
-				}
-			}
-		} else {
+            foreach ($controllers as $controller) {
+                $controller_id = $controller['controller_id'];
+                $url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key=' . $api_key . '&controller_id=' . $controller_id;
+                $data = $this->do_HttpRequest($url);
+                if ($data != '') {
+                    $all_controllers[] = json_decode($data);
+                } else {
+                    $do_abort = true;
+                    break;
+                }
+            }
+        } else {
             $do_abort = true;
         }
 
@@ -188,7 +188,7 @@ class HydrawiseIO extends IPSModule
             return;
         }
 
-		$data = json_encode($all_controllers);
+        $data = json_encode($all_controllers);
 
         $this->SetStatus(IS_ACTIVE);
 
