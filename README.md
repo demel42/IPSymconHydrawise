@@ -1,7 +1,7 @@
 # IPSymconHydrawise
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.12-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.13-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/128397152/shield?branch=master)](https://github.styleci.io/repos/128397152)
@@ -258,6 +258,9 @@ GUIDs
   - `{B54B579C-3992-4C1D-B7A8-4A129A78ED03}`: an HydrawiseIO
 
 ## 7. Versions-Historie
+
+- 1.13 @ 25.07.2019 18:35<br>
+  - in HydrawiseController wird nun auhc die Controller-ID angezeigt
 
 - 1.12 @ 20.07.2019 15:19<br>
   - Handhabung von mehreren Controllern

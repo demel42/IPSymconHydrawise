@@ -116,6 +116,7 @@ class HydrawiseController extends IPSModule
 
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Controller'];
+		$formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
         $formElements[] = ['type' => 'Label', 'label' => 'optional controller data'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_last_contact', 'caption' => ' ... last contact to Hydrawise'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_last_message', 'caption' => ' ... last message'];
