@@ -260,7 +260,8 @@ GUIDs
 ## 7. Versions-Historie
 
 - 1.13 @ 25.07.2019 18:35<br>
-  - in HydrawiseController wird nun auhc die Controller-ID angezeigt
+  - in HydrawiseController wird nun auch die Controller-ID angezeigt
+  - Schreibfehler korrigiert
 
 - 1.12 @ 20.07.2019 15:19<br>
   - Handhabung von mehreren Controllern
