@@ -34,6 +34,7 @@ Das Modul besteht aus folgenden Instanzen
 ## 2. Voraussetzungen
 
  - IP-Symcon ab Version 5<br>
+   Version 5.0 mit Branch _ips_5.0_ (nur noch Fehlerkorrekturen)
    Version 4.4 mit Branch _ips_4.4_ (nur noch Fehlerkorrekturen)
  - Bewässerungscomputer Hydrawise von Fa. Hunter
 
