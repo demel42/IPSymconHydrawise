@@ -468,7 +468,7 @@ class HydrawiseZone extends IPSModule
                     $dt = new DateTime(date('d.m.Y 23:59:59', time() + $sec));
                     $ts = $dt->format('U');
                     $dt = date('d.m.Y H:i:s', $ts);
-					$this->SendDebug(__FUNCTION__, '$Ident=' . $Value . ' => ' . $dt, 0);
+                    $this->SendDebug(__FUNCTION__, '$Ident=' . $Value . ' => ' . $dt, 0);
                     $this->Suspend($ts);
                 }
                 break;
