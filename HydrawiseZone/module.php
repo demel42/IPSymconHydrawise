@@ -99,6 +99,9 @@ class HydrawiseZone extends IPSModule
         $associations[] = ['Wert' => ZONE_STATUS_WATERING, 'Name' => $this->Translate('watering'), 'Farbe' => 0xFFFF00];
         $this->CreateVarProfile('Hydrawise.ZoneStatus', VARIABLETYPE_INTEGER, '', 0, 0, 0, 1, '', $associations);
 
+		$this->CreateVarProfile('Hydrawise.Flowmeter', VARIABLETYPE_FLOAT, ' l', 0, 0, 0, 0, 'Gauge');
+		$this->CreateVarProfile('Hydrawise.WaterFlowrate', VARIABLETYPE_FLOAT, ' l/min', 0, 0, 0, 1, '');
+
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
     }
 
@@ -115,19 +118,31 @@ class HydrawiseZone extends IPSModule
 
         $vpos = 1;
 
-        $this->MaintainVariable('LastRun', $this->Translate('Last run'), VARIABLETYPE_INTEGER, '~UnixTimestamp', $vpos++, true);
+        // letzter Bewässerungszyklus
+		$this->MaintainVariable('LastRun', $this->Translate('Last run'), VARIABLETYPE_INTEGER, '~UnixTimestamp', $vpos++, true);
         $this->MaintainVariable('LastDuration', $this->Translate('Duration of last run'), VARIABLETYPE_INTEGER, 'Hydrawise.Duration', $vpos++, true);
+
+        // nächster Bewässerungszyklus
         $this->MaintainVariable('NextRun', $this->Translate('Next run'), VARIABLETYPE_INTEGER, '~UnixTimestamp', $vpos++, true);
         $this->MaintainVariable('NextDuration', $this->Translate('Duration of next run'), VARIABLETYPE_INTEGER, 'Hydrawise.Duration', $vpos++, true);
+
+		// aktueller Bewässerungszyklus
         $this->MaintainVariable('TimeLeft', $this->Translate('Time left'), VARIABLETYPE_STRING, '', $vpos++, true);
         $this->MaintainVariable('WaterUsage', $this->Translate('Water usage'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
+        $this->MaintainVariable('WaterFlowrate', $this->Translate('Water flow rate'), VARIABLETYPE_FLOAT, 'Hydrawise.WaterFlowrate', $vpos++, true);
+		
+		// Aktionen
         $this->MaintainVariable('ZoneAction', $this->Translate('Zone operation'), VARIABLETYPE_INTEGER, 'Hydrawise.ZoneAction', $vpos++, true);
         $this->MaintainVariable('SuspendUntil', $this->Translate('Suspended until end of'), VARIABLETYPE_INTEGER, '~UnixTimestampDate', $vpos++, true);
         $this->MaintainVariable('SuspendAction', $this->Translate('Zone suspension'), VARIABLETYPE_INTEGER, 'Hydrawise.ZoneSuspend', $vpos++, true);
-        $this->MaintainVariable('DailyDuration', $this->Translate('Duration of runs (today)'), VARIABLETYPE_INTEGER, 'Hydrawise.Duration', $vpos++, $with_daily_value);
-        $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
+
+		// Stati
         $this->MaintainVariable('Workflow', $this->Translate('Current workflow'), VARIABLETYPE_INTEGER, 'Hydrawise.ZoneWorkflow', $vpos++, $with_workflow);
         $this->MaintainVariable('Status', $this->Translate('Zone status'), VARIABLETYPE_INTEGER, 'Hydrawise.ZoneStatus', $vpos++, $with_status);
+
+		// Tageswerte
+        $this->MaintainVariable('DailyDuration', $this->Translate('Duration of runs (today)'), VARIABLETYPE_INTEGER, 'Hydrawise.Duration', $vpos++, $with_daily_value);
+        $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
 
         $this->MaintainAction('ZoneAction', true);
         $this->MaintainAction('SuspendUntil', true);
@@ -278,7 +293,7 @@ class HydrawiseZone extends IPSModule
             return -1;
         }
 
-        $now = time();
+        $now = isset($controller['time']) ? $controller['time'] : time();
 
         $running = isset($controller['running']) ? $controller['running'] : '';
 
@@ -293,15 +308,15 @@ class HydrawiseZone extends IPSModule
 
         $is_running = false;
         $time_left = 0;
-        $water_int = 0;
+        $water_usage = 0;
         if ($running != '') {
             foreach ($running as $run) {
                 if ($relay_id != $run['relay_id']) {
                     continue;
                 }
+                $is_running = true;
                 $time_left = $run['time_left'];
                 $water_usage = $run['water_int'];
-                $is_running = true;
                 $this->SendDebug(__FUNCTION__, "time_left=$time_left, water_int=$water_int", 0);
             }
         }
@@ -328,6 +343,11 @@ class HydrawiseZone extends IPSModule
             $time_begin = $lastrun;
             $time_end = $now + $time_left;
 
+			$time_duration = $now - $time_begin;
+			$water_flowrate = $time_duration ? floor($water_usage / ($time_duration / 60.0) * 100) / 100 : 0;
+
+			$this->SetValue('WaterFlowrate', $water_flowrate);
+
             $current_run = [
                     'time_begin'    => $time_begin,
                     'time_end'      => $time_end,
@@ -335,10 +355,11 @@ class HydrawiseZone extends IPSModule
                     'water_usage'   => $water_usage
                 ];
             $this->SetBuffer('currentRun', json_encode($current_run));
-            $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
+            $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage . ', flowrate=' . $water_flowrate, 0);
         } else {
             $this->SetValue('TimeLeft', '');
             $this->SetValue('WaterUsage', 0);
+            $this->SetValue('WaterFlowrate', 0);
 
             $buf = $this->GetBuffer('currentRun');
             if ($buf != '') {
@@ -355,6 +376,8 @@ class HydrawiseZone extends IPSModule
                 $time_done = $time_end - $time_begin - $time_left;
 
                 $water_estimated = ceil($water_usage / $time_done * ($time_duration * 60));
+
+				$water_flowrate = $duration ? floor($water_usage / $time_duration * 100) * 100 : 0;
 
                 $this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
                 $this->SendDebug(__FUNCTION__, 'duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
