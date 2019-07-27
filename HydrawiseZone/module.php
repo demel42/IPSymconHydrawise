@@ -262,7 +262,7 @@ class HydrawiseZone extends IPSModule
                 }
             }
             if ($controller_found == false) {
-                $err = "controller_id \"$controller_id\" not found";
+                $err = 'controller_id "' . $controller_id . '" not found';
                 $statuscode = IS_CONTROLLER_MISSING;
                 $do_abort = true;
             }
@@ -281,7 +281,7 @@ class HydrawiseZone extends IPSModule
             }
         }
         if ($relay_found == false) {
-            $err = "relay_id \"$relay_id\" not found";
+            $err = 'relay_id "' . $relay_id . '" not found';
             $statuscode = IS_ZONE_MISSING;
             $do_abort = true;
         }
@@ -317,7 +317,7 @@ class HydrawiseZone extends IPSModule
                 $is_running = true;
                 $time_left = $run['time_left'];
                 $water_usage = $run['water_int'];
-                $this->SendDebug(__FUNCTION__, "time_left=$time_left, water_int=$water_int", 0);
+                $this->SendDebug(__FUNCTION__, 'time_left=' . $time_left . ', water_usage=' . $water_usage, 0);
             }
         }
 
@@ -334,7 +334,7 @@ class HydrawiseZone extends IPSModule
         $run_seconds = ceil($run_seconds / 60);
         $this->SetValue('NextDuration', $run_seconds);
 
-        $this->SendDebug(__FUNCTION__, "lastwater=$lastwater => $lastrun, nicetime=$nicetime => $nextrun, suspended=$suspended", 0);
+        $this->SendDebug(__FUNCTION__, 'lastwater=' . $lastwater . ' => ' . $lastrun . ', nicetime=' . $nicetime . ' => ' . $nextrun . ', suspended=' . $suspended, 0);
 
         if ($is_running) {
             $this->SetValue('TimeLeft', $this->seconds2duration($time_left));
@@ -456,11 +456,11 @@ class HydrawiseZone extends IPSModule
         switch ($Ident) {
             case 'SuspendUntil':
                 $dt = date('d.m.Y H:i:s', $Value);
-                $this->SendDebug(__FUNCTION__, "$Ident=$Value => $dt", 0);
+                $this->SendDebug(__FUNCTION__, '$Ident=' . $Value . ' => ' . $dt, 0);
                 $this->Suspend($Value);
                 break;
             case 'SuspendAction':
-                $this->SendDebug(__FUNCTION__, "$Ident=$Value", 0);
+                $this->SendDebug(__FUNCTION__, '$Ident=' . $Value, 0);
                 if ($Value == ZONE_SUSPEND_CLEAR) {
                     $this->Resume($Value);
                 } else {
@@ -468,7 +468,7 @@ class HydrawiseZone extends IPSModule
                     $dt = new DateTime(date('d.m.Y 23:59:59', time() + $sec));
                     $ts = $dt->format('U');
                     $dt = date('d.m.Y H:i:s', $ts);
-                    $this->SendDebug(__FUNCTION__, "$Ident=$Value => $dt", 0);
+					$this->SendDebug(__FUNCTION__, '$Ident=' . $Value . ' => ' . $dt, 0);
                     $this->Suspend($ts);
                 }
                 break;
@@ -481,10 +481,10 @@ class HydrawiseZone extends IPSModule
                     $sec = $Value * 60;
                     $this->Run($sec);
                 }
-                $this->SendDebug(__FUNCTION__, "$Ident=$Value", 0);
+                $this->SendDebug(__FUNCTION__, '$Ident=' . $Value, 0);
                 break;
             default:
-                $this->SendDebug(__FUNCTION__, "invalid ident $Ident", 0);
+                $this->SendDebug(__FUNCTION__, 'invalid ident ' . $Ident, 0);
                 break;
         }
     }

@@ -205,7 +205,7 @@ class HydrawiseSensor extends IPSModule
                 }
             }
             if ($controller_found == false) {
-                $err = "controller_id \"$controller_id\" not found";
+                $err = 'controller_id "' . $controller_id . '" not found';
                 $statuscode = IS_CONTROLLER_MISSING;
                 $do_abort = true;
             }
@@ -221,8 +221,6 @@ class HydrawiseSensor extends IPSModule
             $this->SetStatus($statuscode);
             return -1;
         }
-
-        $now = time();
 
         $vpos = 1;
 
@@ -254,6 +252,7 @@ class HydrawiseSensor extends IPSModule
                                             $f = GetValueFloat($varID);
                                             if ($f > 0) {
                                                 $water_flowrate = $f;
+                                                $this->SendDebug(__FUNCTION__, '  relay_id=' . $relay_id . ', water_flowrate=' . $water_flowrate, 0);
                                             }
                                         }
                                         if ($with_daily_value) {
@@ -261,7 +260,7 @@ class HydrawiseSensor extends IPSModule
                                             if ($varID) {
                                                 $daily_waterusage = GetValueFloat($varID);
                                                 $daily_flow += $daily_waterusage;
-                                                $this->SendDebug(__FUNCTION__, 'relay_id=' . $relay_id . ', daily_waterusage=' . $daily_waterusage . ', daily_flow=' . $daily_flow, 0);
+                                                $this->SendDebug(__FUNCTION__, '  relay_id=' . $relay_id . ', daily_waterusage=' . $daily_waterusage . ' => daily_flow=' . $daily_flow, 0);
                                             }
                                         }
                                         break;
@@ -269,8 +268,10 @@ class HydrawiseSensor extends IPSModule
                                 }
                             }
 
+							$this->SendDebug(__FUNCTION__, 'water_flowrate=' . $water_flowrate, 0);
                             $this->SetValue('WaterFlowrate', $water_flowrate);
                             if ($with_daily_value) {
+								$this->SendDebug(__FUNCTION__, 'daily_flow=' . $daily_flow, 0);
                                 $this->SetValue('DailyFlow', $daily_flow);
                             }
                         }
