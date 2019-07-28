@@ -293,7 +293,10 @@ class HydrawiseZone extends IPSModule
             return -1;
         }
 
-        $now = isset($controller['time']) ? $controller['time'] : time();
+        $now = time();
+        $server_time = isset($controller['time']) ? $controller['time'] : $now;
+
+		$this->SendDebug(__FUNCTION__, 'now=' . date('d.m.Y H:i', $now) . ', server_time=' .  date('d.m.Y H:i', $server_time), 0);
 
         $running = isset($controller['running']) ? $controller['running'] : '';
 
@@ -337,15 +340,14 @@ class HydrawiseZone extends IPSModule
         $this->SendDebug(__FUNCTION__, 'lastwater=' . $lastwater . ' => ' . $lastrun . ', nicetime=' . $nicetime . ' => ' . $nextrun . ', suspended=' . $suspended, 0);
 
         if ($is_running) {
-            $this->SetValue('TimeLeft', $this->seconds2duration($time_left));
-            $this->SetValue('WaterUsage', $water_usage);
-
             $time_begin = $lastrun;
-            $time_end = $now + $time_left;
+            $time_end = $server_time + $time_left;
 
-            $time_duration = $now - $time_begin;
+            $time_duration = $server_time - $time_begin;
             $water_flowrate = $time_duration ? floor($water_usage / ($time_duration / 60.0) * 100) / 100 : 0;
 
+            $this->SetValue('TimeLeft', $this->seconds2duration($time_left));
+            $this->SetValue('WaterUsage', $water_usage);
             $this->SetValue('WaterFlowrate', $water_flowrate);
 
             $current_run = [
@@ -454,11 +456,11 @@ class HydrawiseZone extends IPSModule
         switch ($Ident) {
             case 'SuspendUntil':
                 $dt = date('d.m.Y H:i:s', $Value);
-                $this->SendDebug(__FUNCTION__, '$Ident=' . $Value . ' => ' . $dt, 0);
+                $this->SendDebug(__FUNCTION__, $Ident . '=' . $Value . ' => ' . $dt, 0);
                 $this->Suspend($Value);
                 break;
             case 'SuspendAction':
-                $this->SendDebug(__FUNCTION__, '$Ident=' . $Value, 0);
+                $this->SendDebug(__FUNCTION__, $Ident . '=' . $Value, 0);
                 if ($Value == ZONE_SUSPEND_CLEAR) {
                     $this->Resume($Value);
                 } else {
@@ -466,7 +468,7 @@ class HydrawiseZone extends IPSModule
                     $dt = new DateTime(date('d.m.Y 23:59:59', time() + $sec));
                     $ts = $dt->format('U');
                     $dt = date('d.m.Y H:i:s', $ts);
-                    $this->SendDebug(__FUNCTION__, '$Ident=' . $Value . ' => ' . $dt, 0);
+                    $this->SendDebug(__FUNCTION__, $Ident . '=' . $Value . ' => ' . $dt, 0);
                     $this->Suspend($ts);
                 }
                 break;
@@ -479,7 +481,7 @@ class HydrawiseZone extends IPSModule
                     $sec = $Value * 60;
                     $this->Run($sec);
                 }
-                $this->SendDebug(__FUNCTION__, '$Ident=' . $Value, 0);
+                $this->SendDebug(__FUNCTION__, $Ident . '=' . $Value, 0);
                 break;
             default:
                 $this->SendDebug(__FUNCTION__, 'invalid ident ' . $Ident, 0);
