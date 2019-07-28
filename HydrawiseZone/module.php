@@ -296,7 +296,7 @@ class HydrawiseZone extends IPSModule
         $now = time();
         $server_time = isset($controller['time']) ? $controller['time'] : $now;
 
-		$this->SendDebug(__FUNCTION__, 'now=' . date('d.m.Y H:i', $now) . ', server_time=' .  date('d.m.Y H:i', $server_time), 0);
+        $this->SendDebug(__FUNCTION__, 'now=' . date('d.m.Y H:i', $now) . ', server_time=' . date('d.m.Y H:i', $server_time), 0);
 
         $running = isset($controller['running']) ? $controller['running'] : '';
 
