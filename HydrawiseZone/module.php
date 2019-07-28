@@ -341,14 +341,14 @@ class HydrawiseZone extends IPSModule
 
         if ($is_running) {
             $buf = $this->GetBuffer('currentRun');
-			if ($buf != '') {
+            if ($buf != '') {
                 $current_run = json_decode($buf, true);
                 $last_water_usage = $current_run['water_usage'];
                 $last_server_time = $current_run['server_time'];
-			} else {
-				$last_water_usage = 0;
-				$last_server_time = $lastrun;
-			}
+            } else {
+                $last_water_usage = 0;
+                $last_server_time = $lastrun;
+            }
 
             $time_begin = $lastrun;
             $time_end = $server_time + $time_left;
@@ -357,7 +357,7 @@ class HydrawiseZone extends IPSModule
             $water_flowrate = $time_duration ? floor($water_usage / ($time_duration / 60.0) * 100) / 100 : 0;
 
             $cur_time_duration = $server_time - $last_server_time;
-			$cur_water_usage = $water_usage - $last_water_usage;
+            $cur_water_usage = $water_usage - $last_water_usage;
             $cur_water_flowrate = $cur_time_duration ? floor($cur_water_usage / ($cur_time_duration / 60.0) * 100) / 100 : 0;
 
             $this->SendDebug(__FUNCTION__, ' * avg: time_duration=' . $time_duration . ', water_usage=' . $water_usage . ' => flowrate=' . $water_flowrate, 0);
@@ -372,11 +372,10 @@ class HydrawiseZone extends IPSModule
                     'time_end'      => $time_end,
                     'time_left'     => $time_left,
                     'water_usage'   => $water_usage,
-					'server_time'	=> $server_time,
+                    'server_time'	  => $server_time,
                 ];
             $this->SetBuffer('currentRun', json_encode($current_run));
             $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage . ', flowrate=' . $water_flowrate, 0);
-
         } else {
             $this->SetValue('TimeLeft', '');
             $this->SetValue('WaterUsage', 0);
