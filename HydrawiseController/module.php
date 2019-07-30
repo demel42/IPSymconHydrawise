@@ -159,6 +159,138 @@ class HydrawiseController extends IPSModule
         return $formActions;
     }
 
+    public function getConfiguratorValues()
+    {
+        $controller_id = $this->ReadPropertyString('controller_id');
+        $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'ControllerDetails', 'controller_id' => $controller_id];
+        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
+        $data = $this->SendDataToParent(json_encode($data));
+        $controller = json_decode($data, true);
+        $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
+
+        $config_list = [];
+
+        if ($controller != '') {
+            $controller_name = $controller['name'];
+
+            $sensors = $controller['sensors'];
+            if ($sensors != '') {
+                $guid = '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}';
+                $instIDs = IPS_GetInstanceListByModuleID($guid);
+
+                foreach ($sensors as $sensor) {
+                    $connector = $sensor['input'] + 1;
+                    $sensor_name = $sensor['name'];
+                    $type = $sensor['type'];
+                    $mode = $sensor['mode'];
+
+                    if ($type == 1 && $mode == 1) {
+                        $model = SENSOR_NORMALLY_CLOSE_START;
+                    } elseif ($type == 1 && $mode == 2) {
+                        $model = SENSOR_NORMALLY_OPEN_STOP;
+                    } elseif ($type == 1 && $mode == 3) {
+                        $model = SENSOR_NORMALLY_CLOSE_STOP;
+                    } elseif ($type == 1 && $mode == 4) {
+                        $model = SENSOR_NORMALLY_OPEN_START;
+                    } elseif ($type == 3 && $mode == 0) {
+                        $model = SENSOR_FLOW_METER;
+                    } else {
+                        continue;
+                    }
+
+                    $instanceID = 0;
+                    foreach ($instIDs as $instID) {
+                        if (IPS_GetProperty($instID, 'controller_id') == $controller_id && IPS_GetProperty($instID, 'connector') == $connector) {
+                            $this->SendDebug(__FUNCTION__, 'sensor found: ' . utf8_decode(IPS_GetName($instID)) . ' (' . $instID . ')', 0);
+                            $instanceID = $instID;
+                            break;
+                        }
+                    }
+
+                    $ident = $this->Translate('Sensor') . ' ' . $connector;
+
+                    $create = [
+                            'moduleID'      => $guid,
+                            'location'      => $this->SetLocation(),
+                            'configuration' => [
+                                    'controller_id' => "$controller_id",
+                                    'connector'     => $connector,
+                                    'model'         => $model,
+                                ]
+                        ];
+                    if (IPS_GetKernelVersion() >= 5.1) {
+                        $create['info'] = $ident . ' (' . $controller_name . '\\' . $sensor_name . ')';
+                    }
+
+                    $entry = [
+                            'instanceID'  => $instanceID,
+                            'type'        => $this->Translate('Sensor'),
+                            'ident'       => $ident,
+                            'name'        => $sensor_name,
+                            'create'      => $create
+                        ];
+
+                    $config_list[] = $entry;
+                    $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
+                }
+            }
+
+            $relays = $controller['relays'];
+            if ($relays != '') {
+                $guid = '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}';
+                $instIDs = IPS_GetInstanceListByModuleID($guid);
+
+                foreach ($relays as $relay) {
+                    $relay_id = $relay['relay_id'];
+                    $connector = $relay['relay'];
+                    $zone_name = $relay['name'];
+
+                    $instanceID = 0;
+                    foreach ($instIDs as $instID) {
+                        if (IPS_GetProperty($instID, 'controller_id') == $controller_id && IPS_GetProperty($instID, 'relay_id') == $relay_id) {
+                            $this->SendDebug(__FUNCTION__, 'zone found: ' . utf8_decode(IPS_GetName($instID)) . ' (' . $instID . ')', 0);
+                            $instanceID = $instID;
+                            break;
+                        }
+                    }
+
+                    if ($connector < 100) {
+                        $ident = $this->Translate('Zone') . ' ' . $connector;
+                    } else {
+                        $ident = $this->Translate('Expander') . ' ' . floor($connector / 100) . ' Zone ' . ($connector % 100);
+                    }
+
+                    $create = [
+                            'moduleID'      => $guid,
+                            'location'      => $this->SetLocation(),
+                            'configuration' => [
+                                    'controller_id' => "$controller_id",
+                                    'relay_id'      => "$relay_id",
+                                    'connector'     => $connector,
+                                ]
+                        ];
+                    if (IPS_GetKernelVersion() >= 5.1) {
+                        $create['info'] = $ident . ' (' . $controller_name . '\\' . $zone_name . ')';
+                    }
+
+                    $entry = [
+                            'instanceID'  => $instanceID,
+                            'type'        => $this->Translate('Zone'),
+                            'ident'       => $ident,
+                            'name'        => $zone_name,
+                            'create'      => $create
+                        ];
+
+                    $config_list[] = $entry;
+
+                    $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
+                }
+            }
+        }
+
+        return $config_list;
+    }
+
     public function GetFormElements()
     {
         $opts_forecast = [];
@@ -1146,137 +1278,5 @@ class HydrawiseController extends IPSModule
             $tree_position = array_reverse($tree_position);
         }
         return $tree_position;
-    }
-
-    public function getConfiguratorValues()
-    {
-        $controller_id = $this->ReadPropertyString('controller_id');
-        $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'ControllerDetails', 'controller_id' => $controller_id];
-        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-        $data = $this->SendDataToParent(json_encode($data));
-        $controller = json_decode($data, true);
-        $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
-
-        $config_list = [];
-
-        if ($controller != '') {
-            $controller_name = $controller['name'];
-
-            $sensors = $controller['sensors'];
-            if ($sensors != '') {
-                $guid = '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}';
-                $instIDs = IPS_GetInstanceListByModuleID($guid);
-
-                foreach ($sensors as $sensor) {
-                    $connector = $sensor['input'] + 1;
-                    $sensor_name = $sensor['name'];
-                    $type = $sensor['type'];
-                    $mode = $sensor['mode'];
-
-                    if ($type == 1 && $mode == 1) {
-                        $model = SENSOR_NORMALLY_CLOSE_START;
-                    } elseif ($type == 1 && $mode == 2) {
-                        $model = SENSOR_NORMALLY_OPEN_STOP;
-                    } elseif ($type == 1 && $mode == 3) {
-                        $model = SENSOR_NORMALLY_CLOSE_STOP;
-                    } elseif ($type == 1 && $mode == 4) {
-                        $model = SENSOR_NORMALLY_OPEN_START;
-                    } elseif ($type == 3 && $mode == 0) {
-                        $model = SENSOR_FLOW_METER;
-                    } else {
-                        continue;
-                    }
-
-                    $instanceID = 0;
-                    foreach ($instIDs as $instID) {
-                        if (IPS_GetProperty($instID, 'controller_id') == $controller_id && IPS_GetProperty($instID, 'connector') == $connector) {
-                            $this->SendDebug(__FUNCTION__, 'sensor found: ' . utf8_decode(IPS_GetName($instID)) . ' (' . $instID . ')', 0);
-                            $instanceID = $instID;
-                            break;
-                        }
-                    }
-
-                    $ident = $this->Translate('Sensor') . ' ' . $connector;
-
-                    $create = [
-                            'moduleID'      => $guid,
-                            'location'      => $this->SetLocation(),
-                            'configuration' => [
-                                    'controller_id' => "$controller_id",
-                                    'connector'     => $connector,
-                                    'model'         => $model,
-                                ]
-                        ];
-                    if (IPS_GetKernelVersion() >= 5.1) {
-                        $create['info'] = $ident . ' (' . $controller_name . '\\' . $sensor_name . ')';
-                    }
-
-                    $entry = [
-                            'instanceID'  => $instanceID,
-                            'type'        => $this->Translate('Sensor'),
-                            'ident'       => $ident,
-                            'name'        => $sensor_name,
-                            'create'      => $create
-                        ];
-
-                    $config_list[] = $entry;
-                    $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
-                }
-            }
-
-            $relays = $controller['relays'];
-            if ($relays != '') {
-                $guid = '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}';
-                $instIDs = IPS_GetInstanceListByModuleID($guid);
-
-                foreach ($relays as $relay) {
-                    $relay_id = $relay['relay_id'];
-                    $connector = $relay['relay'];
-                    $zone_name = $relay['name'];
-
-                    $instanceID = 0;
-                    foreach ($instIDs as $instID) {
-                        if (IPS_GetProperty($instID, 'controller_id') == $controller_id && IPS_GetProperty($instID, 'relay_id') == $relay_id) {
-                            $this->SendDebug(__FUNCTION__, 'sensor found: ' . utf8_decode(IPS_GetName($instID)) . ' (' . $instID . ')', 0);
-                            $instanceID = $instID;
-                            break;
-                        }
-                    }
-
-                    if ($connector < 100) {
-                        $ident = $this->Translate('Zone') . ' ' . $connector;
-                    } else {
-                        $ident = $this->Translate('Expander') . ' ' . floor($connector / 100) . ' Zone ' . ($connector % 100);
-                    }
-
-                    $create = [
-                            'moduleID'      => $guid,
-                            'location'      => $this->SetLocation(),
-                            'configuration' => [
-                                    'controller_id' => "$controller_id",
-                                    'relay_id'      => "$relay_id",
-                                    'connector'     => $connector,
-                                ]
-                        ];
-                    if (IPS_GetKernelVersion() >= 5.1) {
-                        $create['info'] = $ident . ' (' . $controller_name . '\\' . $zone_name . ')';
-                    }
-
-                    $entry = [
-                            'instanceID'  => $instanceID,
-                            'type'        => $this->Translate('Zone'),
-                            'ident'       => $ident,
-                            'name'        => $zone_name,
-                            'create'      => $create
-                        ];
-
-                    $config_list[] = $entry;
-
-                    $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
-                }
-            }
-        }
-
-        return $config_list;
     }
 }
