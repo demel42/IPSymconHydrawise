@@ -3,23 +3,6 @@
 require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
 require_once __DIR__ . '/../libs/library.php';  // modul-bezogene Funktionen
 
-// Model of Sensor
-if (!defined('SENSOR_NORMALLY_CLOSE_START')) {
-    define('SENSOR_NORMALLY_CLOSE_START', 11);
-}
-if (!defined('SENSOR_NORMALLY_OPEN_STOP')) {
-    define('SENSOR_NORMALLY_OPEN_STOP', 12);
-}
-if (!defined('SENSOR_NORMALLY_CLOSE_STOP')) {
-    define('SENSOR_NORMALLY_CLOSE_STOP', 13);
-}
-if (!defined('SENSOR_NORMALLY_OPEN_START')) {
-    define('SENSOR_NORMALLY_OPEN_START', 14);
-}
-if (!defined('SENSOR_FLOW_METER')) {
-    define('SENSOR_FLOW_METER', 30);
-}
-
 class HydrawiseSensor extends IPSModule
 {
     use HydrawiseCommon;
@@ -33,6 +16,7 @@ class HydrawiseSensor extends IPSModule
         $this->RegisterPropertyInteger('connector', -1);
         $this->RegisterPropertyInteger('model', 0);
         $this->RegisterPropertyBoolean('with_daily_value', true);
+        $this->RegisterPropertyBoolean('with_flowrate', true);
 
         $this->CreateVarProfile('Hydrawise.Flowmeter', VARIABLETYPE_FLOAT, ' l', 0, 0, 0, 0, 'Gauge');
         $this->CreateVarProfile('Hydrawise.WaterFlowrate', VARIABLETYPE_FLOAT, ' l/min', 0, 0, 0, 1, '');
@@ -53,12 +37,13 @@ class HydrawiseSensor extends IPSModule
         $connector = $this->ReadPropertyInteger('connector');
         $model = $this->ReadPropertyInteger('model');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
+        $with_flowrate = $this->ReadPropertyBoolean('with_flowrate');
 
         $vpos = 1;
 
         switch ($model) {
             case SENSOR_FLOW_METER:
-                $this->MaintainVariable('WaterFlowrate', $this->Translate('Water flow rate (current)'), VARIABLETYPE_FLOAT, 'Hydrawise.WaterFlowrate', $vpos++, true);
+                $this->MaintainVariable('WaterFlowrate', $this->Translate('Water flow rate (current)'), VARIABLETYPE_FLOAT, 'Hydrawise.WaterFlowrate', $vpos++, $with_flowrate);
                 $this->MaintainVariable('DailyFlow', $this->Translate('Water usage (day)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
                 $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
                 break;
@@ -97,13 +82,28 @@ class HydrawiseSensor extends IPSModule
         $info = 'Sensor ' . $connector . ' (' . $mode_txt . ')';
         $this->SetSummary($info);
 
+		$dataFilter = '.*controller_id[^:]*:' . $controller_id . ',.*';
+		$this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
+		$this->SetReceiveDataFilter($dataFilter);
+
         $this->SetStatus(IS_ACTIVE);
     }
 
-    public function GetConfigurationForm()
+	protected function GetFormActions()
+    {
+        $formActions = [];
+        $formActions[] = [
+                            'type'    => 'Button',
+                            'caption' => 'Module description',
+                            'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
+                        ];
+		
+		return $formActions;
+	}
+
+    public function GetFormElements()
     {
         $model = $this->ReadPropertyInteger('model');
-
         $opts_connector = [];
         $opts_connector[] = ['label' => $this->Translate('no'), 'value' => 0];
         for ($s = 1; $s <= 2; $s++) {
@@ -112,7 +112,7 @@ class HydrawiseSensor extends IPSModule
         }
 
         $opts_model = [];
-        $opts_model[] = ['label' => $this->Translate('no'), 'value' => 0];
+        $opts_model[] = ['label' => $this->Translate('unknown'), 'value' => 0];
         $opts_model[] = ['label' => $this->Translate('normally close, action start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
         $opts_model[] = ['label' => $this->Translate('normally open, action stop'), 'value' => SENSOR_NORMALLY_OPEN_STOP];
         $opts_model[] = ['label' => $this->Translate('normally close, action stop'), 'value' => SENSOR_NORMALLY_CLOSE_STOP];
@@ -121,60 +121,57 @@ class HydrawiseSensor extends IPSModule
 
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Sensor'];
-        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
-        $formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
-        $formElements[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
+
+		$items = [];
+        $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
+        $items[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
+        $items[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
+		$formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basis configuration (don\'t change)'];
+
         if ($model == SENSOR_FLOW_METER) {
-            $formElements[] = ['type' => 'Label', 'label' => 'optional sensor data'];
-            $formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
+			$items = [];
+            $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
+            $items[] = ['type' => 'CheckBox', 'name' => 'with_flowrate', 'caption' => 'flowrate'];
+			$formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional sensor data'];
         }
 
-        $formActions = [];
-        $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
-        $formActions[] = [
-                            'type'    => 'Button',
-                            'caption' => 'Module description',
-                            'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
-                        ];
+		return $formElements;
+    }
 
-        $formStatus = [];
-        $formStatus[] = ['code' => IS_CREATING, 'icon' => 'inactive', 'caption' => 'Instance getting created'];
-        $formStatus[] = ['code' => IS_ACTIVE, 'icon' => 'active', 'caption' => 'Instance is active'];
-        $formStatus[] = ['code' => IS_DELETING, 'icon' => 'inactive', 'caption' => 'Instance is deleted'];
-        $formStatus[] = ['code' => IS_INACTIVE, 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
-        $formStatus[] = ['code' => IS_NOTCREATED, 'icon' => 'inactive', 'caption' => 'Instance is not created'];
+    public function GetConfigurationForm()
+    {
+		$formElements = $this->GetFormElements();
+		$formActions = $this->GetFormActions();
+		$formStatus = $this->GetFormStatus();
 
-        $formStatus[] = ['code' => IS_UNAUTHORIZED, 'icon' => 'error', 'caption' => 'Instance is inactive (unauthorized)'];
-        $formStatus[] = ['code' => IS_SERVERERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (server error)'];
-        $formStatus[] = ['code' => IS_HTTPERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (http error)'];
-        $formStatus[] = ['code' => IS_INVALIDDATA, 'icon' => 'error', 'caption' => 'Instance is inactive (invalid data)'];
-        $formStatus[] = ['code' => IS_NODATA, 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
-        $formStatus[] = ['code' => IS_NOCONROLLER, 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
-        $formStatus[] = ['code' => IS_CONTROLLER_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
-        $formStatus[] = ['code' => IS_ZONE_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
-
-        return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
+        $form = json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
+        if ($form == '') {
+            $this->SendDebug(__FUNCTION__, 'json_error=' . json_last_error_msg(), 0);
+            $this->SendDebug(__FUNCTION__, '=> formElements=' . print_r($formElements, true), 0);
+            $this->SendDebug(__FUNCTION__, '=> formActions=' . print_r($formActions, true), 0);
+            $this->SendDebug(__FUNCTION__, '=> formStatus=' . print_r($formStatus, true), 0);
+        }
+        return $form;
     }
 
     public function ReceiveData($data)
     {
-        $controller_id = $this->ReadPropertyString('controller_id');
-
-        $jdata = json_decode($data);
+        $jdata = json_decode($data, true);
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
 
-        if (isset($jdata->Buffer)) {
-            $this->DecodeData($jdata->Buffer);
-        } elseif (isset($jdata->Function)) {
-            if (isset($jdata->controller_id) && $jdata->controller_id != $controller_id) {
-                $this->SendDebug(__FUNCTION__, 'ignore foreign controller_id ' . $jdata->controller_id, 0);
+        if (isset($jdata['Buffer'])) {
+            $this->DecodeData($jdata['Buffer']);
+        } elseif (isset($jdata['Function'])) {
+			$controller_id = $this->ReadPropertyString('controller_id');
+            if (isset($jdata['controller_id']) && $jdata['controller_id'] != $controller_id) {
+                $this->SendDebug(__FUNCTION__, 'ignore foreign controller_id ' . $jdata['controller_id'], 0);
             } else {
-                switch ($jdata->Function) {
+                switch ($jdata['Function']) {
                     case 'ClearDailyValue':
                         $this->ClearDailyValue();
                         break;
                     default:
-                        $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata->Function . '"', 0);
+                        $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata['Function'] . '"', 0);
                         break;
                 }
             }
@@ -189,6 +186,7 @@ class HydrawiseSensor extends IPSModule
         $connector = $this->ReadPropertyInteger('connector');
         $model = $this->ReadPropertyInteger('model');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
+        $with_flowrate = $this->ReadPropertyBoolean('with_flowrate');
 
         $err = '';
         $statuscode = 0;
@@ -268,8 +266,10 @@ class HydrawiseSensor extends IPSModule
                                 }
                             }
 
-                            $this->SendDebug(__FUNCTION__, 'water_flowrate=' . $water_flowrate, 0);
-                            $this->SetValue('WaterFlowrate', $water_flowrate);
+                            if ($with_flowrate) {
+								$this->SendDebug(__FUNCTION__, 'water_flowrate=' . $water_flowrate, 0);
+								$this->SetValue('WaterFlowrate', $water_flowrate);
+							}
                             if ($with_daily_value) {
                                 $this->SendDebug(__FUNCTION__, 'daily_flow=' . $daily_flow, 0);
                                 $this->SetValue('DailyFlow', $daily_flow);
