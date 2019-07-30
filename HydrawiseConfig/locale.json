@@ -25,7 +25,8 @@
 			"Instance is inactive (no data)": "Instanz ist inaktiv (keine Daten)",
 			"Instance is inactive (no controller)": "Instanz ist inaktiv (kein Controller vorhanden)",
 			"Instance is inactive (controller missing)": "Instanz ist inaktiv (Controller fehlt)",
-			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)"
+			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)",
+			"Instance is inactive (webhook already in use)": "Instanz ist inaktiv (Webhook wird bereits verwendet)"
 		}
 	}
 }

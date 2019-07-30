@@ -6,17 +6,9 @@ require_once __DIR__ . '/../libs/library.php';  // modul-bezogene Funktionen
 // Model of Sensor
 if (!defined('SENSOR_NORMALLY_CLOSE_START')) {
     define('SENSOR_NORMALLY_CLOSE_START', 11);
-}
-if (!defined('SENSOR_NORMALLY_OPEN_STOP')) {
     define('SENSOR_NORMALLY_OPEN_STOP', 12);
-}
-if (!defined('SENSOR_NORMALLY_CLOSE_STOP')) {
     define('SENSOR_NORMALLY_CLOSE_STOP', 13);
-}
-if (!defined('SENSOR_NORMALLY_OPEN_START')) {
     define('SENSOR_NORMALLY_OPEN_START', 14);
-}
-if (!defined('SENSOR_FLOW_METER')) {
     define('SENSOR_FLOW_METER', 30);
 }
 
@@ -43,7 +35,6 @@ class HydrawiseConfig extends IPSModule
     {
         $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'LastData'];
         $data = $this->SendDataToParent(json_encode($SendData));
-
         $this->SendDebug(__FUNCTION__, "data=$data", 0);
 
         $options = [];
@@ -62,7 +53,7 @@ class HydrawiseConfig extends IPSModule
                             'type'    => 'Button',
                             'caption' => 'Import of controller',
                             'confirm' => 'Triggering the function creates the missing instances for the base-unit and all zones and sensors of the selected Hydrawise-Controller. Are you sure?',
-                            'onClick' => 'HydrawiseConfig_Doit($id, $controller_id);'
+                            'onClick' => 'Hydrawise_Doit($id, $controller_id);'
                         ];
         $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
         $formActions[] = [
@@ -71,21 +62,7 @@ class HydrawiseConfig extends IPSModule
                             'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
                         ];
 
-        $formStatus = [];
-        $formStatus[] = ['code' => IS_CREATING, 'icon' => 'inactive', 'caption' => 'Instance getting created'];
-        $formStatus[] = ['code' => IS_ACTIVE, 'icon' => 'active', 'caption' => 'Instance is active'];
-        $formStatus[] = ['code' => IS_DELETING, 'icon' => 'inactive', 'caption' => 'Instance is deleted'];
-        $formStatus[] = ['code' => IS_INACTIVE, 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
-        $formStatus[] = ['code' => IS_NOTCREATED, 'icon' => 'inactive', 'caption' => 'Instance is not created'];
-
-        $formStatus[] = ['code' => IS_UNAUTHORIZED, 'icon' => 'error', 'caption' => 'Instance is inactive (unauthorized)'];
-        $formStatus[] = ['code' => IS_SERVERERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (server error)'];
-        $formStatus[] = ['code' => IS_HTTPERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (http error)'];
-        $formStatus[] = ['code' => IS_INVALIDDATA, 'icon' => 'error', 'caption' => 'Instance is inactive (invalid data)'];
-        $formStatus[] = ['code' => IS_NODATA, 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
-        $formStatus[] = ['code' => IS_NOCONROLLER, 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
-        $formStatus[] = ['code' => IS_CONTROLLER_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
-        $formStatus[] = ['code' => IS_ZONE_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
+        $formStatus = $this->GetFormStatus();
 
         return json_encode(['actions' => $formActions, 'status' => $formStatus]);
     }
