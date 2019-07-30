@@ -183,21 +183,21 @@ class HydrawiseZone extends IPSModule
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Zone'];
 
-		$items = [];
+        $items = [];
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'relay_id', 'caption' => 'Zone-ID'];
         $items[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'Connector', 'options' => $opts_connector];
-		$formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basis configuration (don\'t change)'];
+        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basis configuration (don\'t change)'];
 
-		$items = [];
+        $items = [];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_workflow', 'caption' => 'watering workflow'];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_status', 'caption' => 'watering status'];
         $items[] = ['type' => 'Select', 'name' => 'with_flowrate', 'caption' => 'flowrate', 'options' => $opts_flowrate];
         $items[] = ['type' => 'SelectScript', 'name' => 'visibility_script', 'caption' => 'optional script to hide/show variables'];
-		$formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional zone data'];
+        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional zone data'];
 
-		return $formElements;
+        return $formElements;
     }
 
     public function GetConfigurationForm()
