@@ -150,7 +150,19 @@ class HydrawiseZone extends IPSModule
         $this->SetStatus(IS_ACTIVE);
     }
 
-    public function GetConfigurationForm()
+    protected function GetFormActions()
+    {
+        $formActions = [];
+        $formActions[] = [
+                            'type'    => 'Button',
+                            'caption' => 'Module description',
+                            'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
+                        ];
+
+        return $formActions;
+    }
+
+    public function GetFormElements()
     {
         $opts_connector = [];
         $opts_connector[] = ['label' => $this->Translate('no'), 'value' => 0];
@@ -170,28 +182,38 @@ class HydrawiseZone extends IPSModule
 
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Zone'];
-        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
-        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'relay_id', 'caption' => 'Zone-ID'];
-        $formElements[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
-        $formElements[] = ['type' => 'Label', 'label' => 'optional zone data'];
-        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
-        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_workflow', 'caption' => ' ... watering workflow'];
-        $formElements[] = ['type' => 'CheckBox', 'name' => 'with_status', 'caption' => ' ... watering status'];
-        $formElements[] = ['type' => 'Select', 'name' => 'with_flowrate', 'caption' => ' ... flowrate', 'options' => $opts_flowrate];
-        $formElements[] = ['type' => 'Label', 'label' => 'optional script to hide/show variables'];
-        $formElements[] = ['type' => 'SelectScript', 'name' => 'visibility_script', 'caption' => 'visibility'];
 
-        $formActions = [];
-        $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
-        $formActions[] = [
-                            'type'    => 'Button',
-                            'caption' => 'Module description',
-                            'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
-                        ];
+		$items = [];
+        $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
+        $items[] = ['type' => 'ValidationTextBox', 'name' => 'relay_id', 'caption' => 'Zone-ID'];
+        $items[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'Connector', 'options' => $opts_connector];
+		$formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basis configuration (don\'t change)'];
 
+		$items = [];
+        $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
+        $items[] = ['type' => 'CheckBox', 'name' => 'with_workflow', 'caption' => 'watering workflow'];
+        $items[] = ['type' => 'CheckBox', 'name' => 'with_status', 'caption' => 'watering status'];
+        $items[] = ['type' => 'Select', 'name' => 'with_flowrate', 'caption' => 'flowrate', 'options' => $opts_flowrate];
+        $items[] = ['type' => 'SelectScript', 'name' => 'visibility_script', 'caption' => 'optional script to hide/show variables'];
+		$formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional zone data'];
+
+		return $formElements;
+    }
+
+    public function GetConfigurationForm()
+    {
+        $formElements = $this->GetFormElements();
+        $formActions = $this->GetFormActions();
         $formStatus = $this->GetFormStatus();
 
-        return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
+        $form = json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
+        if ($form == '') {
+            $this->SendDebug(__FUNCTION__, 'json_error=' . json_last_error_msg(), 0);
+            $this->SendDebug(__FUNCTION__, '=> formElements=' . print_r($formElements, true), 0);
+            $this->SendDebug(__FUNCTION__, '=> formActions=' . print_r($formActions, true), 0);
+            $this->SendDebug(__FUNCTION__, '=> formStatus=' . print_r($formStatus, true), 0);
+        }
+        return $form;
     }
 
     public function ReceiveData($data)

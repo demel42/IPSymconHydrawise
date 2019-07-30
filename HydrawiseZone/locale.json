@@ -3,17 +3,17 @@
 		"de": {
 			"Hydrawise Zone": "Hydrawise Zone",
 
+			"Basis configuration (don't change)": "Basis-Konfiguration (nicht ändern)",
 			"Controller-ID": "Controller-ID",
             "Zone-ID": "Zone-ID",
+			"Connector": "Anschluss",
 
-			"connector": "Anschluss",
 			"optional zone data": "optionale Daten zur Zone",
-			" ... daily sum": " ... Tageswerte",
-			" ... watering workflow": " ... Ablauf der Bewässerung",
-			" ... watering status": " ... Status der Bewässerung",
-			" ... flowrate": " ... Durchflussmenge",
+			"daily sum": "Tageswerte",
+			"watering workflow": "Ablauf der Bewässerung",
+			"watering status": "Status der Bewässerung",
+			"flowrate": "Durchflussmenge",
 			"optional script to hide/show variables": "optionales Script um die Sichtbarkeit von Variablen zu steuern",
-			"visibility": "Sichtbarkeit",
 
 			"no value": "kein Wert",
 			"average of cycle": "Mittelwert des Zyklus",
