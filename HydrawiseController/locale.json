@@ -1,24 +1,46 @@
 {
 	"translations": {
 		"de": {
-			"Hydrawise Controller": "Hydrawise Controller",
-			"optional controller data": "optionale Daten zum Controller",
-			" ... last contact to Hydrawise": " ... letze Kommunikation mit Hydrawise",
-			" ... last message": " ... letzte Nachricht",
-			" ... info": " ... zusammengefasste Daten",
-			" ... observations": " ... Wetter-Beobachtungen",
-			" ... forecast": " ... Vorhersage",
-			" ... html-box with state of irrigation": " ... HTML-Box mit dem Status der Bewässerung",
-			" ... daily sum": " ... Tageswerte",
+			"Instance is disabled": "Instanz ist deaktiviert",
 
+			"Hydrawise Controller": "Hydrawise Controller",
+
+			"Basis configuration (don't change)": "Basis-Konfiguration (nicht ändern)",
+			"Controller-ID": "Controller-ID",
+
+			"optional controller data": "optionale Daten zum Controller",
+			"last contact to Hydrawise": "letze Kommunikation mit Hydrawise",
+			"last message": "letzte Nachricht",
+			"info": "zusammengefasste Daten",
+			"observations": "Wetter-Beobachtungen",
+			"forecast": "Vorhersage",
+			"html-box with state of irrigation": "HTML-Box mit dem Status der Bewässerung",
+			"alternate script to use for the \"StatusBox\"": "alternatives Script zur Verwendung für die \"StatusBox\"",
+			"daily sum": "Tageswerte",
+
+			"Webhook": "Webhook",
+			"alternate script to use for Webhook": "alternatives Scripte für den Webhook",
+
+			"Controller": "Controller",
+			"Sensor": "Sensor",
+            "Zone": "Zone",
+            "Expander": "Expander",
+			"Components": "Komponenten",
+
+			"Sensors and zones": "Sensoren und Zonen",
+			"category for components to be created": "Kategorie für anzulegende Komponente",
+            "category": "Kategorie",
+
+			"Communication and timing": "Kommunikation und Zeitangaben",
+			"Update data every X seconds": "Aktualisiere Daten alle X Sekunden",
+			"Seconds": "Sekunden",
+			"idle": "untätig",
+			"running": "in Betrieb",
 			"Duration until the connection to hydrawise is marked disturbed":
 				"Dauer bis die Verbindung zu Hydrawise als gestört gilt",
 			"Minutes": "Minuten",
 
-			"alternate script to use for ...": "alternative Scripte zur Verwendung für ...",
-			" ... \"StatusBox\"": " ... \"StatusBox\"",
-			" ... Webhook": " ... Webhook",
-
+			"Update Data": "Aktualisiere Daten",
 			"Module description": "Modulbeschreibung",
 
 			"no": "nein",
@@ -58,7 +80,8 @@
 			"Instance is inactive (no data)": "Instanz ist inaktiv (keine Daten)",
 			"Instance is inactive (no controller)": "Instanz ist inaktiv (kein Controller vorhanden)",
 			"Instance is inactive (controller missing)": "Instanz ist inaktiv (Controller fehlt)",
-			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)"
+			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)",
+			"Instance is inactive (webhook already in use)": "Instanz ist inaktiv (Webhook wird bereits verwendet)"
 		}
 	}
 }
