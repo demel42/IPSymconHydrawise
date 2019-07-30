@@ -3,14 +3,10 @@
 		"de": {
 			"Controller": "Controller",
 
-			"Import of controller": "Importieren des Controllers",
-			"Triggering the function creates the missing instances for the base-unit and all zones and sensors of the selected Hydrawise-Controller. Are you sure?":
-				"Durch Auslösen der Funktion werden für die Basiseinheit und alle Zonene und Sensoren des ausgewählten Hydrawise-Controllers die fehlenden Instanzen angelegt. Sind Sie sich sicher?",
-			"Module description": "Modulbeschreibung",
+			"Name": "Name",
+			"Serial number": "Seriennummer",
 
-			"Sensor": "Sensor",
-			"Zone": "Zone",
-			"Expander": "Expander",
+			"Module description": "Modulbeschreibung",
 
 			"Instance getting created": "Instanz wird erstellt",
 			"Instance is active": "Instanz ist aktiv",
