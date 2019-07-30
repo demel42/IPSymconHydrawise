@@ -68,7 +68,7 @@ Bei einer erneuten Betätigung dieser Funktion werden eventuelle gelöschte Inst
 
 `HydrawiseIO_UpdateData(int $InstanzID)`
 
-ruft die Daten von Hydrawise ab. Wird automatisch zyklisch durch die Instanz durchgeführt im Abstand wie in der Konfiguration angegeben. Die Daten werden an _HydrawiseController_ weitergeleitet und von dort an _HydrawiseSensor_ und _HydrawiseZone_.
+ruft die Daten von Hydrawise ab. Wird automatisch zyklisch durch die Instanz durchgeführt im Abstand wie in der Konfiguration angegeben. Die Daten werden an _HydrawiseController_ weitergeleitet und von dort an _HydrawiseSensor_ und _Hydrawise_.
 
 ## 5. Konfiguration
 
@@ -132,7 +132,7 @@ werden vom Konfigurator beim Anlegen der Instanz gesetzt.
 | minutes2fail      | integer | 30           | Dauer, bis die Kommunikation als gestört gilt |
 
 Das hier angebbare Minuten-Intervall dient zu Überprüfung der Kommunikation zwischen dem Controller und dem Hydrawise-Server.
-  ist die Zeit überschritten, wird die Variable _Status_ des Controllers auf Fehler gesetzt.
+Ist die Zeit überschritten, wird die Variable _Status_ des Controllers auf Fehler gesetzt.
 Anmerkung: die Variable _Status_ wird auch auf Fehler gesetzt wenn das IO-Modul einen Fehler feststellt.
 
 Erläuterung zu _statusbox_script_, _webhook_script_:
@@ -140,7 +140,7 @@ Erläuterung zu _statusbox_script_, _webhook_script_:
 
 Ein passendes Code-Fragment für ein Script:
 ```
-$data = HydrawiseController_GetRawData($_IPS['InstanceID']);
+$data = Hydrawise_GetRawData($_IPS['InstanceID']);
 if ($data) {
     $station = json_decode($r,true);
     ...
@@ -227,20 +227,16 @@ Eine Anpassung an eigene Bedürfnisse ist möglich, der Wert der Assoziation ist
 
 ### Funktionen
 
-`bool HydrawiseZone_Run(int $InstanzID, int $duration = null)`
-
+`bool Hydrawise_Run(int $InstanzID, int $duration)`<br>
 startet die Bewässerung dieser Zone für eine bestimmte Zeit (in Minuten). Ist _duration_ nicht angegeben bzw. _null_, wird die in Hydrawise für die Zone aktuell ermittelte Dauer verwendet.
 
-`bool HydrawiseZone_Stop(int $InstanzID)`
-
+`bool Hydrawise_Stop(int $InstanzID)`<br>
 stoppt eine laufende Bewässerung.
 
-`bool HydrawiseZone_Suspend(int $InstanzID, int $timestamp)`
-
+`bool Hydrawise_Suspend(int $InstanzID, int $timestamp)`<br>
 setzt die Bewässerung bis zum angegebenen Zeitpunkt aus.
 
-`bool HydrawiseZone_Resume(int $InstanzID)`
-
+`bool Hydrawise_Resume(int $InstanzID)`<br>
 aktiviet wieder die normale Bewässerung.
 
 ## 6. Anhang
