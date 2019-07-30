@@ -143,9 +143,9 @@ class HydrawiseZone extends IPSModule
         $info .= ' (#' . $relay_id . ')';
         $this->SetSummary($info);
 
-		$dataFilter = '.*controller_id[^:]*:' . $controller_id . ',.*';
-		$this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
-		$this->SetReceiveDataFilter($dataFilter);
+        $dataFilter = '.*controller_id[^:]*:' . $controller_id . ',.*';
+        $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
+        $this->SetReceiveDataFilter($dataFilter);
 
         $this->SetStatus(IS_ACTIVE);
     }
@@ -163,7 +163,7 @@ class HydrawiseZone extends IPSModule
             }
         }
 
-		$opts_flowrate = [];
+        $opts_flowrate = [];
         $opts_flowrate[] = ['label' => $this->Translate('no value'), 'value' => FLOW_RATE_NONE];
         $opts_flowrate[] = ['label' => $this->Translate('average of cycle'), 'value' => FLOW_RATE_AVERAGE];
         $opts_flowrate[] = ['label' => $this->Translate('current value'), 'value' => FLOW_RATE_CURRENT];
@@ -202,7 +202,7 @@ class HydrawiseZone extends IPSModule
         if (isset($jdata['Buffer'])) {
             $this->DecodeData($jdata['Buffer']);
         } elseif (isset($jdata['Function'])) {
-			$controller_id = $this->ReadPropertyString('controller_id');
+            $controller_id = $this->ReadPropertyString('controller_id');
             if (isset($jdata['controller_id']) && $jdata['controller_id'] != $controller_id) {
                 $this->SendDebug(__FUNCTION__, 'ignore foreign controller_id ' . $jdata['controller_id'], 0);
             } else {
@@ -345,35 +345,34 @@ class HydrawiseZone extends IPSModule
 
             $this->SetValue('TimeLeft', $this->seconds2duration($time_left));
             $this->SetValue('WaterUsage', $water_usage);
-			switch ($with_flowrate) {
-				case FLOW_RATE_AVERAGE:
-					$this->SetValue('WaterFlowrate', $avg_water_flowrate);
-					break;
-				case FLOW_RATE_CURRENT:
-					$this->SetValue('WaterFlowrate', $cur_water_flowrate);
-					break;
-				default:
-					break;
-			}
+            switch ($with_flowrate) {
+                case FLOW_RATE_AVERAGE:
+                    $this->SetValue('WaterFlowrate', $avg_water_flowrate);
+                    break;
+                case FLOW_RATE_CURRENT:
+                    $this->SetValue('WaterFlowrate', $cur_water_flowrate);
+                    break;
+                default:
+                    break;
+            }
 
             $current_run = [
                     'time_begin'    => $time_begin,
                     'time_end'      => $time_end,
                     'time_left'     => $time_left,
                     'water_usage'   => $water_usage,
-                    'server_time'	=> $server_time,
+                    'server_time'	  => $server_time,
                 ];
             $this->SetBuffer('currentRun', json_encode($current_run));
             $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
             $this->SendDebug(__FUNCTION__, ' * avg: time_duration=' . $tot_time_duration . ', water_usage=' . $water_usage . ' => flowrate=' . $avg_water_flowrate, 0);
             $this->SendDebug(__FUNCTION__, ' * cur: time_duration=' . $cur_time_duration . ', water_usage=' . $cur_water_usage . ' => flowrate=' . $cur_water_flowrate, 0);
-
         } else {
             $this->SetValue('TimeLeft', '');
             $this->SetValue('WaterUsage', 0);
-			if ($with_flowrate != FLOW_RATE_NONE) {
-				$this->SetValue('WaterFlowrate', 0);
-			}
+            if ($with_flowrate != FLOW_RATE_NONE) {
+                $this->SetValue('WaterFlowrate', 0);
+            }
 
             $buf = $this->GetBuffer('currentRun');
             if ($buf != '') {
@@ -485,17 +484,17 @@ class HydrawiseZone extends IPSModule
                 }
                 break;
             case 'ZoneAction':
-				switch ($Value) {
-					case ZONE_ACTION_STOP:
-						$this->Stop();
-						break;
-					case ZONE_ACTION_DEFAULT:
-						$this->Run();
-						break;
-					default:
-						$sec = $Value * 60;
-						$this->Run($sec);
-						break;
+                switch ($Value) {
+                    case ZONE_ACTION_STOP:
+                        $this->Stop();
+                        break;
+                    case ZONE_ACTION_DEFAULT:
+                        $this->Run();
+                        break;
+                    default:
+                        $sec = $Value * 60;
+                        $this->Run($sec);
+                        break;
                 }
                 $this->SendDebug(__FUNCTION__, $Ident . '=' . $Value, 0);
                 break;
@@ -506,19 +505,19 @@ class HydrawiseZone extends IPSModule
     }
 
     private function SendCmdUrl($url)
-	{
+    {
         $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CmdUrl', 'Url' => $url];
         $data = $this->SendDataToParent(json_encode($SendData));
         $jdata = json_decode($data, true);
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($jdata, true), 0);
 
         $controller_id = $this->ReadPropertyString('controller_id');
-		$data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'UpdateController', 'controller_id' => $controller_id];
-		$this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-		$this->SendDataToParent(json_encode($data));
+        $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'UpdateController', 'controller_id' => $controller_id];
+        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
+        $this->SendDataToParent(json_encode($data));
 
         return $jdata['status'];
-	}
+    }
 
     public function Run(int $duration)
     {
@@ -528,7 +527,7 @@ class HydrawiseZone extends IPSModule
             $url .= '&custom=' . $duration;
         }
 
-		return $this->SendCmdUrl($url);
+        return $this->SendCmdUrl($url);
     }
 
     public function Stop()
@@ -536,7 +535,7 @@ class HydrawiseZone extends IPSModule
         $relay_id = $this->ReadPropertyString('relay_id');
         $url = 'relay_id=' . $relay_id . '&action=stop';
 
-		return $this->SendCmdUrl($url);
+        return $this->SendCmdUrl($url);
     }
 
     public function Suspend(int $timestamp)
@@ -544,7 +543,7 @@ class HydrawiseZone extends IPSModule
         $relay_id = $this->ReadPropertyString('relay_id');
         $url = 'relay_id=' . $relay_id . '&action=suspend&custom=' . $timestamp;
 
-		return $this->SendCmdUrl($url);
+        return $this->SendCmdUrl($url);
     }
 
     public function Resume()
@@ -552,6 +551,6 @@ class HydrawiseZone extends IPSModule
         $relay_id = $this->ReadPropertyString('relay_id');
         $url = 'relay_id=' . $relay_id . '&action=suspend&custom=' . time();
 
-		return $this->SendCmdUrl($url);
+        return $this->SendCmdUrl($url);
     }
 }

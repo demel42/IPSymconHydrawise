@@ -119,16 +119,16 @@ class HydrawiseIO extends IPSModule
                     $this->SendDataToChildren(json_encode($data));
                     break;
                 case 'UpdateController':
-					$controller_id = $jdata['controller_id'];
-					$ret = $this->UpdateControllerData($controller_id);
-					break;
+                    $controller_id = $jdata['controller_id'];
+                    $ret = $this->UpdateControllerData($controller_id);
+                    break;
                 case 'CustomerDetails':
-					$ret = $this->GetCustomerDetails();
-					break;
+                    $ret = $this->GetCustomerDetails();
+                    break;
                 case 'ControllerDetails':
-					$controller_id = $jdata['controller_id'];
-					$ret = $this->GetControllerDetails($controller_id);
-					break;
+                    $controller_id = $jdata['controller_id'];
+                    $ret = $this->GetControllerDetails($controller_id);
+                    break;
                 default:
                     $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata['Function'] . '"', 0);
                     break;
@@ -143,7 +143,7 @@ class HydrawiseIO extends IPSModule
 
     public function UpdateData()
     {
-		if ($this->GetStatus() == IS_INACTIVE) {
+        if ($this->GetStatus() == IS_INACTIVE) {
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
             return;
         }
@@ -226,26 +226,26 @@ class HydrawiseIO extends IPSModule
 
     private function UpdateControllerData(string $controller_id)
     {
-		if ($this->GetStatus() == IS_INACTIVE) {
+        if ($this->GetStatus() == IS_INACTIVE) {
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
             return false;
         }
 
-		$data = $this->GetControllerDetails($controller_id);
-		if ($data != '') {
+        $data = $this->GetControllerDetails($controller_id);
+        if ($data != '') {
 
-			/* TEMPORÄR */
-			$all_controllers = [];
-			$all_controllers[] = json_decode($data);
-			$data = json_encode($all_controllers);
-			/* TEMPORÄR */
+            /* TEMPORÄR */
+            $all_controllers = [];
+            $all_controllers[] = json_decode($data);
+            $data = json_encode($all_controllers);
+            /* TEMPORÄR */
 
-			$this->SendData($data);
-			$this->SetStatus(IS_ACTIVE);
-			$status = true;
-		} else {
-			$status = false;
-		}
+            $this->SendData($data);
+            $this->SetStatus(IS_ACTIVE);
+            $status = true;
+        } else {
+            $status = false;
+        }
 
         $ret = json_encode(['status' => $status]);
         $this->SendDebug(__FUNCTION__, 'ret=' . print_r($ret, true), 0);
@@ -254,20 +254,20 @@ class HydrawiseIO extends IPSModule
 
     private function GetControllerDetails(string $controller_id)
     {
-		if ($this->GetStatus() == IS_INACTIVE) {
+        if ($this->GetStatus() == IS_INACTIVE) {
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
             return false;
         }
 
         $api_key = $this->ReadPropertyString('api_key');
-		$url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key=' . $api_key . '&controller_id=' . $controller_id;
-		$data = $this->do_HttpRequest($url);
+        $url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key=' . $api_key . '&controller_id=' . $controller_id;
+        $data = $this->do_HttpRequest($url);
         return $data;
     }
 
     private function GetCustomerDetails()
     {
-		if ($this->GetStatus() == IS_INACTIVE) {
+        if ($this->GetStatus() == IS_INACTIVE) {
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
             return;
         }
@@ -275,7 +275,7 @@ class HydrawiseIO extends IPSModule
         $api_key = $this->ReadPropertyString('api_key');
         $url = 'https://app.hydrawise.com/api/v1/customerdetails.php?api_key=' . $api_key . '&type=controllers';
         $data = $this->do_HttpRequest($url);
-		return $data;
+        return $data;
     }
 
     private function do_HttpRequest($url)

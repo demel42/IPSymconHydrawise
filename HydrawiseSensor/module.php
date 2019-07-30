@@ -82,14 +82,14 @@ class HydrawiseSensor extends IPSModule
         $info = 'Sensor ' . $connector . ' (' . $mode_txt . ')';
         $this->SetSummary($info);
 
-		$dataFilter = '.*controller_id[^:]*:' . $controller_id . ',.*';
-		$this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
-		$this->SetReceiveDataFilter($dataFilter);
+        $dataFilter = '.*controller_id[^:]*:' . $controller_id . ',.*';
+        $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
+        $this->SetReceiveDataFilter($dataFilter);
 
         $this->SetStatus(IS_ACTIVE);
     }
 
-	protected function GetFormActions()
+    protected function GetFormActions()
     {
         $formActions = [];
         $formActions[] = [
@@ -97,9 +97,9 @@ class HydrawiseSensor extends IPSModule
                             'caption' => 'Module description',
                             'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
                         ];
-		
-		return $formActions;
-	}
+
+        return $formActions;
+    }
 
     public function GetFormElements()
     {
@@ -122,27 +122,27 @@ class HydrawiseSensor extends IPSModule
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Sensor'];
 
-		$items = [];
+        $items = [];
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
         $items[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
         $items[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
-		$formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basis configuration (don\'t change)'];
+        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basis configuration (don\'t change)'];
 
         if ($model == SENSOR_FLOW_METER) {
-			$items = [];
+            $items = [];
             $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
             $items[] = ['type' => 'CheckBox', 'name' => 'with_flowrate', 'caption' => 'flowrate'];
-			$formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional sensor data'];
+            $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional sensor data'];
         }
 
-		return $formElements;
+        return $formElements;
     }
 
     public function GetConfigurationForm()
     {
-		$formElements = $this->GetFormElements();
-		$formActions = $this->GetFormActions();
-		$formStatus = $this->GetFormStatus();
+        $formElements = $this->GetFormElements();
+        $formActions = $this->GetFormActions();
+        $formStatus = $this->GetFormStatus();
 
         $form = json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
         if ($form == '') {
@@ -162,7 +162,7 @@ class HydrawiseSensor extends IPSModule
         if (isset($jdata['Buffer'])) {
             $this->DecodeData($jdata['Buffer']);
         } elseif (isset($jdata['Function'])) {
-			$controller_id = $this->ReadPropertyString('controller_id');
+            $controller_id = $this->ReadPropertyString('controller_id');
             if (isset($jdata['controller_id']) && $jdata['controller_id'] != $controller_id) {
                 $this->SendDebug(__FUNCTION__, 'ignore foreign controller_id ' . $jdata['controller_id'], 0);
             } else {
@@ -267,9 +267,9 @@ class HydrawiseSensor extends IPSModule
                             }
 
                             if ($with_flowrate) {
-								$this->SendDebug(__FUNCTION__, 'water_flowrate=' . $water_flowrate, 0);
-								$this->SetValue('WaterFlowrate', $water_flowrate);
-							}
+                                $this->SendDebug(__FUNCTION__, 'water_flowrate=' . $water_flowrate, 0);
+                                $this->SetValue('WaterFlowrate', $water_flowrate);
+                            }
                             if ($with_daily_value) {
                                 $this->SendDebug(__FUNCTION__, 'daily_flow=' . $daily_flow, 0);
                                 $this->SetValue('DailyFlow', $daily_flow);
