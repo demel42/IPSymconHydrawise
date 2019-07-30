@@ -12,7 +12,7 @@ class HydrawiseConfig extends IPSModule
     {
         parent::Create();
 
-		$this->RegisterPropertyInteger('ImportCategoryID', 0);
+        $this->RegisterPropertyInteger('ImportCategoryID', 0);
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
     }
@@ -24,7 +24,7 @@ class HydrawiseConfig extends IPSModule
         $this->SetStatus(IS_ACTIVE);
     }
 
-	protected function GetFormActions()
+    protected function GetFormActions()
     {
         $formActions = [];
         $formActions[] = [
@@ -33,8 +33,8 @@ class HydrawiseConfig extends IPSModule
                             'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
                         ];
 
-		return $formActions;
-	}
+        return $formActions;
+    }
 
     private function SetLocation()
     {
@@ -65,14 +65,14 @@ class HydrawiseConfig extends IPSModule
         $config_list = [];
 
         if ($customer != '') {
-			$controllers = $customer['controllers'];
-			if ($controllers != '') {
+            $controllers = $customer['controllers'];
+            if ($controllers != '') {
                 $guid = '{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}';
                 $instIDs = IPS_GetInstanceListByModuleID($guid);
-				foreach ($controllers as $controller) {
-					$controller_name = $controller['name'];
-					$controller_id = $controller['controller_id'];
-					$serial_number = $controller['serial_number'];
+                foreach ($controllers as $controller) {
+                    $controller_name = $controller['name'];
+                    $controller_id = $controller['controller_id'];
+                    $serial_number = $controller['serial_number'];
 
                     $instanceID = 0;
                     foreach ($instIDs as $instID) {
@@ -81,42 +81,42 @@ class HydrawiseConfig extends IPSModule
                             $instanceID = $instID;
                             break;
                         }
-					}
+                    }
 
-					$create = [
-							'moduleID'      => $guid,
-							'location'      => $this->SetLocation(),
-							'configuration' => [
-									'controller_id' => "$controller_id",
-								]
-						];
-					if (IPS_GetKernelVersion() >= 5.1) {
-						$create['info'] = $this->Translate('Controller') .  ' (' . $controller_name . ')';
-					}
+                    $create = [
+                            'moduleID'      => $guid,
+                            'location'      => $this->SetLocation(),
+                            'configuration' => [
+                                    'controller_id' => "$controller_id",
+                                ]
+                        ];
+                    if (IPS_GetKernelVersion() >= 5.1) {
+                        $create['info'] = $this->Translate('Controller') . ' (' . $controller_name . ')';
+                    }
 
-					$entry = [
-							'instanceID'  => $instanceID,
-							'name'        => $controller_name,
-							'serial_number' => $serial_number,
-							'create'      => $create
-						];
+                    $entry = [
+                            'instanceID'    => $instanceID,
+                            'name'          => $controller_name,
+                            'serial_number' => $serial_number,
+                            'create'        => $create
+                        ];
 
-					$config_list[] = $entry;
-					$this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
-				}
-			}
-		}
+                    $config_list[] = $entry;
+                    $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
+                }
+            }
+        }
 
         return $config_list;
     }
 
     public function GetFormElements()
     {
-		$formElements = [];
+        $formElements = [];
 
-		$formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Configurator'];
+        $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Configurator'];
 
-		$formElements[] = ['name' => 'ImportCategoryID', 'type' => 'SelectCategory', 'caption' => 'category'];
+        $formElements[] = ['name' => 'ImportCategoryID', 'type' => 'SelectCategory', 'caption' => 'category'];
 
         $entries = $this->getConfiguratorValues();
         $configurator = [
@@ -144,8 +144,8 @@ class HydrawiseConfig extends IPSModule
         ];
         $formElements[] = $configurator;
 
-		return $formElements;
-	}
+        return $formElements;
+    }
 
     public function GetConfigurationForm()
     {
