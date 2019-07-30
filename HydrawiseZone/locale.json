@@ -2,13 +2,22 @@
 	"translations": {
 		"de": {
 			"Hydrawise Zone": "Hydrawise Zone",
+
+			"Controller-ID": "Controller-ID",
+            "Zone-ID": "Zone-ID",
+
 			"connector": "Anschluss",
 			"optional zone data": "optionale Daten zur Zone",
 			" ... daily sum": " ... Tageswerte",
 			" ... watering workflow": " ... Ablauf der Bewässerung",
 			" ... watering status": " ... Status der Bewässerung",
+			" ... flowrate": " ... Durchflussmenge",
 			"optional script to hide/show variables": "optionales Script um die Sichtbarkeit von Variablen zu steuern",
 			"visibility": "Sichtbarkeit",
+
+			"no value": "kein Wert",
+			"average of cycle": "Mittelwert des Zyklus",
+			"current value": "aktueller Wert",
 
 			"Module description": "Modulbeschreibung",
 
@@ -64,7 +73,8 @@
 			"Instance is inactive (no data)": "Instanz ist inaktiv (keine Daten)",
 			"Instance is inactive (no controller)": "Instanz ist inaktiv (kein Controller vorhanden)",
 			"Instance is inactive (controller missing)": "Instanz ist inaktiv (Controller fehlt)",
-			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)"
+			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)",
+			"Instance is inactive (webhook already in use)": "Instanz ist inaktiv (Webhook wird bereits verwendet)"
 		}
 	}
 }

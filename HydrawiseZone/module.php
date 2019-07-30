@@ -6,48 +6,33 @@ require_once __DIR__ . '/../libs/library.php';  // modul-bezogene Funktionen
 // Zone-Action
 if (!defined('ZONE_ACTION_STOP')) {
     define('ZONE_ACTION_STOP', -1);
-}
-if (!defined('ZONE_ACTION_DEFAULT')) {
     define('ZONE_ACTION_DEFAULT', 0);
-}
-
-// Zone-Suspend
-if (!defined('ZONE_SUSPEND_CLEAR')) {
     define('ZONE_SUSPEND_CLEAR', -1);
 }
 
 // aktuelle Aktivität
 if (!defined('ZONE_WORKFLOW_SUSPENDED')) {
     define('ZONE_WORKFLOW_SUSPENDED', -1);
-}
-if (!defined('ZONE_WORKFLOW_MANUAL')) {
     define('ZONE_WORKFLOW_MANUAL', 0);
-}
-if (!defined('ZONE_WORKFLOW_SOON')) {
     define('ZONE_WORKFLOW_SOON', 1);
-}
-if (!defined('ZONE_WORKFLOW_SCHEDULED')) {
     define('ZONE_WORKFLOW_SCHEDULED', 2);
-}
-if (!defined('ZONE_WORKFLOW_WATERING')) {
     define('ZONE_WORKFLOW_WATERING', 3);
-}
-if (!defined('ZONE_WORKFLOW_DONE')) {
     define('ZONE_WORKFLOW_DONE', 4);
-}
-if (!defined('ZONE_WORKFLOW_PARTIALLY')) {
     define('ZONE_WORKFLOW_PARTIALLY', 5);
 }
 
 // aktueller Status
 if (!defined('ZONE_STATUS_SUSPENDED')) {
     define('ZONE_STATUS_SUSPENDED', -1);
-}
-if (!defined('ZONE_STATUS_IDLE')) {
     define('ZONE_STATUS_IDLE', 0);
-}
-if (!defined('ZONE_STATUS_WATERING')) {
     define('ZONE_STATUS_WATERING', 1);
+}
+
+// aktueller Status
+if (!defined('FLOW_RATE_NONE')) {
+    define('FLOW_RATE_NONE', 0);
+    define('FLOW_RATE_AVERAGE', 1);
+    define('FLOW_RATE_CURRENT', 2);
 }
 
 class HydrawiseZone extends IPSModule
@@ -65,6 +50,7 @@ class HydrawiseZone extends IPSModule
         $this->RegisterPropertyBoolean('with_daily_value', true);
         $this->RegisterPropertyBoolean('with_workflow', true);
         $this->RegisterPropertyBoolean('with_status', true);
+        $this->RegisterPropertyInteger('with_flowrate', FLOW_RATE_AVERAGE);
         $this->RegisterPropertyInteger('visibility_script', 0);
 
         $associations = [];
@@ -115,6 +101,7 @@ class HydrawiseZone extends IPSModule
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
         $with_workflow = $this->ReadPropertyBoolean('with_workflow');
         $with_status = $this->ReadPropertyBoolean('with_status');
+        $with_flowrate = $this->ReadPropertyInteger('with_flowrate');
 
         $vpos = 1;
 
@@ -129,7 +116,7 @@ class HydrawiseZone extends IPSModule
         // aktueller Bewässerungszyklus
         $this->MaintainVariable('TimeLeft', $this->Translate('Time left'), VARIABLETYPE_STRING, '', $vpos++, true);
         $this->MaintainVariable('WaterUsage', $this->Translate('Water usage'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
-        $this->MaintainVariable('WaterFlowrate', $this->Translate('Water flow rate'), VARIABLETYPE_FLOAT, 'Hydrawise.WaterFlowrate', $vpos++, true);
+        $this->MaintainVariable('WaterFlowrate', $this->Translate('Water flow rate'), VARIABLETYPE_FLOAT, 'Hydrawise.WaterFlowrate', $vpos++, $with_flowrate != FLOW_RATE_NONE);
 
         // Aktionen
         $this->MaintainVariable('ZoneAction', $this->Translate('Zone operation'), VARIABLETYPE_INTEGER, 'Hydrawise.ZoneAction', $vpos++, true);
@@ -156,6 +143,10 @@ class HydrawiseZone extends IPSModule
         $info .= ' (#' . $relay_id . ')';
         $this->SetSummary($info);
 
+		$dataFilter = '.*controller_id[^:]*:' . $controller_id . ',.*';
+		$this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
+		$this->SetReceiveDataFilter($dataFilter);
+
         $this->SetStatus(IS_ACTIVE);
     }
 
@@ -172,6 +163,11 @@ class HydrawiseZone extends IPSModule
             }
         }
 
+		$opts_flowrate = [];
+        $opts_flowrate[] = ['label' => $this->Translate('no value'), 'value' => FLOW_RATE_NONE];
+        $opts_flowrate[] = ['label' => $this->Translate('average of cycle'), 'value' => FLOW_RATE_AVERAGE];
+        $opts_flowrate[] = ['label' => $this->Translate('current value'), 'value' => FLOW_RATE_CURRENT];
+
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Zone'];
         $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
@@ -181,6 +177,7 @@ class HydrawiseZone extends IPSModule
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => ' ... daily sum'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_workflow', 'caption' => ' ... watering workflow'];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'with_status', 'caption' => ' ... watering status'];
+        $formElements[] = ['type' => 'Select', 'name' => 'with_flowrate', 'caption' => ' ... flowrate', 'options' => $opts_flowrate];
         $formElements[] = ['type' => 'Label', 'label' => 'optional script to hide/show variables'];
         $formElements[] = ['type' => 'SelectScript', 'name' => 'visibility_script', 'caption' => 'visibility'];
 
@@ -192,44 +189,29 @@ class HydrawiseZone extends IPSModule
                             'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
                         ];
 
-        $formStatus = [];
-        $formStatus[] = ['code' => IS_CREATING, 'icon' => 'inactive', 'caption' => 'Instance getting created'];
-        $formStatus[] = ['code' => IS_ACTIVE, 'icon' => 'active', 'caption' => 'Instance is active'];
-        $formStatus[] = ['code' => IS_DELETING, 'icon' => 'inactive', 'caption' => 'Instance is deleted'];
-        $formStatus[] = ['code' => IS_INACTIVE, 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
-        $formStatus[] = ['code' => IS_NOTCREATED, 'icon' => 'inactive', 'caption' => 'Instance is not created'];
-
-        $formStatus[] = ['code' => IS_UNAUTHORIZED, 'icon' => 'error', 'caption' => 'Instance is inactive (unauthorized)'];
-        $formStatus[] = ['code' => IS_SERVERERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (server error)'];
-        $formStatus[] = ['code' => IS_HTTPERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (http error)'];
-        $formStatus[] = ['code' => IS_INVALIDDATA, 'icon' => 'error', 'caption' => 'Instance is inactive (invalid data)'];
-        $formStatus[] = ['code' => IS_NODATA, 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
-        $formStatus[] = ['code' => IS_NOCONROLLER, 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
-        $formStatus[] = ['code' => IS_CONTROLLER_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
-        $formStatus[] = ['code' => IS_ZONE_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
+        $formStatus = $this->GetFormStatus();
 
         return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
     }
 
     public function ReceiveData($data)
     {
-        $controller_id = $this->ReadPropertyString('controller_id');
-
-        $jdata = json_decode($data);
+        $jdata = json_decode($data, true);
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
 
-        if (isset($jdata->Buffer)) {
-            $this->DecodeData($jdata->Buffer);
-        } elseif (isset($jdata->Function)) {
-            if (isset($jdata->controller_id) && $jdata->controller_id != $controller_id) {
-                $this->SendDebug(__FUNCTION__, 'ignore foreign controller_id ' . $jdata->controller_id, 0);
+        if (isset($jdata['Buffer'])) {
+            $this->DecodeData($jdata['Buffer']);
+        } elseif (isset($jdata['Function'])) {
+			$controller_id = $this->ReadPropertyString('controller_id');
+            if (isset($jdata['controller_id']) && $jdata['controller_id'] != $controller_id) {
+                $this->SendDebug(__FUNCTION__, 'ignore foreign controller_id ' . $jdata['controller_id'], 0);
             } else {
-                switch ($jdata->Function) {
+                switch ($jdata['Function']) {
                     case 'ClearDailyValue':
                         $this->ClearDailyValue();
                         break;
                     default:
-                        $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata->Function . '"', 0);
+                        $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata['Function'] . '"', 0);
                         break;
                 }
             }
@@ -245,6 +227,7 @@ class HydrawiseZone extends IPSModule
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
         $with_workflow = $this->ReadPropertyBoolean('with_workflow');
         $with_status = $this->ReadPropertyBoolean('with_status');
+        $with_flowrate = $this->ReadPropertyInteger('with_flowrate');
         $visibility_script = $this->ReadPropertyInteger('visibility_script');
 
         $err = '';
@@ -353,33 +336,44 @@ class HydrawiseZone extends IPSModule
             $time_begin = $lastrun;
             $time_end = $server_time + $time_left;
 
-            $time_duration = $server_time - $time_begin;
-            $water_flowrate = $time_duration ? floor($water_usage / ($time_duration / 60.0) * 100) / 100 : 0;
+            $tot_time_duration = $server_time - $time_begin;
+            $avg_water_flowrate = $tot_time_duration ? floor($water_usage / ($tot_time_duration / 60.0) * 100) / 100 : 0;
 
             $cur_time_duration = $server_time - $last_server_time;
             $cur_water_usage = $water_usage - $last_water_usage;
             $cur_water_flowrate = $cur_time_duration ? floor($cur_water_usage / ($cur_time_duration / 60.0) * 100) / 100 : 0;
 
-            $this->SendDebug(__FUNCTION__, ' * avg: time_duration=' . $time_duration . ', water_usage=' . $water_usage . ' => flowrate=' . $water_flowrate, 0);
-            $this->SendDebug(__FUNCTION__, ' * cur: time_duration=' . $cur_time_duration . ', water_usage=' . $cur_water_usage . ' => flowrate=' . $cur_water_flowrate, 0);
-
             $this->SetValue('TimeLeft', $this->seconds2duration($time_left));
             $this->SetValue('WaterUsage', $water_usage);
-            $this->SetValue('WaterFlowrate', $water_flowrate);
+			switch ($with_flowrate) {
+				case FLOW_RATE_AVERAGE:
+					$this->SetValue('WaterFlowrate', $avg_water_flowrate);
+					break;
+				case FLOW_RATE_CURRENT:
+					$this->SetValue('WaterFlowrate', $cur_water_flowrate);
+					break;
+				default:
+					break;
+			}
 
             $current_run = [
                     'time_begin'    => $time_begin,
                     'time_end'      => $time_end,
                     'time_left'     => $time_left,
                     'water_usage'   => $water_usage,
-                    'server_time'	  => $server_time,
+                    'server_time'	=> $server_time,
                 ];
             $this->SetBuffer('currentRun', json_encode($current_run));
-            $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage . ', flowrate=' . $water_flowrate, 0);
+            $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
+            $this->SendDebug(__FUNCTION__, ' * avg: time_duration=' . $tot_time_duration . ', water_usage=' . $water_usage . ' => flowrate=' . $avg_water_flowrate, 0);
+            $this->SendDebug(__FUNCTION__, ' * cur: time_duration=' . $cur_time_duration . ', water_usage=' . $cur_water_usage . ' => flowrate=' . $cur_water_flowrate, 0);
+
         } else {
             $this->SetValue('TimeLeft', '');
             $this->SetValue('WaterUsage', 0);
-            $this->SetValue('WaterFlowrate', 0);
+			if ($with_flowrate != FLOW_RATE_NONE) {
+				$this->SetValue('WaterFlowrate', 0);
+			}
 
             $buf = $this->GetBuffer('currentRun');
             if ($buf != '') {
@@ -398,7 +392,7 @@ class HydrawiseZone extends IPSModule
                 $water_estimated = ceil($water_usage / $time_done * ($time_duration * 60));
 
                 $this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
-                $this->SendDebug(__FUNCTION__, 'duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
+                $this->SendDebug(__FUNCTION__, ' * duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
 
                 $this->SetValue('LastDuration', $time_duration);
                 if ($with_daily_value) {
@@ -491,13 +485,17 @@ class HydrawiseZone extends IPSModule
                 }
                 break;
             case 'ZoneAction':
-                if ($Value == ZONE_ACTION_STOP) {
-                    $this->Stop();
-                } elseif ($Value == ZONE_ACTION_STOP) {
-                    $this->Run();
-                } else {
-                    $sec = $Value * 60;
-                    $this->Run($sec);
+				switch ($Value) {
+					case ZONE_ACTION_STOP:
+						$this->Stop();
+						break;
+					case ZONE_ACTION_DEFAULT:
+						$this->Run();
+						break;
+					default:
+						$sec = $Value * 60;
+						$this->Run($sec);
+						break;
                 }
                 $this->SendDebug(__FUNCTION__, $Ident . '=' . $Value, 0);
                 break;
@@ -507,37 +505,38 @@ class HydrawiseZone extends IPSModule
         }
     }
 
-    public function Run(int $duration = null)
+    private function SendCmdUrl($url)
+	{
+        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CmdUrl', 'Url' => $url];
+        $data = $this->SendDataToParent(json_encode($SendData));
+        $jdata = json_decode($data, true);
+        $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($jdata, true), 0);
+
+        $controller_id = $this->ReadPropertyString('controller_id');
+		$data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'UpdateController', 'controller_id' => $controller_id];
+		$this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
+		$this->SendDataToParent(json_encode($data));
+
+        return $jdata['status'];
+	}
+
+    public function Run(int $duration)
     {
         $relay_id = $this->ReadPropertyString('relay_id');
-
         $url = 'relay_id=' . $relay_id . '&action=run';
         if ($duration > 0) {
             $url .= '&custom=' . $duration;
         }
 
-        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CmdUrl', 'Url' => $url];
-        $data = $this->SendDataToParent(json_encode($SendData));
-
-        $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
-
-        $jdata = json_decode($data, true);
-        return $jdata['status'];
+		return $this->SendCmdUrl($url);
     }
 
     public function Stop()
     {
         $relay_id = $this->ReadPropertyString('relay_id');
-
         $url = 'relay_id=' . $relay_id . '&action=stop';
 
-        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CmdUrl', 'Url' => $url];
-        $data = $this->SendDataToParent(json_encode($SendData));
-
-        $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
-
-        $jdata = json_decode($data, true);
-        return $jdata['status'];
+		return $this->SendCmdUrl($url);
     }
 
     public function Suspend(int $timestamp)
@@ -545,13 +544,7 @@ class HydrawiseZone extends IPSModule
         $relay_id = $this->ReadPropertyString('relay_id');
         $url = 'relay_id=' . $relay_id . '&action=suspend&custom=' . $timestamp;
 
-        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CmdUrl', 'Url' => $url];
-        $data = $this->SendDataToParent(json_encode($SendData));
-
-        $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
-
-        $jdata = json_decode($data, true);
-        return $jdata['status'];
+		return $this->SendCmdUrl($url);
     }
 
     public function Resume()
@@ -559,12 +552,6 @@ class HydrawiseZone extends IPSModule
         $relay_id = $this->ReadPropertyString('relay_id');
         $url = 'relay_id=' . $relay_id . '&action=suspend&custom=' . time();
 
-        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CmdUrl', 'Url' => $url];
-        $data = $this->SendDataToParent(json_encode($SendData));
-
-        $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($data, true), 0);
-
-        $jdata = json_decode($data, true);
-        return $jdata['status'];
+		return $this->SendCmdUrl($url);
     }
 }
