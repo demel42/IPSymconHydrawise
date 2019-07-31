@@ -13,13 +13,9 @@ class HydrawiseIO extends IPSModule
         parent::Create();
 
         $this->RegisterPropertyBoolean('module_disable', false);
-
         $this->RegisterPropertyString('api_key', '');
-
-        $this->RegisterPropertyInteger('UpdateDataInterval', '60');
         $this->RegisterPropertyInteger('ignore_http_error', '0');
 
-        $this->RegisterTimer('UpdateData', 0, 'Hydrawise_UpdateData(' . $this->InstanceID . ');');
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
 
@@ -29,60 +25,64 @@ class HydrawiseIO extends IPSModule
 
         $module_disable = $this->ReadPropertyBoolean('module_disable');
         if ($module_disable) {
-            $this->SetTimerInterval('UpdateData', 0);
             $this->SetStatus(IS_INACTIVE);
             return;
         }
 
         $api_key = $this->ReadPropertyString('api_key');
-        if ($api_key != '') {
-            $this->SetUpdateInterval();
-            if (IPS_GetKernelRunlevel() == KR_READY) {
-                $this->UpdateData();
-            }
-            $this->SetStatus(IS_ACTIVE);
-        } else {
-            $this->SetStatus(IS_INACTIVE);
+        if ($api_key == '') {
+            $this->SetStatus(IS_INVALIDCONFIG);
+            return;
         }
+
+		$this->SetStatus(IS_ACTIVE);
+    }
+
+    protected function GetFormActions()
+    {
+        $formActions = [];
+        $formActions[] = ['type' => 'Button', 'label' => 'Test account', 'onClick' => 'Hydrawise_TestAccount($id);'];
+        $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
+        $formActions[] = [
+                            'type'    => 'Button',
+                            'caption' => 'Module description',
+                            'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
+                        ];
+
+        return $formActions;
+    }
+
+    public function GetFormElements()
+    {
+        $formElements = [];
+        $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];
+
+		$items = [];
+        $items[] = ['type' => 'Label', 'label' => 'API-Key from https://app.hydrawise.com/config/account'];
+        $items[] = ['type' => 'ValidationTextBox', 'name' => 'api_key', 'caption' => 'API-Key'];
+		$formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Hydrawise Access-Details'];
+
+		$items = [];
+        $items[] = ['type' => 'NumberSpinner', 'name' => 'ignore_http_error', 'caption' => 'Ignore HTTP-Error X times', 'suffix' => 'Count'];
+		$formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Communication'];
+
+        return $formElements;
     }
 
     public function GetConfigurationForm()
     {
-        $formElements = [];
-        $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];
-        $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Access-Details'];
-        $formElements[] = ['type' => 'Label', 'label' => 'API-Key from https://app.hydrawise.com/config/account'];
-        $formElements[] = ['type' => 'ValidationTextBox', 'name' => 'api_key', 'caption' => 'API-Key'];
-        $formElements[] = ['type' => 'Label', 'label' => 'Ignore HTTP-Error X times'];
-        $formElements[] = ['type' => 'NumberSpinner', 'name' => 'ignore_http_error', 'caption' => 'Count'];
-        $formElements[] = ['type' => 'Label', 'label' => ''];
-        $formElements[] = ['type' => 'Label', 'label' => 'Update data every X seconds'];
-        $formElements[] = ['type' => 'NumberSpinner', 'name' => 'UpdateDataInterval', 'caption' => 'Seconds'];
-
-        $formActions = [];
-        $formActions[] = ['type' => 'Button', 'label' => 'Update Data', 'onClick' => 'Hydrawise_UpdateData($id);'];
-        $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
-        $formActions[] = ['type' => 'Button', 'label' => 'Module description', 'onClick' => 'echo \'https://github.com/demel42/IPSymconHydrawise/blob/master/README.md\';'];
-
+        $formElements = $this->GetFormElements();
+        $formActions = $this->GetFormActions();
         $formStatus = $this->GetFormStatus();
 
-        return json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
-    }
-
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
-    {
-        parent::MessageSink($TimeStamp, $SenderID, $Message, $Data);
-
-        if ($Message == IPS_KERNELMESSAGE && $Data[0] == KR_READY) {
-            $this->UpdateData();
+        $form = json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
+        if ($form == '') {
+            $this->SendDebug(__FUNCTION__, 'json_error=' . json_last_error_msg(), 0);
+            $this->SendDebug(__FUNCTION__, '=> formElements=' . print_r($formElements, true), 0);
+            $this->SendDebug(__FUNCTION__, '=> formActions=' . print_r($formActions, true), 0);
+            $this->SendDebug(__FUNCTION__, '=> formStatus=' . print_r($formStatus, true), 0);
         }
-    }
-
-    protected function SetUpdateInterval()
-    {
-        $sec = $this->ReadPropertyInteger('UpdateDataInterval');
-        $msec = $sec > 0 ? $sec * 1000 : 0;
-        $this->SetTimerInterval('UpdateData', $msec);
+        return $form;
     }
 
     protected function SendData($buf)
@@ -107,9 +107,6 @@ class HydrawiseIO extends IPSModule
 
         if (isset($jdata['Function'])) {
             switch ($jdata['Function']) {
-                case 'LastData':
-                    $ret = $this->GetBuffer('LastData');
-                    break;
                 case 'CmdUrl':
                     $ret = $this->SendCommand($jdata['Url']);
                     break;
@@ -141,7 +138,7 @@ class HydrawiseIO extends IPSModule
         return $ret;
     }
 
-    public function UpdateData()
+    public function TestAccount()
     {
         if ($this->GetStatus() == IS_INACTIVE) {
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
@@ -149,45 +146,19 @@ class HydrawiseIO extends IPSModule
         }
 
         $api_key = $this->ReadPropertyString('api_key');
-
-        $do_abort = false;
-
         $url = 'https://app.hydrawise.com/api/v1/customerdetails.php?api_key=' . $api_key . '&type=controllers';
         $data = $this->do_HttpRequest($url);
-        if ($data != '') {
-            $all_controllers = [];
-            $jdata = json_decode($data, true);
-            $this->SendDebug(__FUNCTION__, 'jdata=' . print_r($jdata, true), 0);
-            $controllers = $jdata['controllers'];
-            $this->SendDebug(__FUNCTION__, 'controllers=' . print_r($controllers, true), 0);
-            foreach ($controllers as $controller) {
-                $controller_id = $controller['controller_id'];
-                $url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key=' . $api_key . '&controller_id=' . $controller_id;
-                $data = $this->do_HttpRequest($url);
-                if ($data != '') {
-                    $all_controllers[] = json_decode($data);
-                } else {
-                    $do_abort = true;
-                    break;
-                }
-            }
-        } else {
-            $do_abort = true;
+        if ($data == '') {
+			$txt .= $this->translate('invalid account-data') . PHP_EOL;
+            $txt .= PHP_EOL;
+		} else {
+			$txt = $this->translate('valid account-data') . PHP_EOL;
+			$customer = json_decode($data, true);
+			$n_controller = isset($customer['controllers']) ? count($customer['controllers']) : 0;
+            $txt .= $n_controller . ' ' . $this->Translate('registered controller found');
         }
 
-        if ($do_abort) {
-            $this->SetBuffer('LastData', '');
-            return;
-        }
-
-        $data = json_encode($all_controllers);
-
-        $this->SetStatus(IS_ACTIVE);
-
-        $this->SendData($data);
-        $this->SetBuffer('LastData', $data);
-
-        $this->SetUpdateInterval();
+		echo $txt;
     }
 
     private function SendCommand(string $cmd_url)
@@ -233,13 +204,6 @@ class HydrawiseIO extends IPSModule
 
         $data = $this->GetControllerDetails($controller_id);
         if ($data != '') {
-
-            /* TEMPORÄR */
-            $all_controllers = [];
-            $all_controllers[] = json_decode($data);
-            $data = json_encode($all_controllers);
-            /* TEMPORÄR */
-
             $this->SendData($data);
             $this->SetStatus(IS_ACTIVE);
             $status = true;
