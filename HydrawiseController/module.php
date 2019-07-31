@@ -399,11 +399,11 @@ class HydrawiseController extends IPSModule
         $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'UpdateController', 'controller_id' => $controller_id];
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
         $ret = $this->SendDataToParent(json_encode($data));
-		$jret = json_decode($ret, true);
-		if ($jret['status'] == false) {
-			$this->SetUpdateInterval(false);
-			$this->SendDebug(__FUNCTION__, 'request failed, slowdown communication', 0);
-		}
+        $jret = json_decode($ret, true);
+        if ($jret['status'] == false) {
+            $this->SetUpdateInterval(false);
+            $this->SendDebug(__FUNCTION__, 'request failed, slowdown communication', 0);
+        }
     }
 
     public function ReceiveData($data)
@@ -414,22 +414,22 @@ class HydrawiseController extends IPSModule
         if (isset($jdata['Buffer'])) {
             $this->DecodeData($jdata['Buffer']);
         } elseif (isset($jdata['Function'])) {
-			$controller_id = $this->ReadPropertyString('controller_id');
-			if (isset($jdata['controller_id']) && $jdata['controller_id'] != $controller_id) {
+            $controller_id = $this->ReadPropertyString('controller_id');
+            if (isset($jdata['controller_id']) && $jdata['controller_id'] != $controller_id) {
                 $this->SendDebug(__FUNCTION__, 'ignore foreign controller_id ' . $jdata['controller_id'], 0);
             } else {
-				switch ($jdata['Function']) {
-					case 'SetMessage':
-						$with_last_message = $this->ReadPropertyBoolean('with_last_message');
-						if ($with_last_message) {
-							$this->SetValue('LastMessage', $jdata['msg']);
-						}
-						break;
-					default:
-						$this->SendDebug(__FUNCTION__, 'ignore function "' . $jdata['Function'] . '"', 0);
-						break;
-				}
-			}
+                switch ($jdata['Function']) {
+                    case 'SetMessage':
+                        $with_last_message = $this->ReadPropertyBoolean('with_last_message');
+                        if ($with_last_message) {
+                            $this->SetValue('LastMessage', $jdata['msg']);
+                        }
+                        break;
+                    default:
+                        $this->SendDebug(__FUNCTION__, 'ignore function "' . $jdata['Function'] . '"', 0);
+                        break;
+                }
+            }
         } else {
             $this->SendDebug(__FUNCTION__, 'unknown message-structure', 0);
         }
@@ -506,15 +506,15 @@ class HydrawiseController extends IPSModule
         }
 
         if ($with_last_message) {
-			if ($message == '') {
-				$varID = $this->GetIDForIdent('LastMessage');
-				$r = IPS_GetVariable ($varID);
-				if ($r['VariableUpdated'] < time() - 60) {
-					$this->SetValue('LastMessage', '');
-				}
-			} else {
-				$this->SetValue('LastMessage', $message);
-			}
+            if ($message == '') {
+                $varID = $this->GetIDForIdent('LastMessage');
+                $r = IPS_GetVariable($varID);
+                if ($r['VariableUpdated'] < time() - 60) {
+                    $this->SetValue('LastMessage', '');
+                }
+            } else {
+                $this->SetValue('LastMessage', $message);
+            }
         }
 
         if ($with_observations) {
@@ -761,7 +761,7 @@ class HydrawiseController extends IPSModule
         }
 
         $is_running = isset($controller['running']) && count($controller['running']) > 0 ? true : false;
-		$this->SendDebug(__FUNCTION__, 'is_running=' . $this->bool2str($is_running), 0);
+        $this->SendDebug(__FUNCTION__, 'is_running=' . $this->bool2str($is_running), 0);
         $this->SetUpdateInterval($is_running);
         $this->SetStatus(IS_ACTIVE);
     }
@@ -1210,9 +1210,9 @@ class HydrawiseController extends IPSModule
             http_response_code(404);
             die('File not found!');
         }
-		if (substr($uri, -1) != '/') {
-			$hook .= '/';
-		}
+        if (substr($uri, -1) != '/') {
+            $hook .= '/';
+        }
         $basename = substr($uri, strlen($hook));
         $this->SendDebug(__FUNCTION__, 'basename=' . $basename, 0);
         if ($basename == 'status') {

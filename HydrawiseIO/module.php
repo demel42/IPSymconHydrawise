@@ -112,7 +112,7 @@ class HydrawiseIO extends IPSModule
                     break;
                 case 'ClearDailyValue':
                     $data = ['Function' => $jdata['Function'], 'controller_id' => $jdata['controller_id']];
-					$this->SendData($data);
+                    $this->SendData($data);
                     break;
                 case 'UpdateController':
                     $controller_id = $jdata['controller_id'];
@@ -127,7 +127,7 @@ class HydrawiseIO extends IPSModule
                     break;
                 case 'SetMessage':
                     $data = ['Function' => $jdata['Function'], 'msg' => $jdata['msg'], 'controller_id' => $jdata['controller_id']];
-					$this->SendData($data);
+                    $this->SendData($data);
                     break;
                 default:
                     $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata['Function'] . '"', 0);

@@ -525,12 +525,12 @@ class HydrawiseZone extends IPSModule
         $jdata = json_decode($data, true);
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($jdata, true), 0);
 
-		if (isset($jdata['msg'])) {
-			$controller_id = $this->ReadPropertyString('controller_id');
-			$data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'SetMessage', 'msg' => $jdata['msg'], 'controller_id' => $controller_id];
-			$this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-			$this->SendDataToParent(json_encode($data));
-		}
+        if (isset($jdata['msg'])) {
+            $controller_id = $this->ReadPropertyString('controller_id');
+            $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'SetMessage', 'msg' => $jdata['msg'], 'controller_id' => $controller_id];
+            $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
+            $this->SendDataToParent(json_encode($data));
+        }
 
         $controller_id = $this->ReadPropertyString('controller_id');
         $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'UpdateController', 'controller_id' => $controller_id];
