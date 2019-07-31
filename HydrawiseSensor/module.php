@@ -82,7 +82,7 @@ class HydrawiseSensor extends IPSModule
         $info = 'Sensor ' . $connector . ' (' . $mode_txt . ')';
         $this->SetSummary($info);
 
-        $dataFilter = '.*controller_id[^:]*:' . $controller_id . ',.*';
+        $dataFilter = '.*controller_id[^:]*:["]*' . $controller_id . '.*';
         $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
         $this->SetReceiveDataFilter($dataFilter);
 
