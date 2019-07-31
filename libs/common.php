@@ -18,6 +18,7 @@ if (!defined('IS_UNAUTHORIZED')) {
     define('IS_CONTROLLER_MISSING', IS_EBASE + 8);
     define('IS_ZONE_MISSING', IS_EBASE + 9);
     define('IS_USEDWEBHOOK', IS_EBASE + 10);
+    define('IS_TOOMANYREQUESTS', IS_EBASE + 11);
 }
 
 // Model of Sensor
@@ -178,5 +179,6 @@ trait HydrawiseCommon
         $formStatus[] = ['code' => IS_CONTROLLER_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
         $formStatus[] = ['code' => IS_ZONE_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
         $formStatus[] = ['code' => IS_USEDWEBHOOK, 'icon' => 'error', 'caption' => 'Instance is inactive (webhook already in use)'];
+        $formStatus[] = ['code' => IS_TOOMANYREQUESTS, 'icon' => 'error', 'caption' => 'Instance is inactive (too many requests)'];
     }
 }
