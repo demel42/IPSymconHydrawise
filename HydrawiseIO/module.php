@@ -85,9 +85,9 @@ class HydrawiseIO extends IPSModule
         return $form;
     }
 
-    protected function SendData($buf)
+    protected function SendData($data)
     {
-        $data = ['DataID' => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}', 'Buffer' => $buf];
+        $data['DataID'] = '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}';
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
         $this->SendDataToChildren(json_encode($data));
     }
@@ -111,9 +111,8 @@ class HydrawiseIO extends IPSModule
                     $ret = $this->SendCommand($jdata['Url']);
                     break;
                 case 'ClearDailyValue':
-                    $data = ['DataID' => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}', 'Function' => 'ClearDailyValue', 'controller_id' => $jdata['controller_id']];
-                    $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-                    $this->SendDataToChildren(json_encode($data));
+                    $data = ['Function' => $jdata['Function'], 'controller_id' => $jdata['controller_id']];
+					$this->SendData($data);
                     break;
                 case 'UpdateController':
                     $controller_id = $jdata['controller_id'];
@@ -125,6 +124,10 @@ class HydrawiseIO extends IPSModule
                 case 'ControllerDetails':
                     $controller_id = $jdata['controller_id'];
                     $ret = $this->GetControllerDetails($controller_id);
+                    break;
+                case 'SetMessage':
+                    $data = ['Function' => $jdata['Function'], 'msg' => $jdata['msg'], 'controller_id' => $jdata['controller_id']];
+					$this->SendData($data);
                     break;
                 default:
                     $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata['Function'] . '"', 0);
@@ -204,7 +207,7 @@ class HydrawiseIO extends IPSModule
 
         $data = $this->GetControllerDetails($controller_id);
         if ($data != '') {
-            $this->SendData($data);
+            $this->SendData(['Buffer' => $data]);
             $this->SetStatus(IS_ACTIVE);
             $status = true;
         } else {
@@ -277,6 +280,9 @@ class HydrawiseIO extends IPSModule
             } elseif ($httpcode >= 500 && $httpcode <= 599) {
                 $statuscode = IS_SERVERERROR;
                 $err = 'got http-code ' . $httpcode . ' (server error)';
+            } elseif ($httpcode == 429) {
+                $statuscode = IS_TOOMANYREQUESTS;
+                $err = 'got http-code ' . $httpcode . ' (too many requests)';
             } else {
                 $statuscode = IS_HTTPERROR;
                 $err = 'got http-code ' . $httpcode;
