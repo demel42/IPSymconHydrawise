@@ -257,16 +257,8 @@ class HydrawiseZone extends IPSModule
         $do_abort = false;
 
         if ($buf != '') {
-            $controllers = json_decode($buf, true);
-
-            $controller_found = false;
-            foreach ($controllers as $controller) {
-                if ($controller_id == $controller['controller_id']) {
-                    $controller_found = true;
-                    break;
-                }
-            }
-            if ($controller_found == false) {
+            $controller = json_decode($buf, true);
+			if ($controller_id != $controller['controller_id']) {
                 $err = 'controller_id "' . $controller_id . '" not found';
                 $statuscode = IS_CONTROLLER_MISSING;
                 $do_abort = true;
