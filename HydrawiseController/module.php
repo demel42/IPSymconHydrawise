@@ -432,16 +432,8 @@ class HydrawiseController extends IPSModule
         $do_abort = false;
 
         if ($buf != '') {
-            $controllers = json_decode($buf, true);
-
-            $controller_found = false;
-            foreach ($controllers as $controller) {
-                if ($controller_id == $controller['controller_id']) {
-                    $controller_found = true;
-                    break;
-                }
-            }
-            if ($controller_found == false) {
+            $controller = json_decode($buf, true);
+			if ($controller_id != $controller['controller_id']) {
                 $err = "controller_id \"$controller_id\" not found";
                 $statuscode = IS_CONTROLLER_MISSING;
                 $do_abort = true;
@@ -455,9 +447,9 @@ class HydrawiseController extends IPSModule
         if ($do_abort) {
             $this->LogMessage('statuscode=' . $statuscode . ', err=' . $err, KL_WARNING);
             $this->SendDebug(__FUNCTION__, $err, 0);
-            $this->SetStatus($statuscode);
-
             $this->SetValue('Status', false);
+            $this->SetStatus($statuscode);
+			$this->SetUpdateInterval(false);
             return -1;
         }
 
@@ -570,6 +562,8 @@ class HydrawiseController extends IPSModule
                 }
             }
         }
+
+        $is_running = isset($controller['running']) && count($controller['running']) > 0 ? true : false;
 
         // Namen der Zonen/Ventile (relay) merken
         $relay2name = [];
@@ -740,6 +734,7 @@ class HydrawiseController extends IPSModule
             $this->SetValue('StatusBox', $html);
         }
 
+		$this->SetUpdateInterval($is_running);
         $this->SetStatus(IS_ACTIVE);
     }
 
