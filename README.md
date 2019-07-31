@@ -110,29 +110,30 @@ Weiterhin werden in diesem Modul die Sensoren und Zonen (Bewässerungskreise) di
 
 werden vom Konfigurator beim Anlegen der Instanz gesetzt.
 
-| Eigenschaft            | Typ     | Standardwert | Beschreibung |
-| :--------------------- | :------ | :----------- | :----------- |
-| controller_id          | string  |              | interne ID des Controllers, wird vom Konfigurator gefüllt |
-|                        |         |              | |
-| with_last_contact      | boolean | true         | letzter Kontakt mit Hydrawise |
-| with_last_message      | boolean | false        | eventuell Nachricht zu der letzten Kommunikation |
-| with_info              | boolean | true         | Informationen zur Gesamt-Bewässerungszeit etc. |
-| with_observations      | boolean | true         | Wetterbeobachtungen (der verknüpften Wetterstationen) |
-| num_forecast           | integer | 0            | Wettervorhersage (__0__=_keine_, __1__=_heute_, __2__=_morgen_, __3__=_übermorgen_ |
-| with_status_box        | boolean | false        | HTML-Box mit einer Zusammenfassung der altuellen Bewässerung |
-| with_daily_value       | boolean | true         | Ermittlung von Tageswerten für Gesamtbewässerungszeit |
-|                        |         |              | |
-| statusbox_script       | integer | 0            | Script zum Füllen der Variable _StatusBox_ |
-| webhook_script         | integer | 0            | Script zur Verwendung im WebHook |
-|                        |         |              | |
-|                        |         |              | |
-| Aktualisiere Daten ... |         |              | Aktualisierungsintervall, Angabe in Sekunden |
-| ... untätig            | integer | 60           | Intervall, wenn keine Bewässerung läuft |
-| ... in Betrieb         | integer | 5            | Intervall, wenn eine Bewässerung läuft |
-|                        |         |              | |
-| minutes2fail           | integer | 30           | Dauer, bis die Kommunikation als gestört gilt |
-|                        |         |              | |
-| Sensoren und Zonen     |         |              | Konfigurator zur Anlage der Komponenten dieses Controllers |
+| Eigenschaft            | Typ     | Standardwert    | Beschreibung |
+| :--------------------- | :------ | :-----------    | :----------- |
+| controller_id          | string  |                 | interne ID des Controllers, wird vom Konfigurator gefüllt |
+|                        |         |                 | |
+| with_last_contact      | boolean | true            | letzter Kontakt mit Hydrawise |
+| with_last_message      | boolean | false           | eventuell Nachricht zu der letzten Kommunikation |
+| with_info              | boolean | true            | Informationen zur Gesamt-Bewässerungszeit etc. |
+| with_observations      | boolean | true            | Wetterbeobachtungen (der verknüpften Wetterstationen) |
+| num_forecast           | integer | 0               | Wettervorhersage (__0__=_keine_, __1__=_heute_, __2__=_morgen_, __3__=_übermorgen_ |
+| with_status_box        | boolean | false           | HTML-Box mit einer Zusammenfassung der altuellen Bewässerung |
+| with_daily_value       | boolean | true            | Ermittlung von Tageswerten für Gesamtbewässerungszeit |
+|                        |         |                 | |
+| statusbox_script       | integer | 0               | Script zum Füllen der Variable _StatusBox_ |
+| hook                   | string  | /hook/Hydrawise | bei mehreren Controller müssen die Webhook unterschiedlich heissen |
+| webhook_script         | integer | 0               | Script zur Verwendung im WebHook |
+|                        |         |                 | |
+|                        |         |                 | |
+| Aktualisiere Daten ... |         |                 | Aktualisierungsintervall, Angabe in Sekunden |
+| ... untätig            | integer | 60              | Intervall, wenn keine Bewässerung läuft |
+| ... in Betrieb         | integer | 5               | Intervall, wenn eine Bewässerung läuft |
+|                        |         |                 | |
+| minutes2fail           | integer | 30              | Dauer, bis die Kommunikation als gestört gilt |
+|                        |         |                 | |
+| Sensoren und Zonen     |         |                 | Konfigurator zur Anlage der Komponenten dieses Controllers |
 
 Erläuterung zu _minutes2fail_: Das hier angebbare Minuten-Intervall dient zu Überprüfung der Kommunikation zwischen dem Controller und dem Hydrawise-Server.
 Ist die Zeit überschritten, wird die Variable _Status_ des Controllers auf Fehler gesetzt.
