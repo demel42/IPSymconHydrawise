@@ -35,7 +35,7 @@ class HydrawiseIO extends IPSModule
             return;
         }
 
-		$this->SetStatus(IS_ACTIVE);
+        $this->SetStatus(IS_ACTIVE);
     }
 
     protected function GetFormActions()
@@ -57,14 +57,14 @@ class HydrawiseIO extends IPSModule
         $formElements = [];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];
 
-		$items = [];
+        $items = [];
         $items[] = ['type' => 'Label', 'label' => 'API-Key from https://app.hydrawise.com/config/account'];
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'api_key', 'caption' => 'API-Key'];
-		$formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Hydrawise Access-Details'];
+        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Hydrawise Access-Details'];
 
-		$items = [];
+        $items = [];
         $items[] = ['type' => 'NumberSpinner', 'name' => 'ignore_http_error', 'caption' => 'Ignore HTTP-Error X times', 'suffix' => 'Count'];
-		$formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Communication'];
+        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Communication'];
 
         return $formElements;
     }
@@ -149,16 +149,16 @@ class HydrawiseIO extends IPSModule
         $url = 'https://app.hydrawise.com/api/v1/customerdetails.php?api_key=' . $api_key . '&type=controllers';
         $data = $this->do_HttpRequest($url);
         if ($data == '') {
-			$txt .= $this->translate('invalid account-data') . PHP_EOL;
+            $txt .= $this->translate('invalid account-data') . PHP_EOL;
             $txt .= PHP_EOL;
-		} else {
-			$txt = $this->translate('valid account-data') . PHP_EOL;
-			$customer = json_decode($data, true);
-			$n_controller = isset($customer['controllers']) ? count($customer['controllers']) : 0;
+        } else {
+            $txt = $this->translate('valid account-data') . PHP_EOL;
+            $customer = json_decode($data, true);
+            $n_controller = isset($customer['controllers']) ? count($customer['controllers']) : 0;
             $txt .= $n_controller . ' ' . $this->Translate('registered controller found');
         }
 
-		echo $txt;
+        echo $txt;
     }
 
     private function SendCommand(string $cmd_url)

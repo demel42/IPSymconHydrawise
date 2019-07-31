@@ -194,7 +194,7 @@ class HydrawiseSensor extends IPSModule
 
         if ($buf != '') {
             $controller = json_decode($buf, true);
-			if ($controller_id != $controller['controller_id']) {
+            if ($controller_id != $controller['controller_id']) {
                 $err = 'controller_id "' . $controller_id . '" not found';
                 $statuscode = IS_CONTROLLER_MISSING;
                 $do_abort = true;

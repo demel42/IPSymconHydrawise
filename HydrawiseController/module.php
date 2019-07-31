@@ -433,7 +433,7 @@ class HydrawiseController extends IPSModule
 
         if ($buf != '') {
             $controller = json_decode($buf, true);
-			if ($controller_id != $controller['controller_id']) {
+            if ($controller_id != $controller['controller_id']) {
                 $err = "controller_id \"$controller_id\" not found";
                 $statuscode = IS_CONTROLLER_MISSING;
                 $do_abort = true;
@@ -449,7 +449,7 @@ class HydrawiseController extends IPSModule
             $this->SendDebug(__FUNCTION__, $err, 0);
             $this->SetValue('Status', false);
             $this->SetStatus($statuscode);
-			$this->SetUpdateInterval(false);
+            $this->SetUpdateInterval(false);
             return -1;
         }
 
@@ -734,7 +734,7 @@ class HydrawiseController extends IPSModule
             $this->SetValue('StatusBox', $html);
         }
 
-		$this->SetUpdateInterval($is_running);
+        $this->SetUpdateInterval($is_running);
         $this->SetStatus(IS_ACTIVE);
     }
 

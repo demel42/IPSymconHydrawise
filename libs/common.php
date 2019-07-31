@@ -8,7 +8,7 @@ if (!defined('VARIABLETYPE_BOOLEAN')) {
 }
 
 if (!defined('IS_UNAUTHORIZED')) {
-	define('IS_INVALIDCONFIG', IS_EBASE + 1);
+    define('IS_INVALIDCONFIG', IS_EBASE + 1);
     define('IS_UNAUTHORIZED', IS_EBASE + 2);
     define('IS_SERVERERROR', IS_EBASE + 3);
     define('IS_HTTPERROR', IS_EBASE + 4);
@@ -166,9 +166,9 @@ trait HydrawiseCommon
         $formStatus[] = ['code' => IS_ACTIVE, 'icon' => 'active', 'caption' => 'Instance is active'];
         $formStatus[] = ['code' => IS_DELETING, 'icon' => 'inactive', 'caption' => 'Instance is deleted'];
         $formStatus[] = ['code' => IS_INACTIVE, 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
-		$formStatus[] = ['code' => IS_NOTCREATED, 'icon' => 'inactive', 'caption' => 'Instance is not created'];
+        $formStatus[] = ['code' => IS_NOTCREATED, 'icon' => 'inactive', 'caption' => 'Instance is not created'];
 
-		$formStatus[] = ['code' => IS_INVALIDCONFIG, 'icon' => 'error', 'caption' => 'Instance is inactive (invalid configuration)'];
+        $formStatus[] = ['code' => IS_INVALIDCONFIG, 'icon' => 'error', 'caption' => 'Instance is inactive (invalid configuration)'];
         $formStatus[] = ['code' => IS_UNAUTHORIZED, 'icon' => 'error', 'caption' => 'Instance is inactive (unauthorized)'];
         $formStatus[] = ['code' => IS_SERVERERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (server error)'];
         $formStatus[] = ['code' => IS_HTTPERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (http error)'];
