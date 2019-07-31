@@ -271,6 +271,7 @@ GUIDs
 	-- der Datenabruf wird nicht zentral über HydrawiseIO getaktet sondern vom HydrawiseController
   - GUI an aktuelle Möglichkeiten angepasst, Einsatz des Konfigurators
   - bei dem Abrufintervall wird zwischen _untätig_ und _in Betrieb_ unterschieden
+  - Webhook für mehr als eine Controller mit getrenntem Namen einstellbar
 
 - 1.14 @ 27.07.2019 18:13<br>
   - Berechnung der aktuellen Wasser-Durchflussmenge pro Zone sowie Darstellung zu einer Wasseruhr
