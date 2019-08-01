@@ -181,7 +181,7 @@ class HydrawiseZone extends IPSModule
         $opts_flowrate[] = ['label' => $this->Translate('current value'), 'value' => FLOW_RATE_CURRENT];
 
         $formElements = [];
-        $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Zone'];
+        $formElements[] = ['type' => 'Label', 'caption' => 'Hydrawise Zone'];
 
         $items = [];
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];

@@ -1,6 +1,8 @@
 {
 	"translations": {
 		"de": {
+			"category": "Kategorie",
+
 			"Controller": "Controller",
 
 			"Name": "Name",

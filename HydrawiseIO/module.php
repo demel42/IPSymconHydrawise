@@ -41,8 +41,8 @@ class HydrawiseIO extends IPSModule
     protected function GetFormActions()
     {
         $formActions = [];
-        $formActions[] = ['type' => 'Button', 'label' => 'Test account', 'onClick' => 'Hydrawise_TestAccount($id);'];
-        $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
+        $formActions[] = ['type' => 'Button', 'caption' => 'Test account', 'onClick' => 'Hydrawise_TestAccount($id);'];
+        $formActions[] = ['type' => 'Label', 'caption' => '____________________________________________________________________________________________________'];
         $formActions[] = [
                             'type'    => 'Button',
                             'caption' => 'Module description',
@@ -58,7 +58,7 @@ class HydrawiseIO extends IPSModule
         $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];
 
         $items = [];
-        $items[] = ['type' => 'Label', 'label' => 'API-Key from https://app.hydrawise.com/config/account'];
+        $items[] = ['type' => 'Label', 'caption' => 'API-Key from https://app.hydrawise.com/config/account'];
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'api_key', 'caption' => 'API-Key'];
         $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Hydrawise Access-Details'];
 

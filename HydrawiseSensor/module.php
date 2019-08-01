@@ -120,7 +120,7 @@ class HydrawiseSensor extends IPSModule
         $opts_model[] = ['label' => $this->Translate('flow meter'), 'value' => SENSOR_FLOW_METER];
 
         $formElements = [];
-        $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Sensor'];
+        $formElements[] = ['type' => 'Label', 'caption' => 'Hydrawise Sensor'];
 
         $items = [];
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];

@@ -148,8 +148,8 @@ class HydrawiseController extends IPSModule
     protected function GetFormActions()
     {
         $formActions = [];
-        $formActions[] = ['type' => 'Button', 'label' => 'Update Data', 'onClick' => 'Hydrawise_UpdateController($id);'];
-        $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
+        $formActions[] = ['type' => 'Button', 'caption' => 'Update Data', 'onClick' => 'Hydrawise_UpdateController($id);'];
+        $formActions[] = ['type' => 'Label', 'caption' => '____________________________________________________________________________________________________'];
         $formActions[] = [
                             'type'    => 'Button',
                             'caption' => 'Module description',
@@ -302,7 +302,7 @@ class HydrawiseController extends IPSModule
         $formElements = [];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];
 
-        $formElements[] = ['type' => 'Label', 'label' => 'Hydrawise Controller'];
+        $formElements[] = ['type' => 'Label', 'caption' => 'Hydrawise Controller'];
 
         $items = [];
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
@@ -328,7 +328,7 @@ class HydrawiseController extends IPSModule
         $items[] = ['type' => 'Label', 'caption' => 'Update data every X seconds'];
         $items[] = ['type' => 'NumberSpinner', 'name' => 'idle_update_interval', 'caption' => 'idle', 'suffix' => 'Seconds'];
         $items[] = ['type' => 'NumberSpinner', 'name' => 'running_update_interval', 'caption' => 'running', 'suffix' => 'Seconds'];
-        $items[] = ['type' => 'Label', 'label' => 'Duration until the connection to hydrawise is marked disturbed'];
+        $items[] = ['type' => 'Label', 'caption' => 'Duration until the connection to hydrawise is marked disturbed'];
         $items[] = ['type' => 'IntervalBox', 'name' => 'minutes2fail', 'caption' => 'Minutes'];
         $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Communication and timing'];
 
