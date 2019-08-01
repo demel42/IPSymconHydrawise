@@ -180,5 +180,7 @@ trait HydrawiseCommon
         $formStatus[] = ['code' => IS_ZONE_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
         $formStatus[] = ['code' => IS_USEDWEBHOOK, 'icon' => 'error', 'caption' => 'Instance is inactive (webhook already in use)'];
         $formStatus[] = ['code' => IS_TOOMANYREQUESTS, 'icon' => 'error', 'caption' => 'Instance is inactive (too many requests)'];
+
+		return $formStatus;
     }
 }
