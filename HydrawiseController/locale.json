@@ -31,11 +31,10 @@
 			"category for components to be created": "Kategorie für anzulegende Komponente",
             "category": "Kategorie",
 
-			"Communication and timing": "Kommunikation und Zeitangaben",
+			"Communication": "Kommunikation",
 			"Update data every X seconds": "Aktualisiere Daten alle X Sekunden",
+			"Interval": "Intervall",
 			"Seconds": "Sekunden",
-			"idle": "untätig",
-			"running": "in Betrieb",
 			"Duration until the connection to hydrawise is marked disturbed":
 				"Dauer bis die Verbindung zu Hydrawise als gestört gilt",
 			"Minutes": "Minuten",

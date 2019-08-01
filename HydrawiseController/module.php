@@ -22,8 +22,7 @@ class HydrawiseController extends IPSModule
         $this->RegisterPropertyString('hook', '/hook/Hydrawise');
         $this->RegisterPropertyInteger('webhook_script', 0);
 
-        $this->RegisterPropertyInteger('idle_update_interval', '60');
-        $this->RegisterPropertyInteger('running_update_interval', '10');
+        $this->RegisterPropertyInteger('update_interval', '60');
 
         $this->RegisterPropertyBoolean('with_last_contact', true);
         $this->RegisterPropertyBoolean('with_last_message', true);
@@ -63,13 +62,13 @@ class HydrawiseController extends IPSModule
                 }
                 $this->RegisterHook($hook);
             }
-            $this->SetUpdateInterval(false);
+            $this->SetUpdateInterval();
         }
     }
 
-    protected function SetUpdateInterval($isRunning)
+    protected function SetUpdateInterval()
     {
-        $sec = $this->ReadPropertyInteger($isRunning ? 'running_update_interval' : 'idle_update_interval');
+        $sec = $this->ReadPropertyInteger('update_interval');
         $msec = $sec > 0 ? $sec * 1000 : 0;
         $this->SetTimerInterval('UpdateController', $msec);
     }
@@ -132,7 +131,7 @@ class HydrawiseController extends IPSModule
                 }
                 $this->RegisterHook($hook);
             }
-            $this->SetUpdateInterval(false);
+            $this->SetUpdateInterval();
         }
 
         $info = 'Controller (#' . $controller_id . ')';
@@ -326,11 +325,10 @@ class HydrawiseController extends IPSModule
 
         $items = [];
         $items[] = ['type' => 'Label', 'caption' => 'Update data every X seconds'];
-        $items[] = ['type' => 'NumberSpinner', 'name' => 'idle_update_interval', 'caption' => 'idle', 'suffix' => 'Seconds'];
-        $items[] = ['type' => 'NumberSpinner', 'name' => 'running_update_interval', 'caption' => 'running', 'suffix' => 'Seconds'];
+        $items[] = ['type' => 'NumberSpinner', 'name' => 'update_interval', 'caption' => 'Interval', 'suffix' => 'Seconds'];
         $items[] = ['type' => 'Label', 'caption' => 'Duration until the connection to hydrawise is marked disturbed'];
         $items[] = ['type' => 'IntervalBox', 'name' => 'minutes2fail', 'caption' => 'Minutes'];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Communication and timing'];
+        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Communication'];
 
         $items = [];
         $items[] = ['type' => 'Label', 'caption' => 'category for components to be created'];
@@ -399,11 +397,6 @@ class HydrawiseController extends IPSModule
         $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'UpdateController', 'controller_id' => $controller_id];
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
         $ret = $this->SendDataToParent(json_encode($data));
-        $jret = json_decode($ret, true);
-        if ($jret['status'] == false) {
-            $this->SetUpdateInterval(false);
-            $this->SendDebug(__FUNCTION__, 'request failed, slowdown communication', 0);
-        }
     }
 
     public function ReceiveData($data)
@@ -469,7 +462,7 @@ class HydrawiseController extends IPSModule
             $this->SendDebug(__FUNCTION__, $err, 0);
             $this->SetValue('Status', false);
             $this->SetStatus($statuscode);
-            $this->SetUpdateInterval(false);
+            $this->SetUpdateInterval();
             return -1;
         }
 
@@ -760,9 +753,7 @@ class HydrawiseController extends IPSModule
             $this->SetValue('StatusBox', $html);
         }
 
-        $is_running = isset($controller['running']) && count($controller['running']) > 0 ? true : false;
-        $this->SendDebug(__FUNCTION__, 'is_running=' . $this->bool2str($is_running), 0);
-        $this->SetUpdateInterval($is_running);
+        $this->SetUpdateInterval();
         $this->SetStatus(IS_ACTIVE);
     }
 

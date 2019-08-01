@@ -127,15 +127,11 @@ werden vom Konfigurator beim Anlegen der Instanz gesetzt.
 | webhook_script         | integer | 0               | Script zur Verwendung im WebHook |
 |                        |         |                 | |
 |                        |         |                 | |
-| Aktualisiere Daten ... |         |                 | Aktualisierungsintervall, Angabe in Sekunden |
-| ... untätig            | integer | 60              | Intervall, wenn keine Bewässerung läuft |
-| ... in Betrieb         | integer | 10              | Intervall, wenn eine Bewässerung läuft |
+| Aktualisiere Daten ... | integer | 60              | Aktualisierungsintervall, Angabe in Sekunden |
 |                        |         |                 | |
 | minutes2fail           | integer | 30              | Dauer, bis die Kommunikation als gestört gilt |
 |                        |         |                 | |
 | Sensoren und Zonen     |         |                 | Konfigurator zur Anlage der Komponenten dieses Controllers |
-
-Hinweis zum Aktualisierungsintervall: wenn das Intervall zu kurz ist, gibt es einen HTTP-Error 429 (too many requests). Das System geht dann automatisch auf das _untätig_ Intervall… bis es wieder geht. Leider gibt es keine Angabe, wieviele Requests pro Minute erlaubt sind, aber weniger als 10s scheint manchmal problematisch zu sein.
 
 Erläuterung zu _minutes2fail_: Das hier angebbare Minuten-Intervall dient zu Überprüfung der Kommunikation zwischen dem Controller und dem Hydrawise-Server.
 Ist die Zeit überschritten, wird die Variable _Status_ des Controllers auf Fehler gesetzt.
@@ -272,7 +268,6 @@ GUIDs
     -- HydrawiseController legt HydrawiseSensor und HydrawiseZone an
 	-- der Datenabruf wird nicht zentral über HydrawiseIO getaktet sondern vom HydrawiseController
   - GUI an aktuelle Möglichkeiten angepasst, Einsatz des Konfigurators
-  - bei dem Abrufintervall wird zwischen _untätig_ und _in Betrieb_ unterschieden
   - Webhook für mehr als eine Controller mit getrenntem Namen einstellbar
   - Meldungen von Aktionen werden nun auch im Controller (für 60s) in 'letze Meldung' angezeigt 
 
