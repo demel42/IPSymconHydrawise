@@ -1,24 +1,45 @@
 {
 	"translations": {
 		"de": {
-			"Hydrawise Controller": "Hydrawise Controller",
-			"optional controller data": "optionale Daten zum Controller",
-			" ... last contact to Hydrawise": " ... letze Kommunikation mit Hydrawise",
-			" ... last message": " ... letzte Nachricht",
-			" ... info": " ... zusammengefasste Daten",
-			" ... observations": " ... Wetter-Beobachtungen",
-			" ... forecast": " ... Vorhersage",
-			" ... html-box with state of irrigation": " ... HTML-Box mit dem Status der Bewässerung",
-			" ... daily sum": " ... Tageswerte",
+			"Instance is disabled": "Instanz ist deaktiviert",
 
+			"Hydrawise Controller": "Hydrawise Controller",
+
+			"Basis configuration (don't change)": "Basis-Konfiguration (nicht ändern)",
+			"Controller-ID": "Controller-ID",
+
+			"optional controller data": "optionale Daten zum Controller",
+			"last contact to Hydrawise": "letze Kommunikation mit Hydrawise",
+			"last message": "letzte Nachricht",
+			"info": "zusammengefasste Daten",
+			"observations": "Wetter-Beobachtungen",
+			"forecast": "Vorhersage",
+			"html-box with state of irrigation": "HTML-Box mit dem Status der Bewässerung",
+			"alternate script to use for the \"StatusBox\"": "alternatives Script zur Verwendung für die \"StatusBox\"",
+			"daily sum": "Tageswerte",
+
+			"Webhook": "Webhook",
+			"alternate script to use for Webhook": "alternatives Scripte für den Webhook",
+
+			"Controller": "Controller",
+			"Sensor": "Sensor",
+            "Zone": "Zone",
+            "Expander": "Expander",
+			"Components": "Komponenten",
+
+			"Sensors and zones": "Sensoren und Zonen",
+			"category for components to be created": "Kategorie für anzulegende Komponente",
+            "category": "Kategorie",
+
+			"Communication": "Kommunikation",
+			"Update data every X seconds": "Aktualisiere Daten alle X Sekunden",
+			"Interval": "Intervall",
+			"Seconds": "Sekunden",
 			"Duration until the connection to hydrawise is marked disturbed":
 				"Dauer bis die Verbindung zu Hydrawise als gestört gilt",
 			"Minutes": "Minuten",
 
-			"alternate script to use for ...": "alternative Scripte zur Verwendung für ...",
-			" ... \"StatusBox\"": " ... \"StatusBox\"",
-			" ... Webhook": " ... Webhook",
-
+			"Update Data": "Aktualisiere Daten",
 			"Module description": "Modulbeschreibung",
 
 			"no": "nein",
@@ -28,7 +49,7 @@
 
 			"State": "Status",
 			"last contact": "letzte Kommunikation",
-			"Message to last contact": "Nachricht zur letzten Kommunikation",
+			"last message": "letzte Nachricht",
 			"day of cumulation": "Datum zu Tageswerten",
 			"Watering time (day)": "Bewässerungszeit (Tag)",
 			"Watering time (week)": "Bewässerungszeit (Woche)",
@@ -51,6 +72,7 @@
 			"Instance is inactive": "Instanz ist inaktiv",
 			"Instance is not created": "Instanz wurde nicht erzeugt",
 
+			"Instance is inactive (invalid configuration)": "Instanz ist inaktiv (ungültige Konfiguration)",
 			"Instance is inactive (unauthorized)": "Instanz ist inaktiv (Authorisierung fehlerhaft)",
 			"Instance is inactive (server error)": "Instanz ist inaktiv (Serverfehler)",
 			"Instance is inactive (http error)": "Instanz ist inaktiv (HTTP-Fehler)",
@@ -58,7 +80,9 @@
 			"Instance is inactive (no data)": "Instanz ist inaktiv (keine Daten)",
 			"Instance is inactive (no controller)": "Instanz ist inaktiv (kein Controller vorhanden)",
 			"Instance is inactive (controller missing)": "Instanz ist inaktiv (Controller fehlt)",
-			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)"
+			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)",
+			"Instance is inactive (webhook already in use)": "Instanz ist inaktiv (Webhook wird bereits verwendet)",
+			"Instance is inactive (too many requests)": "Instanz ist inaktiv (zu viele Anfragen)"
 		}
 	}
 }

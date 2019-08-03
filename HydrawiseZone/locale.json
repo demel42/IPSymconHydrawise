@@ -2,13 +2,22 @@
 	"translations": {
 		"de": {
 			"Hydrawise Zone": "Hydrawise Zone",
-			"connector": "Anschluss",
+
+			"Basis configuration (don't change)": "Basis-Konfiguration (nicht ändern)",
+			"Controller-ID": "Controller-ID",
+            "Zone-ID": "Zone-ID",
+			"Connector": "Anschluss",
+
 			"optional zone data": "optionale Daten zur Zone",
-			" ... daily sum": " ... Tageswerte",
-			" ... watering workflow": " ... Ablauf der Bewässerung",
-			" ... watering status": " ... Status der Bewässerung",
+			"daily sum": "Tageswerte",
+			"watering workflow": "Ablauf der Bewässerung",
+			"watering status": "Status der Bewässerung",
+			"flowrate": "Durchflussmenge",
 			"optional script to hide/show variables": "optionales Script um die Sichtbarkeit von Variablen zu steuern",
-			"visibility": "Sichtbarkeit",
+
+			"no value": "kein Wert",
+			"average of cycle": "Mittelwert des Zyklus",
+			"current value": "aktueller Wert",
 
 			"Module description": "Modulbeschreibung",
 
@@ -57,6 +66,7 @@
 			"Instance is inactive": "Instanz ist inaktiv",
 			"Instance is not created": "Instanz wurde nicht erzeugt",
 
+			"Instance is inactive (invalid configuration)": "Instanz ist inaktiv (ungültige Konfiguration)",
 			"Instance is inactive (unauthorized)": "Instanz ist inaktiv (Authorisierung fehlerhaft)",
 			"Instance is inactive (server error)": "Instanz ist inaktiv (Serverfehler)",
 			"Instance is inactive (http error)": "Instanz ist inaktiv (HTTP-Fehler)",
@@ -64,7 +74,9 @@
 			"Instance is inactive (no data)": "Instanz ist inaktiv (keine Daten)",
 			"Instance is inactive (no controller)": "Instanz ist inaktiv (kein Controller vorhanden)",
 			"Instance is inactive (controller missing)": "Instanz ist inaktiv (Controller fehlt)",
-			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)"
+			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)",
+			"Instance is inactive (webhook already in use)": "Instanz ist inaktiv (Webhook wird bereits verwendet)",
+			"Instance is inactive (too many requests)": "Instanz ist inaktiv (zu viele Anfragen)"
 		}
 	}
 }

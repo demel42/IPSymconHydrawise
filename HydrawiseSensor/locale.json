@@ -2,27 +2,33 @@
 	"translations": {
 		"de": {
 			"Hydrawise Sensor": "Hydrawise Sensor",
+
+			"Basis configuration (don't change)": "Basis-Konfiguration (nicht ändern)",
+			"Controller-ID": "Controller-ID",
 			"connector": "Anschluss",
 			"model": "Modell",
-			"optional sensor data": "optionale Daten zum Sensor",
-			" ... daily sum": " ... Tageswerte",
 
-			"Water usage (week)": "Wasserverbrauch (Woche)",
-			"Water usage (day)": "Wasserverbrauch (heute)",
-			"Water flow rate (current)": "Wasser-Durchflussmenge (aktuell)",
+			"optional sensor data": "optionale Daten zum Sensor",
+			"daily sum": "Tageswerte",
+			"flowrate": "Durchflussmenge",
+
 			"Sensor": "Sensor",
-			"no": "nein",
+			"unknown": "unbekannt",
 			"normally close, action start": "Ruhezustand geschlossen, Aktion Start",
 			"normally open, action stop": "Ruhezustand offen, Aktion Stop",
 			"normally close, action stop": "Ruhezustand geschlossen, Aktion Stop",
 			"normally open, action start": "Ruhezustand offen, Aktion Start",
 			"flow meter": "Durchflussmesser",
 
+			"Module description": "Modulbeschreibung",
+
+			"Water usage (week)": "Wasserverbrauch (Woche)",
+			"Water usage (day)": "Wasserverbrauch (heute)",
+			"Water flow rate (current)": "Wasser-Durchflussmenge (aktuell)",
+
 			"State": "Zustand",
 			"active": "aktiv",
 			"inactive": "inaktiv",
-
-			"Module description": "Modulbeschreibung",
 
 			"Instance getting created": "Instanz wird erstellt",
 			"Instance is active": "Instanz ist aktiv",
@@ -30,6 +36,7 @@
 			"Instance is inactive": "Instanz ist inaktiv",
 			"Instance is not created": "Instanz wurde nicht erzeugt",
 
+			"Instance is inactive (invalid configuration)": "Instanz ist inaktiv (ungültige Konfiguration)",
 			"Instance is inactive (unauthorized)": "Instanz ist inaktiv (Authorisierung fehlerhaft)",
 			"Instance is inactive (server error)": "Instanz ist inaktiv (Serverfehler)",
 			"Instance is inactive (http error)": "Instanz ist inaktiv (HTTP-Fehler)",
@@ -37,7 +44,9 @@
 			"Instance is inactive (no data)": "Instanz ist inaktiv (keine Daten)",
 			"Instance is inactive (no controller)": "Instanz ist inaktiv (kein Controller vorhanden)",
 			"Instance is inactive (controller missing)": "Instanz ist inaktiv (Controller fehlt)",
-			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)"
+			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)",
+			"Instance is inactive (webhook already in use)": "Instanz ist inaktiv (Webhook wird bereits verwendet)",
+			"Instance is inactive (too many requests)": "Instanz ist inaktiv (zu viele Anfragen)"
 		}
 	}
 }

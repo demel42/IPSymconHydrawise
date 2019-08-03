@@ -8,14 +8,26 @@ if (!defined('VARIABLETYPE_BOOLEAN')) {
 }
 
 if (!defined('IS_UNAUTHORIZED')) {
-    define('IS_UNAUTHORIZED', IS_EBASE + 1);
-    define('IS_SERVERERROR', IS_EBASE + 2);
-    define('IS_HTTPERROR', IS_EBASE + 3);
-    define('IS_INVALIDDATA', IS_EBASE + 4);
-    define('IS_NODATA', IS_EBASE + 5);
-    define('IS_NOCONROLLER', IS_EBASE + 6);
-    define('IS_CONTROLLER_MISSING', IS_EBASE + 7);
-    define('IS_ZONE_MISSING', IS_EBASE + 8);
+    define('IS_INVALIDCONFIG', IS_EBASE + 1);
+    define('IS_UNAUTHORIZED', IS_EBASE + 2);
+    define('IS_SERVERERROR', IS_EBASE + 3);
+    define('IS_HTTPERROR', IS_EBASE + 4);
+    define('IS_INVALIDDATA', IS_EBASE + 5);
+    define('IS_NODATA', IS_EBASE + 6);
+    define('IS_NOCONROLLER', IS_EBASE + 7);
+    define('IS_CONTROLLER_MISSING', IS_EBASE + 8);
+    define('IS_ZONE_MISSING', IS_EBASE + 9);
+    define('IS_USEDWEBHOOK', IS_EBASE + 10);
+    define('IS_TOOMANYREQUESTS', IS_EBASE + 11);
+}
+
+// Model of Sensor
+if (!defined('SENSOR_NORMALLY_CLOSE_START')) {
+    define('SENSOR_NORMALLY_CLOSE_START', 11);
+    define('SENSOR_NORMALLY_OPEN_STOP', 12);
+    define('SENSOR_NORMALLY_CLOSE_STOP', 13);
+    define('SENSOR_NORMALLY_OPEN_START', 14);
+    define('SENSOR_FLOW_METER', 30);
 }
 
 trait HydrawiseCommon
@@ -119,5 +131,56 @@ trait HydrawiseCommon
             return $bval ? 'true' : 'false';
         }
         return $bval;
+    }
+
+    protected function GetStatus()
+    {
+        if (IPS_GetKernelVersion() >= 5.1) {
+            return parent::GetStatus();
+        }
+
+        $inst = IPS_GetInstance($this->InstanceID);
+        return $inst['InstanceStatus'];
+    }
+
+    private function HookIsUsed($newHook)
+    {
+        $used = false;
+        $instID = IPS_GetInstanceListByModuleID('{015A6EB8-D6E5-4B93-B496-0D3F77AE9FE1}')[0];
+        $hooks = json_decode(IPS_GetProperty($instID, 'Hooks'), true);
+        foreach ($hooks as $hook) {
+            if ($hook['Hook'] == $newHook) {
+                if ($hook['TargetID'] != $this->InstanceID) {
+                    $used = true;
+                }
+                break;
+            }
+        }
+        return $used;
+    }
+
+    private function GetFormStatus()
+    {
+        $formStatus = [];
+
+        $formStatus[] = ['code' => IS_CREATING, 'icon' => 'inactive', 'caption' => 'Instance getting created'];
+        $formStatus[] = ['code' => IS_ACTIVE, 'icon' => 'active', 'caption' => 'Instance is active'];
+        $formStatus[] = ['code' => IS_DELETING, 'icon' => 'inactive', 'caption' => 'Instance is deleted'];
+        $formStatus[] = ['code' => IS_INACTIVE, 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
+        $formStatus[] = ['code' => IS_NOTCREATED, 'icon' => 'inactive', 'caption' => 'Instance is not created'];
+
+        $formStatus[] = ['code' => IS_INVALIDCONFIG, 'icon' => 'error', 'caption' => 'Instance is inactive (invalid configuration)'];
+        $formStatus[] = ['code' => IS_UNAUTHORIZED, 'icon' => 'error', 'caption' => 'Instance is inactive (unauthorized)'];
+        $formStatus[] = ['code' => IS_SERVERERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (server error)'];
+        $formStatus[] = ['code' => IS_HTTPERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (http error)'];
+        $formStatus[] = ['code' => IS_INVALIDDATA, 'icon' => 'error', 'caption' => 'Instance is inactive (invalid data)'];
+        $formStatus[] = ['code' => IS_NODATA, 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
+        $formStatus[] = ['code' => IS_NOCONROLLER, 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
+        $formStatus[] = ['code' => IS_CONTROLLER_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
+        $formStatus[] = ['code' => IS_ZONE_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
+        $formStatus[] = ['code' => IS_USEDWEBHOOK, 'icon' => 'error', 'caption' => 'Instance is inactive (webhook already in use)'];
+        $formStatus[] = ['code' => IS_TOOMANYREQUESTS, 'icon' => 'error', 'caption' => 'Instance is inactive (too many requests)'];
+
+        return $formStatus;
     }
 }

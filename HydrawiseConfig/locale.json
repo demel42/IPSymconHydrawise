@@ -1,16 +1,14 @@
 {
 	"translations": {
 		"de": {
+			"category": "Kategorie",
+
 			"Controller": "Controller",
 
-			"Import of controller": "Importieren des Controllers",
-			"Triggering the function creates the missing instances for the base-unit and all zones and sensors of the selected Hydrawise-Controller. Are you sure?":
-				"Durch Auslösen der Funktion werden für die Basiseinheit und alle Zonene und Sensoren des ausgewählten Hydrawise-Controllers die fehlenden Instanzen angelegt. Sind Sie sich sicher?",
-			"Module description": "Modulbeschreibung",
+			"Name": "Name",
+			"Serial number": "Seriennummer",
 
-			"Sensor": "Sensor",
-			"Zone": "Zone",
-			"Expander": "Expander",
+			"Module description": "Modulbeschreibung",
 
 			"Instance getting created": "Instanz wird erstellt",
 			"Instance is active": "Instanz ist aktiv",
@@ -18,6 +16,7 @@
 			"Instance is inactive": "Instanz ist inaktiv",
 			"Instance is not created": "Instanz wurde nicht erzeugt",
 
+			"Instance is inactive (invalid configuration)": "Instanz ist inaktiv (ungültige Konfiguration)",
 			"Instance is inactive (unauthorized)": "Instanz ist inaktiv (Authorisierung fehlerhaft)",
 			"Instance is inactive (server error)": "Instanz ist inaktiv (Serverfehler)",
 			"Instance is inactive (http error)": "Instanz ist inaktiv (HTTP-Fehler)",
@@ -25,7 +24,9 @@
 			"Instance is inactive (no data)": "Instanz ist inaktiv (keine Daten)",
 			"Instance is inactive (no controller)": "Instanz ist inaktiv (kein Controller vorhanden)",
 			"Instance is inactive (controller missing)": "Instanz ist inaktiv (Controller fehlt)",
-			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)"
+			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)",
+			"Instance is inactive (webhook already in use)": "Instanz ist inaktiv (Webhook wird bereits verwendet)",
+			"Instance is inactive (too many requests)": "Instanz ist inaktiv (zu viele Anfragen)"
 		}
 	}
 }

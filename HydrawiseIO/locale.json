@@ -8,13 +8,15 @@
 				"API-Key von https://app.hydrawise.com/config/account",
 			"API-Key": "API-Key",
 
+            "Communication": "Kommunikation",
 			"Ignore HTTP-Error X times": "HTTP-Fehler X-fach ignorieren",
             "Count": "Anzahl",
 
-			"Update data every X seconds": "Aktualisiere Daten alle X Sekunden",
-			"Seconds": "Sekunden",
+			"Test account": "Zugangsdaten überprüfen",
+			"invalid account-data": "ungültige Zugangsdaten",
+			"valid account-data": "gültige Zugangsdaten",
+            "registered controller found": "registrierte Controller gefunden",
 
-			"Update Data": "Aktualisiere Daten",
 			"Module description": "Modulbeschreibung",
 
 			"Instance getting created": "Instanz wird erstellt",
@@ -23,6 +25,7 @@
 			"Instance is inactive": "Instanz ist inaktiv",
 			"Instance is not created": "Instanz wurde nicht erzeugt",
 
+			"Instance is inactive (invalid configuration)": "Instanz ist inaktiv (ungültige Konfiguration)",
 			"Instance is inactive (unauthorized)": "Instanz ist inaktiv (Authorisierung fehlerhaft)",
 			"Instance is inactive (server error)": "Instanz ist inaktiv (Serverfehler)",
 			"Instance is inactive (http error)": "Instanz ist inaktiv (HTTP-Fehler)",
@@ -30,7 +33,9 @@
 			"Instance is inactive (no data)": "Instanz ist inaktiv (keine Daten)",
 			"Instance is inactive (no controller)": "Instanz ist inaktiv (kein Controller vorhanden)",
 			"Instance is inactive (controller missing)": "Instanz ist inaktiv (Controller fehlt)",
-			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)"
+			"Instance is inactive (zone missing)": "Instanz ist inaktiv (Zone fehlt)",
+			"Instance is inactive (webhook already in use)": "Instanz ist inaktiv (Webhook wird bereits verwendet)",
+			"Instance is inactive (too many requests)": "Instanz ist inaktiv (zu viele Anfragen)"
 		}
 	}
 }

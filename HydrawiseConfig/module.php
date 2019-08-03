@@ -3,23 +3,6 @@
 require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
 require_once __DIR__ . '/../libs/library.php';  // modul-bezogene Funktionen
 
-// Model of Sensor
-if (!defined('SENSOR_NORMALLY_CLOSE_START')) {
-    define('SENSOR_NORMALLY_CLOSE_START', 11);
-}
-if (!defined('SENSOR_NORMALLY_OPEN_STOP')) {
-    define('SENSOR_NORMALLY_OPEN_STOP', 12);
-}
-if (!defined('SENSOR_NORMALLY_CLOSE_STOP')) {
-    define('SENSOR_NORMALLY_CLOSE_STOP', 13);
-}
-if (!defined('SENSOR_NORMALLY_OPEN_START')) {
-    define('SENSOR_NORMALLY_OPEN_START', 14);
-}
-if (!defined('SENSOR_FLOW_METER')) {
-    define('SENSOR_FLOW_METER', 30);
-}
-
 class HydrawiseConfig extends IPSModule
 {
     use HydrawiseCommon;
@@ -28,6 +11,8 @@ class HydrawiseConfig extends IPSModule
     public function Create()
     {
         parent::Create();
+
+        $this->RegisterPropertyInteger('ImportCategoryID', 0);
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
     }
@@ -39,214 +24,142 @@ class HydrawiseConfig extends IPSModule
         $this->SetStatus(IS_ACTIVE);
     }
 
-    public function GetConfigurationForm()
+    protected function GetFormActions()
     {
-        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'LastData'];
-        $data = $this->SendDataToParent(json_encode($SendData));
-
-        $this->SendDebug(__FUNCTION__, "data=$data", 0);
-
-        $options = [];
-        if ($data != '') {
-            $controllers = json_decode($data, true);
-            foreach ($controllers as $controller) {
-                $controller_name = $controller['name'];
-                $controller_id = $controller['controller_id'];
-                $options[] = ['label' => $controller_name, 'value' => $controller_id];
-            }
-        }
-
         $formActions = [];
-        $formActions[] = ['type' => 'Select', 'name' => 'controller_id', 'caption' => 'Controller', 'options' => $options];
-        $formActions[] = [
-                            'type'    => 'Button',
-                            'caption' => 'Import of controller',
-                            'confirm' => 'Triggering the function creates the missing instances for the base-unit and all zones and sensors of the selected Hydrawise-Controller. Are you sure?',
-                            'onClick' => 'HydrawiseConfig_Doit($id, $controller_id);'
-                        ];
-        $formActions[] = ['type' => 'Label', 'label' => '____________________________________________________________________________________________________'];
         $formActions[] = [
                             'type'    => 'Button',
                             'caption' => 'Module description',
                             'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
                         ];
 
-        $formStatus = [];
-        $formStatus[] = ['code' => IS_CREATING, 'icon' => 'inactive', 'caption' => 'Instance getting created'];
-        $formStatus[] = ['code' => IS_ACTIVE, 'icon' => 'active', 'caption' => 'Instance is active'];
-        $formStatus[] = ['code' => IS_DELETING, 'icon' => 'inactive', 'caption' => 'Instance is deleted'];
-        $formStatus[] = ['code' => IS_INACTIVE, 'icon' => 'inactive', 'caption' => 'Instance is inactive'];
-        $formStatus[] = ['code' => IS_NOTCREATED, 'icon' => 'inactive', 'caption' => 'Instance is not created'];
-
-        $formStatus[] = ['code' => IS_UNAUTHORIZED, 'icon' => 'error', 'caption' => 'Instance is inactive (unauthorized)'];
-        $formStatus[] = ['code' => IS_SERVERERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (server error)'];
-        $formStatus[] = ['code' => IS_HTTPERROR, 'icon' => 'error', 'caption' => 'Instance is inactive (http error)'];
-        $formStatus[] = ['code' => IS_INVALIDDATA, 'icon' => 'error', 'caption' => 'Instance is inactive (invalid data)'];
-        $formStatus[] = ['code' => IS_NODATA, 'icon' => 'error', 'caption' => 'Instance is inactive (no data)'];
-        $formStatus[] = ['code' => IS_NOCONROLLER, 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
-        $formStatus[] = ['code' => IS_CONTROLLER_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
-        $formStatus[] = ['code' => IS_ZONE_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
-
-        return json_encode(['actions' => $formActions, 'status' => $formStatus]);
+        return $formActions;
     }
 
-    private function FindOrCreateInstance($guid, $controller_id, $connector, $name, $info, $properties, $pos)
+    private function SetLocation()
     {
-        $instID = '';
-
-        $instIDs = IPS_GetInstanceListByModuleID($guid);
-        foreach ($instIDs as $id) {
-            $cfg = IPS_GetConfiguration($id);
-            $jcfg = json_decode($cfg, true);
-            if (!isset($jcfg['controller_id'])) {
-                continue;
-            }
-            if ($jcfg['controller_id'] == $controller_id) {
-                if ($connector == '' || $jcfg['connector'] == $connector) {
-                    $instID = $id;
-                    break;
+        $category = $this->ReadPropertyInteger('ImportCategoryID');
+        $tree_position = [];
+        if ($category > 0 && IPS_ObjectExists($category)) {
+            $tree_position[] = IPS_GetName($category);
+            $parent = IPS_GetObject($category)['ParentID'];
+            while ($parent > 0) {
+                if ($parent > 0) {
+                    $tree_position[] = IPS_GetName($parent);
                 }
+                $parent = IPS_GetObject($parent)['ParentID'];
             }
+            $tree_position = array_reverse($tree_position);
         }
-
-        if ($instID == '') {
-            $instID = IPS_CreateInstance($guid);
-            if ($instID == '') {
-                echo 'unable to create instance "' . $name . '"';
-                return $instID;
-            }
-            IPS_SetProperty($instID, 'controller_id', $controller_id);
-            if (is_numeric($connector)) {
-                IPS_SetProperty($instID, 'connector', $connector);
-            }
-            foreach ($properties as $key => $property) {
-                IPS_SetProperty($instID, $key, $property);
-            }
-            IPS_SetName($instID, $name);
-            IPS_SetInfo($instID, $info);
-            IPS_SetPosition($instID, $pos);
-        }
-
-        IPS_ApplyChanges($instID);
-
-        return $instID;
+        return $tree_position;
     }
 
-    public function Doit(?string $controller_id)
+    public function getConfiguratorValues()
     {
-        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'LastData'];
-        $data = $this->SendDataToParent(json_encode($SendData));
+        $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CustomerDetails'];
+        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
+        $data = $this->SendDataToParent(json_encode($data));
+        $customer = json_decode($data, true);
+        $this->SendDebug(__FUNCTION__, 'customer=' . print_r($customer, true), 0);
 
-        $this->SendDebug(__FUNCTION__, "data=$data", 0);
+        $config_list = [];
 
-        $statuscode = 0;
-        $do_abort = false;
-
-        if ($data != '') {
-            $controllers = json_decode($data, true);
-            if ($controller_id != '') {
-                $controller_found = false;
+        if ($customer != '') {
+            $controllers = $customer['controllers'];
+            if ($controllers != '') {
+                $guid = '{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}';
+                $instIDs = IPS_GetInstanceListByModuleID($guid);
                 foreach ($controllers as $controller) {
-                    if ($controller_id == $controller['controller_id']) {
-                        $controller_found = true;
-                        break;
+                    $controller_name = $controller['name'];
+                    $controller_id = $controller['controller_id'];
+                    $serial_number = $controller['serial_number'];
+
+                    $instanceID = 0;
+                    foreach ($instIDs as $instID) {
+                        if (IPS_GetProperty($instID, 'controller_id') == $controller_id) {
+                            $this->SendDebug(__FUNCTION__, 'controller found: ' . utf8_decode(IPS_GetName($instID)) . ' (' . $instID . ')', 0);
+                            $instanceID = $instID;
+                            break;
+                        }
                     }
+
+                    $create = [
+                            'moduleID'      => $guid,
+                            'location'      => $this->SetLocation(),
+                            'configuration' => [
+                                    'controller_id' => "$controller_id",
+                                ]
+                        ];
+                    if (IPS_GetKernelVersion() >= 5.1) {
+                        $create['info'] = $this->Translate('Controller') . ' (' . $controller_name . ')';
+                    }
+
+                    $entry = [
+                            'instanceID'    => $instanceID,
+                            'name'          => $controller_name,
+                            'serial_number' => $serial_number,
+                            'create'        => $create
+                        ];
+
+                    $config_list[] = $entry;
+                    $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
                 }
-                if (!$controller_found) {
-                    $err = "controller \"$controller_id\" don't exists";
-                    $statuscode = IS_CONTROLLER_MISSING;
-                }
-            } else {
-                $err = 'no controller selected';
-                $statuscode = IS_NOCONROLLER;
-            }
-            if ($statuscode) {
-                echo "statuscode=$statuscode, err=$err";
-                $this->SendDebug(__FUNCTION__, $err, 0);
-                $this->SetStatus($statuscode);
-                $do_abort = true;
-            }
-        } else {
-            $err = 'no data';
-            $statuscode = IS_NODATA;
-            echo "statuscode=$statuscode, err=$err";
-            $this->SendDebug(__FUNCTION__, $err, 0);
-            $this->SetStatus($statuscode);
-            $do_abort = true;
-        }
-
-        if ($do_abort) {
-            return -1;
-        }
-
-        $this->SetStatus(IS_ACTIVE);
-
-        $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
-
-        // HydrawiseController
-        $controller_name = $controller['name'];
-        $info = 'Controller (' . $controller_name . ')';
-        $properties = [];
-
-        $pos = 1000;
-        $instID = $this->FindOrCreateInstance('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}', $controller_id, '', $controller_name, $info, $properties, $pos++);
-
-        // HydrawiseSensor
-        $pos = 1100;
-        $sensors = $controller['sensors'];
-        if (count($sensors) > 0) {
-            foreach ($sensors as $i => $value) {
-                $sensor = $sensors[$i];
-                $connector = $sensor['input'] + 1;
-                $sensor_name = $sensor['name'];
-                $type = $sensor['type'];
-                $mode = $sensor['mode'];
-
-                // type=1, mode=1 => normally close - start
-                // type=1, mode=2 => normally open - stop
-                // type=1, mode=3 => normally close - stop
-                // type=1, mode=4 => normally open - start
-                // type=3, mode=0 => flow meter
-
-                if ($type == 1 && $mode == 1) {
-                    $model = SENSOR_NORMALLY_CLOSE_START;
-                } elseif ($type == 1 && $mode == 2) {
-                    $model = SENSOR_NORMALLY_OPEN_STOP;
-                } elseif ($type == 1 && $mode == 3) {
-                    $model = SENSOR_NORMALLY_CLOSE_STOP;
-                } elseif ($type == 1 && $mode == 4) {
-                    $model = SENSOR_NORMALLY_OPEN_START;
-                } elseif ($type == 3 && $mode == 0) {
-                    $model = SENSOR_FLOW_METER;
-                } else {
-                    continue;
-                }
-
-                $info = $this->Translate('Sensor') . ' ' . $connector . ' (' . $controller_name . '\\' . $sensor_name . ')';
-                $properties = ['model' => $model];
-                $instID = $this->FindOrCreateInstance('{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}', $controller_id, $connector, $sensor_name, $info, $properties, $pos++);
             }
         }
 
-        $pos = 1200;
-        $relays = $controller['relays'];
-        if (count($relays) > 0) {
-            foreach ($relays as $i => $value) {
-                $relay = $relays[$i];
-                $relay_id = $relay['relay_id'];
-                $connector = $relay['relay'];
-                $zone_name = $relay['name'];
-                if ($connector < 100) {
-                    $info = $this->Translate('Zone') . ' ' . $connector;
-                } else {
-                    $info = $this->Translate('Expander') . ' ' . floor($connector / 100) . ' Zone ' . ($connector % 100);
-                }
-                $info .= ' (' . $controller_name . '\\' . $zone_name . ')';
-                $properties = [
-                        'relay_id'	=> $relay_id
-                    ];
-                $instID = $this->FindOrCreateInstance('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}', $controller_id, $connector, $zone_name, $info, $properties, $pos++);
-            }
+        return $config_list;
+    }
+
+    public function GetFormElements()
+    {
+        $formElements = [];
+
+        $formElements[] = ['type' => 'Label', 'caption' => 'Hydrawise Configurator'];
+
+        $formElements[] = ['name' => 'ImportCategoryID', 'type' => 'SelectCategory', 'caption' => 'category'];
+
+        $entries = $this->getConfiguratorValues();
+        $configurator = [
+            'type'    => 'Configurator',
+            'name'    => 'controller',
+            'caption' => 'Controller',
+
+            'rowCount' => count($entries),
+
+            'add'     => false,
+            'delete'  => false,
+            'columns' => [
+                [
+                    'caption' => 'Name',
+                    'name'    => 'name',
+                    'width'   => 'auto'
+                ],
+                [
+                    'caption' => 'Serial number',
+                    'name'    => 'serial_number',
+                    'width'   => '200px'
+                ]
+            ],
+            'values' => $entries
+        ];
+        $formElements[] = $configurator;
+
+        return $formElements;
+    }
+
+    public function GetConfigurationForm()
+    {
+        $formElements = $this->GetFormElements();
+        $formActions = $this->GetFormActions();
+        $formStatus = $this->GetFormStatus();
+
+        $form = json_encode(['elements' => $formElements, 'actions' => $formActions, 'status' => $formStatus]);
+        if ($form == '') {
+            $this->SendDebug(__FUNCTION__, 'json_error=' . json_last_error_msg(), 0);
+            $this->SendDebug(__FUNCTION__, '=> formElements=' . print_r($formElements, true), 0);
+            $this->SendDebug(__FUNCTION__, '=> formActions=' . print_r($formActions, true), 0);
+            $this->SendDebug(__FUNCTION__, '=> formStatus=' . print_r($formStatus, true), 0);
         }
+        return $form;
     }
 }
