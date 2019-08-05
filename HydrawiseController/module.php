@@ -170,7 +170,7 @@ class HydrawiseController extends IPSModule
         $config_list = [];
 
         if ($controller != '') {
-            $controller_name = $controller['name'];
+            $controller_name = $this->GetArrayElem($controller, 'name', '');
 
             $sensors = $this->GetArrayElem($controller, 'sensors', '');
             if ($sensors != '') {
