@@ -172,7 +172,7 @@ class HydrawiseController extends IPSModule
         if ($controller != '') {
             $controller_name = $controller['name'];
 
-			$sensors = $this->GetArrayElem($controller, 'sensors', '');
+            $sensors = $this->GetArrayElem($controller, 'sensors', '');
             if ($sensors != '') {
                 $guid = '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}';
                 $instIDs = IPS_GetInstanceListByModuleID($guid);
@@ -234,7 +234,7 @@ class HydrawiseController extends IPSModule
                 }
             }
 
-			$relays = $this->GetArrayElem($controller, 'relays', '');
+            $relays = $this->GetArrayElem($controller, 'relays', '');
             if ($relays != '') {
                 $guid = '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}';
                 $instIDs = IPS_GetInstanceListByModuleID($guid);

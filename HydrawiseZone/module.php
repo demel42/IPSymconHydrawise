@@ -258,7 +258,7 @@ class HydrawiseZone extends IPSModule
 
         if ($buf != '') {
             $controller = json_decode($buf, true);
-			$id = $this->GetArrayElem($controller, 'controller_id', '');
+            $id = $this->GetArrayElem($controller, 'controller_id', '');
             if ($controller_id != $id) {
                 $err = 'controller_id "' . $controller_id . '" not found';
                 $statuscode = IS_CONTROLLER_MISSING;
@@ -271,15 +271,15 @@ class HydrawiseZone extends IPSModule
         }
 
         $relay_found = false;
-		$relays = $this->GetArrayElem($controller, 'relays', '');
-		if ($relays != '') {
-			foreach ($relays as $relay) {
-				if ($relay_id == $relay['relay_id']) {
-					$relay_found = true;
-					break;
-				}
-			}
-		}
+        $relays = $this->GetArrayElem($controller, 'relays', '');
+        if ($relays != '') {
+            foreach ($relays as $relay) {
+                if ($relay_id == $relay['relay_id']) {
+                    $relay_found = true;
+                    break;
+                }
+            }
+        }
         if ($relay_found == false) {
             $err = 'relay_id "' . $relay_id . '" not found';
             $statuscode = IS_ZONE_MISSING;

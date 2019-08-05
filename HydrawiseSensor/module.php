@@ -194,7 +194,7 @@ class HydrawiseSensor extends IPSModule
 
         if ($buf != '') {
             $controller = json_decode($buf, true);
-			$id = $this->GetArrayElem($controller, 'controller_id', '');
+            $id = $this->GetArrayElem($controller, 'controller_id', '');
             if ($controller_id != $id) {
                 $err = 'controller_id "' . $controller_id . '" not found';
                 $statuscode = IS_CONTROLLER_MISSING;
@@ -216,8 +216,8 @@ class HydrawiseSensor extends IPSModule
         $vpos = 1;
 
         $flow = 0;
-		$sensors = $this->GetArrayElem($controller, 'sensors', '');
-		if ($sensors != '') {
+        $sensors = $this->GetArrayElem($controller, 'sensors', '');
+        if ($sensors != '') {
             foreach ($sensors as $sensor) {
                 if ($connector != ($sensor['input'] + 1)) {
                     continue;
