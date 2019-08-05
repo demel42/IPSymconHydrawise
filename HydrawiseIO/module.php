@@ -295,9 +295,9 @@ class HydrawiseIO extends IPSModule
             if ($jdata == '') {
                 $statuscode = IS_INVALIDDATA;
                 $err = 'malformed response';
-            } else if (isset($jdata['error_msg'])) {
-				 $err = $jdata['error_msg'];
-				$statuscode = $err == 'unauthorised' ? IS_UNAUTHORIZED : IS_INVALIDDATA;
+            } elseif (isset($jdata['error_msg'])) {
+                $err = $jdata['error_msg'];
+                $statuscode = $err == 'unauthorised' ? IS_UNAUTHORIZED : IS_INVALIDDATA;
             } else {
                 $data = $cdata;
             }
