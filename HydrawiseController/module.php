@@ -148,14 +148,14 @@ class HydrawiseController extends IPSModule
     {
         $formActions = [];
         $formActions[] = ['type' => 'Button', 'caption' => 'Update Data', 'onClick' => 'Hydrawise_UpdateController($id);'];
-		if (IPS_GetKernelVersion() < 5.2) {
-        $formActions[] = ['type' => 'Label', 'caption' => '____________________________________________________________________________________________________'];
-        $formActions[] = [
+        if (IPS_GetKernelVersion() < 5.2) {
+            $formActions[] = ['type' => 'Label', 'caption' => '____________________________________________________________________________________________________'];
+            $formActions[] = [
                             'type'    => 'Button',
                             'caption' => 'Module description',
                             'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
                         ];
-						}
+        }
 
         return $formActions;
     }

@@ -42,14 +42,14 @@ class HydrawiseIO extends IPSModule
     {
         $formActions = [];
         $formActions[] = ['type' => 'Button', 'caption' => 'Test account', 'onClick' => 'Hydrawise_TestAccount($id);'];
-		if (IPS_GetKernelVersion() < 5.2) {
-        $formActions[] = ['type' => 'Label', 'caption' => '____________________________________________________________________________________________________'];
-        $formActions[] = [
+        if (IPS_GetKernelVersion() < 5.2) {
+            $formActions[] = ['type' => 'Label', 'caption' => '____________________________________________________________________________________________________'];
+            $formActions[] = [
                             'type'    => 'Button',
                             'caption' => 'Module description',
                             'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
                         ];
-						}
+        }
 
         return $formActions;
     }
