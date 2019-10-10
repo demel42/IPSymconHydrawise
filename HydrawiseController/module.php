@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
 require_once __DIR__ . '/../libs/library.php';  // modul-bezogene Funktionen
 
@@ -151,10 +153,10 @@ class HydrawiseController extends IPSModule
         if (IPS_GetKernelVersion() < 5.2) {
             $formActions[] = ['type' => 'Label', 'caption' => '____________________________________________________________________________________________________'];
             $formActions[] = [
-                            'type'    => 'Button',
-                            'caption' => 'Module description',
-                            'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
-                        ];
+                'type'    => 'Button',
+                'caption' => 'Module description',
+                'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
+            ];
         }
 
         return $formActions;
@@ -211,25 +213,25 @@ class HydrawiseController extends IPSModule
                     $ident = $this->Translate('Sensor') . ' ' . $connector;
 
                     $create = [
-                            'moduleID'      => $guid,
-                            'location'      => $this->SetLocation(),
-                            'configuration' => [
-                                    'controller_id' => "$controller_id",
-                                    'connector'     => $connector,
-                                    'model'         => $model,
-                                ]
-                        ];
+                        'moduleID'      => $guid,
+                        'location'      => $this->SetLocation(),
+                        'configuration' => [
+                            'controller_id' => "$controller_id",
+                            'connector'     => $connector,
+                            'model'         => $model,
+                        ]
+                    ];
                     if (IPS_GetKernelVersion() >= 5.1) {
                         $create['info'] = $ident . ' (' . $controller_name . '\\' . $sensor_name . ')';
                     }
 
                     $entry = [
-                            'instanceID'  => $instanceID,
-                            'type'        => $this->Translate('Sensor'),
-                            'ident'       => $ident,
-                            'name'        => $sensor_name,
-                            'create'      => $create
-                        ];
+                        'instanceID'  => $instanceID,
+                        'type'        => $this->Translate('Sensor'),
+                        'ident'       => $ident,
+                        'name'        => $sensor_name,
+                        'create'      => $create
+                    ];
 
                     $config_list[] = $entry;
                     $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
@@ -262,25 +264,25 @@ class HydrawiseController extends IPSModule
                     }
 
                     $create = [
-                            'moduleID'      => $guid,
-                            'location'      => $this->SetLocation(),
-                            'configuration' => [
-                                    'controller_id' => "$controller_id",
-                                    'relay_id'      => "$relay_id",
-                                    'connector'     => $connector,
-                                ]
-                        ];
+                        'moduleID'      => $guid,
+                        'location'      => $this->SetLocation(),
+                        'configuration' => [
+                            'controller_id' => "$controller_id",
+                            'relay_id'      => "$relay_id",
+                            'connector'     => $connector,
+                        ]
+                    ];
                     if (IPS_GetKernelVersion() >= 5.1) {
                         $create['info'] = $ident . ' (' . $controller_name . '\\' . $zone_name . ')';
                     }
 
                     $entry = [
-                            'instanceID'  => $instanceID,
-                            'type'        => $this->Translate('Zone'),
-                            'ident'       => $ident,
-                            'name'        => $zone_name,
-                            'create'      => $create
-                        ];
+                        'instanceID'  => $instanceID,
+                        'type'        => $this->Translate('Zone'),
+                        'ident'       => $ident,
+                        'name'        => $zone_name,
+                        'create'      => $create
+                    ];
 
                     $config_list[] = $entry;
 
@@ -614,9 +616,9 @@ class HydrawiseController extends IPSModule
                 $duration = $this->seconds2duration($time_left);
 
                 $running_zone = [
-                        'name'     => $name,
-                        'duration' => $duration
-                    ];
+                    'name'     => $name,
+                    'duration' => $duration
+                ];
                 $running_zones[] = $running_zone;
             }
         }
@@ -652,10 +654,10 @@ class HydrawiseController extends IPSModule
                     }
                     // was kommt heute noch?
                     $today_zone = [
-                            'name'      => $name,
-                            'timestamp' => $ts,
-                            'duration'  => $duration
-                        ];
+                        'name'      => $name,
+                        'timestamp' => $ts,
+                        'duration'  => $duration
+                    ];
                     $today_zones[] = $today_zone;
                 } elseif ($ts) {
                     // was kommt in den nächsten Tagen
@@ -663,10 +665,10 @@ class HydrawiseController extends IPSModule
                         continue;
                     }
                     $future_zone = [
-                            'name'      => $name,
-                            'timestamp' => $ts,
-                            'duration'  => $duration
-                        ];
+                        'name'      => $name,
+                        'timestamp' => $ts,
+                        'duration'  => $duration
+                    ];
                     $future_zones[] = $future_zone;
                 }
             }
@@ -720,26 +722,26 @@ class HydrawiseController extends IPSModule
                 $is_running = isset($relay2running[$relay_id]) ? $relay2running[$relay_id] : false;
 
                 $done_zone = [
-                        'name'              => $name,
-                        'timestamp'         => $ts,
-                        'duration'          => $duration,
-                        'is_running'        => $is_running,
-                        'daily_duration'    => $daily_duration,
-                        'daily_waterusage'  => $daily_waterusage,
-                    ];
+                    'name'              => $name,
+                    'timestamp'         => $ts,
+                    'duration'          => $duration,
+                    'is_running'        => $is_running,
+                    'daily_duration'    => $daily_duration,
+                    'daily_waterusage'  => $daily_waterusage,
+                ];
                 $done_zones[] = $done_zone;
             }
         }
 
         $controller_data = [
-                'status'            => $controller['status'],
-                'last_contact_ts'   => $last_contact_ts,
-                'name'              => $controller_name,
-                'running_zones'     => $running_zones,
-                'today_zones'       => $today_zones,
-                'done_zones'        => $done_zones,
-                'future_zones'      => $future_zones,
-            ];
+            'status'            => $controller['status'],
+            'last_contact_ts'   => $last_contact_ts,
+            'name'              => $controller_name,
+            'running_zones'     => $running_zones,
+            'today_zones'       => $today_zones,
+            'done_zones'        => $done_zones,
+            'future_zones'      => $future_zones,
+        ];
 
         $this->SetBuffer('Data', json_encode($controller_data));
 

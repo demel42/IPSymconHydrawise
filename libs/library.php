@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 trait HydrawiseLibrary
 {
     // Sekunden in Menschen-lesbares Format umwandeln

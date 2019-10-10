@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
 require_once __DIR__ . '/../libs/library.php';  // modul-bezogene Funktionen
 
@@ -155,10 +157,10 @@ class HydrawiseZone extends IPSModule
         $formActions = [];
         if (IPS_GetKernelVersion() < 5.2) {
             $formActions[] = [
-                            'type'    => 'Button',
-                            'caption' => 'Module description',
-                            'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
-                        ];
+                'type'    => 'Button',
+                'caption' => 'Module description',
+                'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
+            ];
         }
 
         return $formActions;
@@ -376,12 +378,12 @@ class HydrawiseZone extends IPSModule
             }
 
             $current_run = [
-                    'time_begin'    => $time_begin,
-                    'time_end'      => $time_end,
-                    'time_left'     => $time_left,
-                    'water_usage'   => $water_usage,
-                    'server_time'	  => $server_time,
-                ];
+                'time_begin'    => $time_begin,
+                'time_end'      => $time_end,
+                'time_left'     => $time_left,
+                'water_usage'   => $water_usage,
+                'server_time'	  => $server_time,
+            ];
             $this->SetBuffer('currentRun', json_encode($current_run));
             $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
             $this->SendDebug(__FUNCTION__, ' * avg: time_duration=' . $tot_time_duration . ', water_usage=' . $water_usage . ' => flowrate=' . $avg_water_flowrate, 0);
@@ -457,11 +459,11 @@ class HydrawiseZone extends IPSModule
 
         if ($visibility_script > 0) {
             $opts = [
-                    'InstanceID'       => $this->InstanceID,
-                    'suspended_until'  => $suspended,
-                    'next_duration'    => $run_seconds,
-                    'time_left'        => $time_left,
-                ];
+                'InstanceID'       => $this->InstanceID,
+                'suspended_until'  => $suspended,
+                'next_duration'    => $run_seconds,
+                'time_left'        => $time_left,
+            ];
             $ret = IPS_RunScriptWaitEx($visibility_script, $opts);
             $this->SendDebug(__FUNCTION__, 'visibility_script: ' . $ret, 0);
         }
