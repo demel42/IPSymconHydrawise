@@ -632,7 +632,7 @@ class HydrawiseController extends IPSModule
                 $duration = '';
                 if (isset($relay['run_seconds'])) {
                     // auf Minuten aufrunden
-                    $run_seconds = ceil($relay['run_seconds'] / 60) * 60;
+                    $run_seconds = (int) ceil($relay['run_seconds'] / 60) * 60;
                     $duration = $this->seconds2duration($run_seconds);
                 }
 
@@ -931,7 +931,7 @@ class HydrawiseController extends IPSModule
             $name = $zone['name'];
             $timestamp = $zone['timestamp'];
             $duration = $zone['duration'];
-            $date = date('d.m. H:i', $timestamp);
+            $date = date('d.m. H:i', (int) $timestamp);
 
             if (!$b) {
                 $html .= "<br>\n";

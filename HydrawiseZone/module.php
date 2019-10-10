@@ -433,7 +433,7 @@ class HydrawiseZone extends IPSModule
             $workflow = ZONE_WORKFLOW_WATERING;
         } else {
             if ($lastrun && date('d.m.Y', $lastrun) == date('d.m.Y', $now)) {
-                if ($nextrun && date('d.m.Y', $nextrun) == date('d.m.Y', $now)) {
+                if ($nextrun && date('d.m.Y', (int) $nextrun) == date('d.m.Y', $now)) {
                     $workflow = ZONE_WORKFLOW_PARTIALLY;
                 } else {
                     $workflow = ZONE_WORKFLOW_DONE;
