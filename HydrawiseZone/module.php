@@ -310,7 +310,7 @@ class HydrawiseZone extends IPSModule
 
         $nicetime = $relay['nicetime'];
         $tm = date_create_from_format('D, j* F g:ia', $nicetime);
-        $nextrun = $tm ? $tm->format('U') : 0;
+        $nextrun = $tm ? (int) $tm->format('U') : 0;
         $this->SetValue('NextRun', $nextrun);
 
         $is_running = false;
@@ -433,7 +433,7 @@ class HydrawiseZone extends IPSModule
             $workflow = ZONE_WORKFLOW_WATERING;
         } else {
             if ($lastrun && date('d.m.Y', $lastrun) == date('d.m.Y', $now)) {
-                if ($nextrun && date('d.m.Y', (int) $nextrun) == date('d.m.Y', $now)) {
+                if ($nextrun && date('d.m.Y', $nextrun) == date('d.m.Y', $now)) {
                     $workflow = ZONE_WORKFLOW_PARTIALLY;
                 } else {
                     $workflow = ZONE_WORKFLOW_DONE;
@@ -498,7 +498,7 @@ class HydrawiseZone extends IPSModule
                 } else {
                     $sec = $Value * 86400;
                     $dt = new DateTime(date('d.m.Y 23:59:59', time() + $sec));
-                    $ts = $dt->format('U');
+                    $ts = (int) $dt->format('U');
                     $dt = date('d.m.Y H:i:s', $ts);
                     $this->SendDebug(__FUNCTION__, $Ident . '=' . $Value . ' => ' . $dt, 0);
                     $this->Suspend($ts);

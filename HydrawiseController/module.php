@@ -474,7 +474,7 @@ class HydrawiseController extends IPSModule
 
         if ($with_daily_value) {
             $dt = new DateTime(date('d.m.Y 00:00:00', $now));
-            $ts_today = $dt->format('U');
+            $ts_today = (int) $dt->format('U');
             $ts_watch = $this->GetValue('DailyReference');
             if ($ts_today != $ts_watch) {
                 $this->SetValue('DailyReference', $ts_today);
@@ -641,7 +641,7 @@ class HydrawiseController extends IPSModule
                 $is_today = false;
                 $tm = date_create_from_format('D, j* F g:ia', $nicetime);
                 if ($tm) {
-                    $ts = $tm->format('U');
+                    $ts = (int) $tm->format('U');
                     if ($tm->format('d.m.Y') == date('d.m.Y', $now)) {
                         $is_today = true;
                     }
@@ -1239,14 +1239,14 @@ class HydrawiseController extends IPSModule
     {
         $tm = date_create_from_format('D, j* F g:ia', $a['nicetime']);
         if ($tm) {
-            $a_nextrun = $tm->format('U');
+            $a_nextrun = (int) $tm->format('U');
         } else {
             $a_nextrun = 0;
         }
 
         $tm = date_create_from_format('D, j* F g:ia', $b['nicetime']);
         if ($tm) {
-            $b_nextrun = $tm->format('U');
+            $b_nextrun = (int) $tm->format('U');
         } else {
             $b_nextrun = 0;
         }
