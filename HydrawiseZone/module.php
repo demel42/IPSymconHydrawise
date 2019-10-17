@@ -236,6 +236,9 @@ class HydrawiseZone extends IPSModule
                     case 'ClearDailyValue':
                         $this->ClearDailyValue();
                         break;
+                    case 'SetMessage':
+                        $this->SendDebug(__FUNCTION__, 'ignore function "' . $jdata['Function'] . '"', 0);
+                        break;
                     default:
                         $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata['Function'] . '"', 0);
                         break;
@@ -323,7 +326,7 @@ class HydrawiseZone extends IPSModule
                 }
                 $is_running = true;
                 $time_left = $run['time_left'];
-                $water_usage = $run['water_int'];
+                $water_usage = $this->GetArrayElem($run, 'water_int', 0);
                 $this->SendDebug(__FUNCTION__, 'time_left=' . $time_left . ', water_usage=' . $water_usage, 0);
             }
         }

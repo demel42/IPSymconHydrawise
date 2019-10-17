@@ -174,6 +174,9 @@ class HydrawiseSensor extends IPSModule
                     case 'ClearDailyValue':
                         $this->ClearDailyValue();
                         break;
+                    case 'SetMessage':
+                        $this->SendDebug(__FUNCTION__, 'ignore function "' . $jdata['Function'] . '"', 0);
+                        break;
                     default:
                         $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata['Function'] . '"', 0);
                         break;

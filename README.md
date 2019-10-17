@@ -261,7 +261,8 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.18 @ 10.10.2019 17:27<br>
+- 1.18 @ 17.10.2019 07:55<br>
+  - Fehler abgefangen, wenn zu einem aktiven Bewässerungslauf keine Angabe der Wassermenge vorhanden ist
   - Anpassungen an IPS 5.2
     - IPS_SetVariableProfileValues(), IPS_SetVariableProfileDigits() nur bei INTEGER, FLOAT
     - Dokumentation-URL in module.json
