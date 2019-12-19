@@ -169,20 +169,20 @@ class HydrawiseZone extends IPSModule
     public function GetFormElements()
     {
         $opts_connector = [];
-        $opts_connector[] = ['label' => $this->Translate('no'), 'value' => 0];
+        $opts_connector[] = ['caption' => $this->Translate('no'), 'value' => 0];
         for ($u = 0; $u <= 2; $u++) {
             for ($z = 1; $z <= 16; $z++) {
                 $n = $u * 100 + $z;
                 $l = $u ? $this->Translate('Expander') . ' ' . $u . ' ' : '';
                 $l .= $this->Translate('Zone') . ' ' . $z;
-                $opts_connector[] = ['label' => $l, 'value' => $n];
+                $opts_connector[] = ['caption' => $l, 'value' => $n];
             }
         }
 
         $opts_flowrate = [];
-        $opts_flowrate[] = ['label' => $this->Translate('no value'), 'value' => FLOW_RATE_NONE];
-        $opts_flowrate[] = ['label' => $this->Translate('average of cycle'), 'value' => FLOW_RATE_AVERAGE];
-        $opts_flowrate[] = ['label' => $this->Translate('current value'), 'value' => FLOW_RATE_CURRENT];
+        $opts_flowrate[] = ['caption' => $this->Translate('no value'), 'value' => FLOW_RATE_NONE];
+        $opts_flowrate[] = ['caption' => $this->Translate('average of cycle'), 'value' => FLOW_RATE_AVERAGE];
+        $opts_flowrate[] = ['caption' => $this->Translate('current value'), 'value' => FLOW_RATE_CURRENT];
 
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'caption' => 'Hydrawise Zone'];

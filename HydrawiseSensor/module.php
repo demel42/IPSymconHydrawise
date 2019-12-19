@@ -109,19 +109,19 @@ class HydrawiseSensor extends IPSModule
     {
         $model = $this->ReadPropertyInteger('model');
         $opts_connector = [];
-        $opts_connector[] = ['label' => $this->Translate('no'), 'value' => 0];
+        $opts_connector[] = ['caption' => $this->Translate('no'), 'value' => 0];
         for ($s = 1; $s <= 2; $s++) {
             $l = $this->Translate('Sensor') . ' ' . $s;
-            $opts_connector[] = ['label' => $l, 'value' => $s];
+            $opts_connector[] = ['caption' => $l, 'value' => $s];
         }
 
         $opts_model = [];
-        $opts_model[] = ['label' => $this->Translate('unknown'), 'value' => 0];
-        $opts_model[] = ['label' => $this->Translate('normally close, action start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
-        $opts_model[] = ['label' => $this->Translate('normally open, action stop'), 'value' => SENSOR_NORMALLY_OPEN_STOP];
-        $opts_model[] = ['label' => $this->Translate('normally close, action stop'), 'value' => SENSOR_NORMALLY_CLOSE_STOP];
-        $opts_model[] = ['label' => $this->Translate('normally open, action start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
-        $opts_model[] = ['label' => $this->Translate('flow meter'), 'value' => SENSOR_FLOW_METER];
+        $opts_model[] = ['caption' => $this->Translate('unknown'), 'value' => 0];
+        $opts_model[] = ['caption' => $this->Translate('normally close, action start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
+        $opts_model[] = ['caption' => $this->Translate('normally open, action stop'), 'value' => SENSOR_NORMALLY_OPEN_STOP];
+        $opts_model[] = ['caption' => $this->Translate('normally close, action stop'), 'value' => SENSOR_NORMALLY_CLOSE_STOP];
+        $opts_model[] = ['caption' => $this->Translate('normally open, action start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
+        $opts_model[] = ['caption' => $this->Translate('flow meter'), 'value' => SENSOR_FLOW_METER];
 
         $formElements = [];
         $formElements[] = ['type' => 'Label', 'caption' => 'Hydrawise Sensor'];

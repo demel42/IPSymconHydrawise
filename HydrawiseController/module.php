@@ -297,10 +297,10 @@ class HydrawiseController extends IPSModule
     public function GetFormElements()
     {
         $opts_forecast = [];
-        $opts_forecast[] = ['label' => $this->Translate('no'), 'value' => 0];
-        $opts_forecast[] = ['label' => $this->Translate('today'), 'value' => 1];
-        $opts_forecast[] = ['label' => $this->Translate('tomorrow'), 'value' => 2];
-        $opts_forecast[] = ['label' => $this->Translate('overmorrow'), 'value' => 3];
+        $opts_forecast[] = ['caption' => $this->Translate('no'), 'value' => 0];
+        $opts_forecast[] = ['caption' => $this->Translate('today'), 'value' => 1];
+        $opts_forecast[] = ['caption' => $this->Translate('tomorrow'), 'value' => 2];
+        $opts_forecast[] = ['caption' => $this->Translate('overmorrow'), 'value' => 3];
 
         $formElements = [];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];

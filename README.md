@@ -1,7 +1,7 @@
 # IPSymconHydrawise
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.0-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.18-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.19-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
@@ -261,7 +261,11 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.18 @ 17.10.2019 07:55<br>
+- 1.19 @ 19.12.2019 14:09
+  - Anpassungen an IPS 5.3
+    - Formular-Elemente: 'label' in 'caption' geändert
+
+- 1.18 @ 17.10.2019 07:55
   - Fehler abgefangen, wenn zu einem aktiven Bewässerungslauf keine Angabe der Wassermenge vorhanden ist
   - Anpassungen an IPS 5.2
     - IPS_SetVariableProfileValues(), IPS_SetVariableProfileDigits() nur bei INTEGER, FLOAT
@@ -269,62 +273,62 @@ GUIDs
   - Umstellung auf strict_types=1
   - Umstellung von StyleCI auf php-cs-fixer
 
-- 1.17 @ 09.08.2019 14:32<br>
+- 1.17 @ 09.08.2019 14:32
   - Schreibfehler korrigiert
 
-- 1.16 @ 05.08.2019 11:35<br>
+- 1.16 @ 05.08.2019 11:35
   - Fehler abfangen, wenn jemand keine gültigen Account hat
 
-- 1.15 @ 31.07.2019 16:54<br>
+- 1.15 @ 31.07.2019 16:54
   - Redesign des Moduls
-    -- HydrawiseConfig legt nur noch einen HydrawiseController an
-    -- HydrawiseController legt HydrawiseSensor und HydrawiseZone an
-	-- der Datenabruf wird nicht zentral über HydrawiseIO getaktet sondern vom HydrawiseController
+    - HydrawiseConfig legt nur noch einen HydrawiseController an
+    - HydrawiseController legt HydrawiseSensor und HydrawiseZone an
+	- der Datenabruf wird nicht zentral über HydrawiseIO getaktet sondern vom HydrawiseController
   - GUI an aktuelle Möglichkeiten angepasst, Einsatz des Konfigurators
   - Webhook für mehr als eine Controller mit getrenntem Namen einstellbar
   - Meldungen von Aktionen werden nun auch im Controller (für 60s) in 'letze Meldung' angezeigt 
 
-- 1.14 @ 27.07.2019 18:13<br>
+- 1.14 @ 27.07.2019 18:13
   - Berechnung der aktuellen Wasser-Durchflussmenge pro Zone sowie Darstellung zu einer Wasseruhr
 
-- 1.13 @ 25.07.2019 18:35<br>
+- 1.13 @ 25.07.2019 18:35
   - in HydrawiseController wird nun auch die Controller-ID angezeigt
   - Schreibfehler korrigiert
 
-- 1.12 @ 20.07.2019 15:19<br>
+- 1.12 @ 20.07.2019 15:19
   - Handhabung von mehreren Controllern
   - Regensensor wird nun erkannt
 
-- 1.11 @ 25.06.2019 18:25<br>
-  - Anpassung an IPS 5.1: Überarbeitung der Datenkommunikation
+- 1.11 @ 25.06.2019 18:25
+  - Anpassung an IPS 5.1: Überarbeitung der Datenkommunikation<br>
     Achtung: die Zonen und Sensoren müssen (in der Instanz-Konfiguration) dem Gatewasy _HydrawiseIO_ zugeordnet werden; die Frage, ob der nicht mehr benötigte Gateway (Controller) gelöscht werden solle, ist mit **Nein** zu beantworten.
 
-- 1.10 @ 23.04.2019 17:08<br>
+- 1.10 @ 23.04.2019 17:08
   - Konfigurator um Sicherheitsabfrage ergänzt
 
-- 1.9 @ 29.03.2019 16:19<br>
+- 1.9 @ 29.03.2019 16:19
   - SetValue() abgesichert
 
-- 1.8 @ 20.03.2019 14:08<br>
+- 1.8 @ 20.03.2019 14:08
   - form.json in GetConfigurationForm() abgebildet
   - Schalter, um die I/O-Instanz (temporär) zu deaktivieren
   - Anpassungen IPS 5
 
-- 1.7 @ 26.01.2019 10:55<br>
+- 1.7 @ 26.01.2019 10:55
   - curl_errno() abfragen
   - es gibt ab und an Timeout-Fehler bei HTTP-Abruf, daher  wird optional erst nach dem X. Fehler reagiert
   - I/O-Fehler werden nicht mehr an die Instanzen weitergeleitet
 
-- 1.6 @ 22.12.2018 11:35<br>
+- 1.6 @ 22.12.2018 11:35
   - Fehler in der http-Kommunikation nun nicht mehr mit _echo_ (also als **ERROR**) sondern mit _LogMessage_ als **NOTIFY**
 
-- 1.5 @ 21.12.2018 13:10<br>
+- 1.5 @ 21.12.2018 13:10
   - Standard-Konstanten verwenden
 
-- 1.4 @ 02.10.2018 10:47<br>
+- 1.4 @ 02.10.2018 10:47
   - Schreibfehler
 
-- 1.3 @ 22.08.2018 17:42<br>
+- 1.3 @ 22.08.2018 17:42
   - Anpassungen IPS 5, Abspaltung Branch _ips_4.4_
   - Versionshistorie dazu
   - define's der Variablentypen
