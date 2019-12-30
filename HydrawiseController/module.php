@@ -150,14 +150,6 @@ class HydrawiseController extends IPSModule
     {
         $formActions = [];
         $formActions[] = ['type' => 'Button', 'caption' => 'Update Data', 'onClick' => 'Hydrawise_UpdateController($id);'];
-        if (IPS_GetKernelVersion() < 5.2) {
-            $formActions[] = ['type' => 'Label', 'caption' => '____________________________________________________________________________________________________'];
-            $formActions[] = [
-                'type'    => 'Button',
-                'caption' => 'Module description',
-                'onClick' => 'echo "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md";'
-            ];
-        }
 
         return $formActions;
     }
@@ -221,9 +213,7 @@ class HydrawiseController extends IPSModule
                             'model'         => $model,
                         ]
                     ];
-                    if (IPS_GetKernelVersion() >= 5.1) {
-                        $create['info'] = $ident . ' (' . $controller_name . '\\' . $sensor_name . ')';
-                    }
+                    $create['info'] = $ident . ' (' . $controller_name . '\\' . $sensor_name . ')';
 
                     $entry = [
                         'instanceID'  => $instanceID,
@@ -272,9 +262,7 @@ class HydrawiseController extends IPSModule
                             'connector'     => $connector,
                         ]
                     ];
-                    if (IPS_GetKernelVersion() >= 5.1) {
-                        $create['info'] = $ident . ' (' . $controller_name . '\\' . $zone_name . ')';
-                    }
+                    $create['info'] = $ident . ' (' . $controller_name . '\\' . $zone_name . ')';
 
                     $entry = [
                         'instanceID'  => $instanceID,
