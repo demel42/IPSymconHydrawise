@@ -1,7 +1,7 @@
 # IPSymconHydrawise
 
 [![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.3+-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-![Module-Version](https://img.shields.io/badge/Modul_Version-1.19-blue.svg)
+![Module-Version](https://img.shields.io/badge/Modul_Version-1.20-blue.svg)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
@@ -260,6 +260,11 @@ GUIDs
   - `{B54B579C-3992-4C1D-B7A8-4A129A78ED03}`: an HydrawiseIO
 
 ## 7. Versions-Historie
+
+- 1.20 @ 31.12.2019 12:10
+  - Fix bei Vorhersage
+    - keine Erkennung, wieviel Tage gewünscht sind (ganz oder gar nicht)
+	- fehlerhafte Verarbeitung der Daten
 
 - 1.19 @ 30.12.2019 10:56
   - Anpassungen an IPS 5.3

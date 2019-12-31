@@ -549,24 +549,36 @@ class HydrawiseController extends IPSModule
             $forecast = $controller['forecast'];
             if (count($forecast) > 0) {
                 foreach ($forecast as $i => $value) {
+                    if ($i >= $num_forecast) {
+                        continue;
+                    }
+
                     $_forcecast = $forecast[$i];
 
-                    $temp_hi = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['temp_hi']);
+                    $this->SendDebug(__FUNCTION__, '_forcecast=' . print_r($_forcecast, true), 0);
+
+                    $temp_hi = preg_replace('/^([0-9\.,-]*).*$/', '$1', $_forcecast['temp_hi']);
+                    $this->SendDebug(__FUNCTION__, 'temp_hi=' . $temp_hi, 0);
                     $this->SetValue('Forecast' . $i . 'TempMax', $temp_hi);
 
-                    $temp_lo = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['temp_lo']);
+                    $temp_lo = preg_replace('/^([0-9\.,-]*).*$/', '$1', $_forcecast['temp_lo']);
+                    $this->SendDebug(__FUNCTION__, 'temp_lo=' . $temp_lo, 0);
                     $this->SetValue('Forecast' . $i . 'TempMin', $temp_lo);
 
                     $humidity = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['humidity']);
-                    $this->SetValue('Forecast' . $i . 'WindSpeed', $humidity);
+                    $this->SendDebug(__FUNCTION__, 'humidity=' . $humidity, 0);
+                    $this->SetValue('Forecast' . $i . 'Humidity', $humidity);
 
                     $wind = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['wind']);
-                    $this->SetValue('Forecast' . $i . 'Humidity', $wind);
+                    $this->SendDebug(__FUNCTION__, 'wind=' . $wind, 0);
+                    $this->SetValue('Forecast' . $i . 'WindSpeed', $wind);
 
                     $pop = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['pop']);
+                    $this->SendDebug(__FUNCTION__, 'pop=' . $pop, 0);
                     $this->SetValue('Forecast' . $i . 'ProbabilityOfRain', $pop);
 
                     $conditions = $_forcecast['conditions'];
+                    $this->SendDebug(__FUNCTION__, 'conditions=' . $conditions, 0);
                     $this->SetValue('Forecast' . $i . 'Conditions', $conditions);
 
                     if ($n++ == 3) {
