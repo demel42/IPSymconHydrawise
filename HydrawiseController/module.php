@@ -297,7 +297,7 @@ class HydrawiseController extends IPSModule
 
         $items = [];
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basis configuration (don\'t change)'];
+        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basic configuration (don\'t change)'];
 
         $items = [];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_last_contact', 'caption' => 'last contact to Hydrawise'];

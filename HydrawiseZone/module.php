@@ -184,7 +184,7 @@ class HydrawiseZone extends IPSModule
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'relay_id', 'caption' => 'Zone-ID'];
         $items[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'Connector', 'options' => $opts_connector];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basis configuration (don\'t change)'];
+        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basic configuration (don\'t change)'];
 
         $items = [];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];

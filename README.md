@@ -261,10 +261,11 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.20 @ 31.12.2019 12:10
+- 1.20 @ 01.01.2020 15:47
   - Fix bei Vorhersage
     - keine Erkennung, wieviel Tage gewünscht sind (ganz oder gar nicht)
 	- fehlerhafte Verarbeitung der Daten
+  - Schreibfehler korrigiert
 
 - 1.19 @ 30.12.2019 10:56
   - Anpassungen an IPS 5.3

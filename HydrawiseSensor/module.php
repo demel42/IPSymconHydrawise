@@ -123,7 +123,7 @@ class HydrawiseSensor extends IPSModule
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
         $items[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
         $items[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basis configuration (don\'t change)'];
+        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basic configuration (don\'t change)'];
 
         if ($model == SENSOR_FLOW_METER) {
             $items = [];
