@@ -139,6 +139,18 @@ class HydrawiseController extends IPSModule
         $info = 'Controller (#' . $controller_id . ')';
         $this->SetSummary($info);
 
+        $refs = $this->GetReferenceList();
+        foreach ($refs as $ref) {
+            $this->UnregisterReference($ref);
+        }
+        $propertyNames = ['ImportCategoryID', 'statusbox_script', 'webhook_script'];
+        foreach ($propertyNames as $name) {
+            $oid = $this->ReadPropertyInteger($name);
+            if ($oid > 0) {
+                $this->RegisterReference($oid);
+            }
+        }
+
         $dataFilter = '.*controller_id[^:]*:["]*' . $controller_id . '.*';
         $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
         $this->SetReceiveDataFilter($dataFilter);
