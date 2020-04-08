@@ -82,9 +82,9 @@ class HydrawiseController extends IPSModule
         $controller_id = $this->ReadPropertyString('controller_id');
         $with_last_contact = $this->ReadPropertyBoolean('with_last_contact');
         $with_last_message = $this->ReadPropertyBoolean('with_last_message');
-        $with_info = $this->ReadPropertyBoolean('with_info');
-        $with_observations = $this->ReadPropertyBoolean('with_observations');
-        $num_forecast = $this->ReadPropertyInteger('num_forecast');
+        $with_info = false; // $this->ReadPropertyBoolean('with_info');
+        $with_observations = false; // $this->ReadPropertyBoolean('with_observations');
+        $num_forecast = 0; // $this->ReadPropertyInteger('num_forecast');
         $with_status_box = $this->ReadPropertyBoolean('with_status_box');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
 
@@ -151,7 +151,8 @@ class HydrawiseController extends IPSModule
             }
         }
 
-        $dataFilter = '.*controller_id[^:]*:["]*' . $controller_id . '.*';
+        $dataFilter = '.*"controller_id":"' . $controller_id . '".*';
+        $dataFilter = '.*' . $controller_id . '.*';
         $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
         $this->SetReceiveDataFilter($dataFilter);
 
@@ -172,6 +173,7 @@ class HydrawiseController extends IPSModule
         $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'ControllerDetails', 'controller_id' => $controller_id];
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
         $data = $this->SendDataToParent(json_encode($data));
+        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
         $controller = json_decode($data, true);
         $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
 
@@ -187,7 +189,7 @@ class HydrawiseController extends IPSModule
 
                 foreach ($sensors as $sensor) {
                     $connector = $sensor['input'] + 1;
-                    $sensor_name = $sensor['name'];
+					$sensor_name = $this->GetArrayElem($sensor, 'name', '#' . $connector);
                     $type = $sensor['type'];
                     $mode = $sensor['mode'];
 
@@ -286,7 +288,7 @@ class HydrawiseController extends IPSModule
 
                     $config_list[] = $entry;
 
-                    $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
+                    // $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
                 }
             }
         }
@@ -314,9 +316,9 @@ class HydrawiseController extends IPSModule
         $items = [];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_last_contact', 'caption' => 'last contact to Hydrawise'];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_last_message', 'caption' => 'last message'];
-        $items[] = ['type' => 'CheckBox', 'name' => 'with_info', 'caption' => 'info'];
-        $items[] = ['type' => 'CheckBox', 'name' => 'with_observations', 'caption' => 'observations'];
-        $items[] = ['type' => 'Select', 'name' => 'num_forecast', 'caption' => 'forecast', 'options' => $opts_forecast];
+        // $items[] = ['type' => 'CheckBox', 'name' => 'with_info', 'caption' => 'info'];
+        // $items[] = ['type' => 'CheckBox', 'name' => 'with_observations', 'caption' => 'observations'];
+        // $items[] = ['type' => 'Select', 'name' => 'num_forecast', 'caption' => 'forecast', 'options' => $opts_forecast];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_status_box', 'caption' => 'html-box with state of irrigation'];
         $items[] = ['type' => 'SelectScript', 'name' => 'statusbox_script', 'caption' => 'alternate script to use for the "StatusBox"'];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
@@ -438,9 +440,9 @@ class HydrawiseController extends IPSModule
         $with_last_contact = $this->ReadPropertyBoolean('with_last_contact');
         $with_last_message = $this->ReadPropertyBoolean('with_last_message');
         $minutes2fail = $this->ReadPropertyInteger('minutes2fail');
-        $with_info = $this->ReadPropertyBoolean('with_info');
-        $with_observations = $this->ReadPropertyBoolean('with_observations');
-        $num_forecast = $this->ReadPropertyInteger('num_forecast');
+        $with_info = false; // $this->ReadPropertyBoolean('with_info');
+        $with_observations = false; // $this->ReadPropertyBoolean('with_observations');
+        $num_forecast = 0; $this->ReadPropertyInteger('num_forecast');
         $with_status_box = $this->ReadPropertyBoolean('with_status_box');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
 
@@ -448,8 +450,10 @@ class HydrawiseController extends IPSModule
         $statuscode = 0;
         $do_abort = false;
 
+		$this->SendDebug(__FUNCTION__, 'buf=' . $buf, 0);
         if ($buf != '') {
             $controller = json_decode($buf, true);
+			$this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
             if ($controller_id != $controller['controller_id']) {
                 $err = "controller_id \"$controller_id\" not found";
                 $statuscode = IS_CONTROLLER_MISSING;
@@ -484,18 +488,17 @@ class HydrawiseController extends IPSModule
 
         $controller_status = true;
         $status = $controller['status'];
-        if ($status != 'All good!') {
+        if ($status != 'All good!' && $status != 'Alles in Ordnung!') {
             $controller_status = false;
         }
 
         $controller_name = $controller['name'];
 
-        $last_contact = $controller['last_contact'];
-        $last_contact_ts = strtotime($last_contact);
+        $last_contact_ts = $controller['last_contact'];
 
         $message = $controller['message'];
 
-        $msg = "controller \"$controller_name\": last_contact=$last_contact";
+        $msg = "controller \"$controller_name\": last_contact=$last_contact_ts";
         $this->SendDebug(__FUNCTION__, utf8_decode($msg), 0);
 
         if ($with_last_contact) {
@@ -609,6 +612,8 @@ class HydrawiseController extends IPSModule
             }
         }
 
+		$this->SendDebug(__FUNCTION__, 'relay2name=' . print_r($relay2name, true), 0);
+
         // Status der Zonen (relays)
         $running_zones = [];
         $today_zones = [];
@@ -648,10 +653,10 @@ class HydrawiseController extends IPSModule
                     $duration = $this->seconds2duration($run_seconds);
                 }
 
-                $nicetime = $relay['nicetime'];
+                $timestr = $relay['timestr'];
                 $ts = 0;
                 $is_today = false;
-                $tm = date_create_from_format('D, j* F g:ia', $nicetime);
+                $tm = date_create_from_format('D, j* F g:ia', $timestr);
                 if ($tm) {
                     $ts = (int) $tm->format('U');
                     if ($tm->format('d.m.Y') == date('d.m.Y', $now)) {
@@ -673,7 +678,7 @@ class HydrawiseController extends IPSModule
                     $today_zones[] = $today_zone;
                 } elseif ($ts) {
                     // was kommt in den nächsten Tagen
-                    if ($nicetime == 'Not scheduled') {
+                    if ($timestr == 'Not scheduled') {
                         continue;
                     }
                     $future_zone = [
@@ -685,15 +690,29 @@ class HydrawiseController extends IPSModule
                 }
             }
 
+			$instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
+            foreach ($relays as $relay) {
+                $relay_id = $relay['relay_id'];
+                foreach ($instIDs as $instID) {
+                    $cfg = IPS_GetConfiguration($instID);
+                    $jcfg = json_decode($cfg, true);
+                    if ($jcfg['relay_id'] == $relay_id) {
+                        $varID = @IPS_GetObjectIDByIdent('LastRun', $instID);
+                        if ($varID) {
+                            $lastrun = GetValue($varID);
+                        }
+					}
+				}
+			}
+
             // was war heute?
             usort($relays, ['HydrawiseController', 'cmp_relays_lastrun']);
             foreach ($relays as $relay) {
                 $relay_id = $relay['relay_id'];
                 $name = $relay['name'];
-                $lastwater = $relay['lastwater'];
+                $lastrun = $relay['lastrun'];
 
                 $is_today = false;
-                $ts = strtotime($lastwater);
                 if ($ts) {
                     if (date('d.m.Y', $ts) == date('d.m.Y', $now)) {
                         $is_today = true;
@@ -707,7 +726,6 @@ class HydrawiseController extends IPSModule
                 $duration = '';
                 $daily_duration = '';
                 $daily_waterusage = '';
-                $instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
                 foreach ($instIDs as $instID) {
                     $cfg = IPS_GetConfiguration($instID);
                     $jcfg = json_decode($cfg, true);
@@ -1249,14 +1267,14 @@ class HydrawiseController extends IPSModule
     // Format des Zeitstempels: "Tue, 30th May 11:00am"
     private function cmp_relays_nextrun($a, $b)
     {
-        $tm = date_create_from_format('D, j* F g:ia', $a['nicetime']);
+        $tm = date_create_from_format('D, j* F g:ia', $a['timestr']);
         if ($tm) {
             $a_nextrun = (int) $tm->format('U');
         } else {
             $a_nextrun = 0;
         }
 
-        $tm = date_create_from_format('D, j* F g:ia', $b['nicetime']);
+        $tm = date_create_from_format('D, j* F g:ia', $b['timestr']);
         if ($tm) {
             $b_nextrun = (int) $tm->format('U');
         } else {
@@ -1280,8 +1298,8 @@ class HydrawiseController extends IPSModule
     // Format des Zeitstempels: "6 hours 22 minutes ago"
     private function cmp_relays_lastrun($a, $b)
     {
-        $a_lastrun = strtotime($a['lastwater']);
-        $b_lastrun = strtotime($b['lastwater']);
+        $a_lastrun = $a['lastrun'];
+        $b_lastrun = $b['lastrun'];
 
         if ($a_lastrun != $b_lastrun) {
             return ($a_lastrun < $b_lastrun) ? -1 : 1;

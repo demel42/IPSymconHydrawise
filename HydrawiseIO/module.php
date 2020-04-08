@@ -201,8 +201,33 @@ class HydrawiseIO extends IPSModule
             return false;
         }
 
+		$last_contact = '';
+		$status = '';
+		$name = '';
+		$data = $this->GetCustomerDetails();
+        if ($data != '') {
+			$jdata = json_decode($data, true);
+			$controllers = $this->GetArrayElem($jdata, 'controllers', '');
+            if ($controllers != '') {
+				foreach ($controllers as $controller) {
+                    if ($controller_id == $controller['controller_id']) {
+						$name = $controller['name'];
+						$last_contact = $controller['last_contact'];
+						$status = $controller['status'];
+						break;
+					}
+				}
+			}
+		}
+
         $data = $this->GetControllerDetails($controller_id);
         if ($data != '') {
+			$jdata = json_decode($data, true);
+			$jdata['controller_id'] = $controller_id;
+			$jdata['name'] = $name;
+			$jdata['last_contact'] = $last_contact;
+			$jdata['status'] = $status;
+			$data = json_encode($jdata);
             $this->SendData(['Buffer' => $data]);
             $this->SetStatus(IS_ACTIVE);
             $status = true;
