@@ -189,7 +189,7 @@ class HydrawiseController extends IPSModule
 
                 foreach ($sensors as $sensor) {
                     $connector = $sensor['input'] + 1;
-					$sensor_name = $this->GetArrayElem($sensor, 'name', '#' . $connector);
+                    $sensor_name = $this->GetArrayElem($sensor, 'name', '#' . $connector);
                     $type = $sensor['type'];
                     $mode = $sensor['mode'];
 
@@ -442,7 +442,8 @@ class HydrawiseController extends IPSModule
         $minutes2fail = $this->ReadPropertyInteger('minutes2fail');
         $with_info = false; // $this->ReadPropertyBoolean('with_info');
         $with_observations = false; // $this->ReadPropertyBoolean('with_observations');
-        $num_forecast = 0; $this->ReadPropertyInteger('num_forecast');
+        $num_forecast = 0;
+        $this->ReadPropertyInteger('num_forecast');
         $with_status_box = $this->ReadPropertyBoolean('with_status_box');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
 
@@ -450,10 +451,10 @@ class HydrawiseController extends IPSModule
         $statuscode = 0;
         $do_abort = false;
 
-		$this->SendDebug(__FUNCTION__, 'buf=' . $buf, 0);
+        $this->SendDebug(__FUNCTION__, 'buf=' . $buf, 0);
         if ($buf != '') {
             $controller = json_decode($buf, true);
-			$this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
+            $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
             if ($controller_id != $controller['controller_id']) {
                 $err = "controller_id \"$controller_id\" not found";
                 $statuscode = self::IS_CONTROLLER_MISSING;
@@ -493,6 +494,8 @@ class HydrawiseController extends IPSModule
         }
 
         $controller_name = $controller['name'];
+
+        $server_time = $controller['time'];
 
         $last_contact_ts = $controller['last_contact'];
 
@@ -603,16 +606,49 @@ class HydrawiseController extends IPSModule
             }
         }
 
+        $relays = $controller['relays'];
+        if (count($relays) > 0) {
+            $instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
+            $_relays = $relays;
+            $relays = [];
+            foreach ($_relays as $relay) {
+                $relay_id = $relay['relay_id'];
+
+                foreach ($instIDs as $instID) {
+                    $cfg = IPS_GetConfiguration($instID);
+                    $jcfg = json_decode($cfg, true);
+                    if ($jcfg['relay_id'] == $relay_id) {
+                        $varID = @IPS_GetObjectIDByIdent('LastRun', $instID);
+                        if ($varID) {
+                            $relay['lastrun'] = GetValue($varID);
+                        }
+                        $relay['name'] = IPS_GetName($instID);
+                        break;
+                    }
+                }
+
+                $time = $relay['time'];
+                $type = $relay['type'];
+                if ($type == RELAY_TYPE_PROGRAMMED) {
+                    $nextrun = $server_time + $time;
+                } else {
+                    $nextrun = 0;
+                }
+                $relay['nextrun'] = $nextrun;
+
+                $relays[] = $relay;
+            }
+        }
+
         // Namen der Zonen/Ventile (relay) merken
         $relay2name = [];
-        $relays = $controller['relays'];
         if (count($relays) > 0) {
             foreach ($relays as $relay) {
                 $relay2name[$relay['relay_id']] = $relay['name'];
             }
         }
 
-		$this->SendDebug(__FUNCTION__, 'relay2name=' . print_r($relay2name, true), 0);
+        $this->SendDebug(__FUNCTION__, 'relay2name=' . print_r($relay2name, true), 0);
 
         // Status der Zonen (relays)
         $running_zones = [];
@@ -654,14 +690,10 @@ class HydrawiseController extends IPSModule
                 }
 
                 $timestr = $relay['timestr'];
-                $ts = 0;
+                $nextrun = $relay['nextrun'];
                 $is_today = false;
-                $tm = date_create_from_format('D, j* F g:ia', $timestr);
-                if ($tm) {
-                    $ts = (int) $tm->format('U');
-                    if ($tm->format('d.m.Y') == date('d.m.Y', $now)) {
-                        $is_today = true;
-                    }
+                if (date('d.m.Y', $nextrun) == date('d.m.Y', $now)) {
+                    $is_today = true;
                 }
 
                 if ($is_today) {
@@ -672,38 +704,23 @@ class HydrawiseController extends IPSModule
                     // was kommt heute noch?
                     $today_zone = [
                         'name'      => $name,
-                        'timestamp' => $ts,
+                        'timestamp' => $nextrun,
                         'duration'  => $duration
                     ];
                     $today_zones[] = $today_zone;
-                } elseif ($ts) {
+                } elseif ($nextrun) {
                     // was kommt in den nächsten Tagen
-                    if ($timestr == 'Not scheduled') {
+                    if ($timestr == '') {
                         continue;
                     }
                     $future_zone = [
                         'name'      => $name,
-                        'timestamp' => $ts,
+                        'timestamp' => $nextrun,
                         'duration'  => $duration
                     ];
                     $future_zones[] = $future_zone;
                 }
             }
-
-			$instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
-            foreach ($relays as $relay) {
-                $relay_id = $relay['relay_id'];
-                foreach ($instIDs as $instID) {
-                    $cfg = IPS_GetConfiguration($instID);
-                    $jcfg = json_decode($cfg, true);
-                    if ($jcfg['relay_id'] == $relay_id) {
-                        $varID = @IPS_GetObjectIDByIdent('LastRun', $instID);
-                        if ($varID) {
-                            $lastrun = GetValue($varID);
-                        }
-					}
-				}
-			}
 
             // was war heute?
             usort($relays, ['HydrawiseController', 'cmp_relays_lastrun']);
@@ -713,12 +730,9 @@ class HydrawiseController extends IPSModule
                 $lastrun = $relay['lastrun'];
 
                 $is_today = false;
-                if ($ts) {
-                    if (date('d.m.Y', $ts) == date('d.m.Y', $now)) {
-                        $is_today = true;
-                    }
+                if (date('d.m.Y', $lastrun) == date('d.m.Y', $now)) {
+                    $is_today = true;
                 }
-
                 if (!$is_today) {
                     continue;
                 }
@@ -772,6 +786,8 @@ class HydrawiseController extends IPSModule
             'done_zones'        => $done_zones,
             'future_zones'      => $future_zones,
         ];
+
+        $this->SendDebug(__FUNCTION__, 'controller_data=' . print_r($controller_data, true), 0);
 
         $this->SetBuffer('Data', json_encode($controller_data));
 
@@ -1267,19 +1283,8 @@ class HydrawiseController extends IPSModule
     // Format des Zeitstempels: "Tue, 30th May 11:00am"
     private function cmp_relays_nextrun($a, $b)
     {
-        $tm = date_create_from_format('D, j* F g:ia', $a['timestr']);
-        if ($tm) {
-            $a_nextrun = (int) $tm->format('U');
-        } else {
-            $a_nextrun = 0;
-        }
-
-        $tm = date_create_from_format('D, j* F g:ia', $b['timestr']);
-        if ($tm) {
-            $b_nextrun = (int) $tm->format('U');
-        } else {
-            $b_nextrun = 0;
-        }
+        $a_nextrun = $a['nextrun'];
+        $b_nextrun = $b['nextrun'];
 
         if ($a_nextrun != $b_nextrun) {
             return ($a_nextrun < $b_nextrun) ? -1 : 1;

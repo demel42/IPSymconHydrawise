@@ -11,19 +11,25 @@ if (!defined('SENSOR_NORMALLY_CLOSE_START')) {
     define('SENSOR_FLOW_METER', 30);
 }
 
+if (!defined('RELAY_TYPE_PROGRAMMED')) {
+    define('RELAY_TYPE_PROGRAMMED', 1);
+    define('RELAY_TYPE_RUNNING', 106);
+    define('RELAY_TYPE_SUSPENDED', 110);
+}
+
 trait HydrawiseCommon
 {
-    static $IS_INVALIDCONFIG = IS_EBASE;
-    static $IS_UNAUTHORIZED = IS_EBASE;
-    static $IS_SERVERERROR = IS_EBASE;
-    static $IS_HTTPERROR = IS_EBASE;
-    static $IS_INVALIDDATA = IS_EBASE;
-    static $IS_NODATA = IS_EBASE;
-    static $IS_NOCONROLLER = IS_EBASE;
-    static $IS_CONTROLLER_MISSING = IS_EBASE;
-    static $IS_ZONE_MISSING = IS_EBASE;
-    static $IS_USEDWEBHOOK = IS_EBASE;
-    static $IS_TOOMANYREQUESTS = IS_EBASE;
+    public static $IS_INVALIDCONFIG = IS_EBASE;
+    public static $IS_UNAUTHORIZED = IS_EBASE;
+    public static $IS_SERVERERROR = IS_EBASE;
+    public static $IS_HTTPERROR = IS_EBASE;
+    public static $IS_INVALIDDATA = IS_EBASE;
+    public static $IS_NODATA = IS_EBASE;
+    public static $IS_NOCONROLLER = IS_EBASE;
+    public static $IS_CONTROLLER_MISSING = IS_EBASE;
+    public static $IS_ZONE_MISSING = IS_EBASE;
+    public static $IS_USEDWEBHOOK = IS_EBASE;
+    public static $IS_TOOMANYREQUESTS = IS_EBASE;
 
     protected function SetValue($Ident, $Value)
     {
