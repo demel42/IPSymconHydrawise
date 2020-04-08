@@ -59,7 +59,7 @@ class HydrawiseController extends IPSModule
             $hook = $this->ReadPropertyString('hook');
             if ($hook != '') {
                 if ($this->HookIsUsed($hook)) {
-                    $this->SetStatus(IS_USEDWEBHOOK);
+                    $this->SetStatus(self::IS_USEDWEBHOOK);
                     return;
                 }
                 $this->RegisterHook($hook);
@@ -128,7 +128,7 @@ class HydrawiseController extends IPSModule
             $hook = $this->ReadPropertyString('hook');
             if ($hook != '') {
                 if ($this->HookIsUsed($hook)) {
-                    $this->SetStatus(IS_USEDWEBHOOK);
+                    $this->SetStatus(self::IS_USEDWEBHOOK);
                     return;
                 }
                 $this->RegisterHook($hook);
@@ -456,12 +456,12 @@ class HydrawiseController extends IPSModule
 			$this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
             if ($controller_id != $controller['controller_id']) {
                 $err = "controller_id \"$controller_id\" not found";
-                $statuscode = IS_CONTROLLER_MISSING;
+                $statuscode = self::IS_CONTROLLER_MISSING;
                 $do_abort = true;
             }
         } else {
             $err = 'no data';
-            $statuscode = IS_NODATA;
+            $statuscode = self::IS_NODATA;
             $do_abort = true;
         }
 

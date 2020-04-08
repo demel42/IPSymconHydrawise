@@ -197,12 +197,12 @@ class HydrawiseSensor extends IPSModule
             $id = $this->GetArrayElem($controller, 'controller_id', '');
             if ($controller_id != $id) {
                 $err = 'controller_id "' . $controller_id . '" not found';
-                $statuscode = IS_CONTROLLER_MISSING;
+                $statuscode = self::IS_CONTROLLER_MISSING;
                 $do_abort = true;
             }
         } else {
             $err = 'no data';
-            $statuscode = IS_NODATA;
+            $statuscode = self::IS_NODATA;
             $do_abort = true;
         }
 
