@@ -263,12 +263,13 @@ GUIDs
 - 1.21 @ 10.04.2020 17:10
   - Abnpassuneg an die neuen API-Version 1.4<br>
     die API liefert keine Information mehr über:
-	- Angabe über Wasserverbrauch
-	- Angagen über die letzte Bewässerung (Zeitpunkt und Dauer), wird nun selbst ermittelt
-	- Angabe über den Endzeitpunkt der Suspendierung einer Zone
+	- über den Wasserverbrauch eines Bewässerungszklus
+	- die letzte Bewässerung (Zeitpunkt und Dauer), wird nun selbst ermittelt
+	- den Endzeitpunkt der Suspendierung einer Zone
 	- Suspendierung einer Zone mit einer Dauer kürzer als (vermutlich) einer Woche wird nicht als Suspendierung gemeldet
-	- wöchentliche Bewässerungszeit und Wassereinsparung
-	- aktuelles Wetter und Vorhersage
+	- die wöchentliche Bewässerungszeit und Wassereinsparung
+	- das aktuelles Wetter und Vorhersage
+
 - 1.20 @ 01.01.2020 15:47
   - Fix bei Vorhersage
     - keine Erkennung, wieviel Tage gewünscht sind (ganz oder gar nicht)
