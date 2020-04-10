@@ -261,7 +261,7 @@ GUIDs
 ## 7. Versions-Historie
 
 - 1.21 @ 10.04.2020 17:10
-  - Abnpassuneg an die neuen API-Version 1.4<br>
+  - Anpassung an die neue API-Version 1.4<br>
     die API liefert keine Information mehr über:
 	- über den Wasserverbrauch eines Bewässerungszklus
 	- die letzte Bewässerung (Zeitpunkt und Dauer), wird nun selbst ermittelt
