@@ -10,6 +10,8 @@ class HydrawiseSensor extends IPSModule
     use HydrawiseCommon;
     use HydrawiseLibrary;
 
+    public static $support_waterusage = false;
+
     public function Create()
     {
         parent::Create();
@@ -38,8 +40,8 @@ class HydrawiseSensor extends IPSModule
         $controller_id = $this->ReadPropertyString('controller_id');
         $connector = $this->ReadPropertyInteger('connector');
         $model = $this->ReadPropertyInteger('model');
-        $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
-        $with_flowrate = $this->ReadPropertyBoolean('with_flowrate');
+        $with_daily_value = self::$support_waterusage ? $this->ReadPropertyBoolean('with_daily_value') : false;
+        $with_flowrate = self::$support_waterusage ? $this->ReadPropertyBoolean('with_flowrate') : false;
 
         $vpos = 1;
 
@@ -47,7 +49,7 @@ class HydrawiseSensor extends IPSModule
             case SENSOR_FLOW_METER:
                 $this->MaintainVariable('WaterFlowrate', $this->Translate('Water flow rate (current)'), VARIABLETYPE_FLOAT, 'Hydrawise.WaterFlowrate', $vpos++, $with_flowrate);
                 $this->MaintainVariable('DailyFlow', $this->Translate('Water usage (day)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
-                $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
+                $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, self::$support_waterusage);
                 break;
             case SENSOR_NORMALLY_CLOSE_START:
             case SENSOR_NORMALLY_OPEN_STOP:
@@ -65,16 +67,16 @@ class HydrawiseSensor extends IPSModule
                 $mode_txt = 'flow meter';
                 break;
             case SENSOR_NORMALLY_CLOSE_START:
-                $mode_txt = 'normally close, action start';
+                $mode_txt = 'normally close, start zone';
                 break;
             case SENSOR_NORMALLY_OPEN_STOP:
-                $mode_txt = 'normally open, action stop';
+                $mode_txt = 'normally open, stop zone';
                 break;
             case SENSOR_NORMALLY_CLOSE_STOP:
-                $mode_txt = 'normally close, action stop';
+                $mode_txt = 'normally close, stop zone';
                 break;
             case SENSOR_NORMALLY_OPEN_START:
-                $mode_txt = 'normally open, action start';
+                $mode_txt = 'normally open, start zone';
                 break;
             default:
                 $mode_txt = 'unsupported';
@@ -84,7 +86,7 @@ class HydrawiseSensor extends IPSModule
         $info = 'Sensor ' . $connector . ' (' . $mode_txt . ')';
         $this->SetSummary($info);
 
-        $dataFilter = '.*controller_id[^:]*:["]*' . $controller_id . '.*';
+        $dataFilter = '.*' . $controller_id . '.*';
         $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
         $this->SetReceiveDataFilter($dataFilter);
 
@@ -126,10 +128,12 @@ class HydrawiseSensor extends IPSModule
         $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basic configuration (don\'t change)'];
 
         if ($model == SENSOR_FLOW_METER) {
-            $items = [];
-            $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
-            $items[] = ['type' => 'CheckBox', 'name' => 'with_flowrate', 'caption' => 'flowrate'];
-            $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional sensor data'];
+            if (self::$support_waterusage) {
+                $items = [];
+                $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
+                $items[] = ['type' => 'CheckBox', 'name' => 'with_flowrate', 'caption' => 'flowrate'];
+                $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional sensor data'];
+            }
         }
 
         return $formElements;
@@ -225,6 +229,9 @@ class HydrawiseSensor extends IPSModule
                 $this->SendDebug(__FUNCTION__, 'sensor=' . print_r($sensor, true), 0);
                 switch ($model) {
                     case SENSOR_FLOW_METER:
+                        if (!self::$support_waterusage) {
+                            break;
+                        }
                         if (isset($sensor['flow']['week'])) {
                             $flow = preg_replace('/^([0-9\.,]*).*$/', '$1', $sensor['flow']['week']);
                             $this->SetValue('Flow', $flow);
@@ -293,7 +300,7 @@ class HydrawiseSensor extends IPSModule
 
     protected function ClearDailyValue()
     {
-        $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
+        $with_daily_value = self::$support_waterusage ? $this->ReadPropertyBoolean('with_daily_value') : false;
 
         $this->SendDebug(__FUNCTION__, '', 0);
 

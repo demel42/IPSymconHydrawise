@@ -14,10 +14,10 @@
 
 			"Sensor": "Sensor",
 			"unknown": "unbekannt",
-			"normally close, action start": "Ruhezustand geschlossen, Aktion Start",
-			"normally open, action stop": "Ruhezustand offen, Aktion Stop",
-			"normally close, action stop": "Ruhezustand geschlossen, Aktion Stop",
-			"normally open, action start": "Ruhezustand offen, Aktion Start",
+			"normally close, start zone": "Ruhezustand geschlossen, Zone starten",
+			"normally open, stop zone": "Ruhezustand offen, Zone stoppen",
+			"normally close, stop zone": "Ruhezustand geschlossen, Zone stoppen",
+			"normally open, start zone": "Ruhezustand offen, Zone starten",
 			"flow meter": "Durchflussmesser",
 
 			"Module description": "Modulbeschreibung",

@@ -9,7 +9,18 @@ require_once __DIR__ . '/../libs/library.php';  // modul-bezogene Funktionen
 if (!defined('ZONE_ACTION_STOP')) {
     define('ZONE_ACTION_STOP', -1);
     define('ZONE_ACTION_DEFAULT', 0);
+    define('ZONE_ACTION_1MIN', 1);
+    define('ZONE_ACTION_2MIN', 2);
+    define('ZONE_ACTION_5MIN', 5);
+    define('ZONE_ACTION_10MIN', 10);
+    define('ZONE_ACTION_15MIN', 15);
+    define('ZONE_ACTION_20MIN', 20);
+}
+if (!defined('ZONE_SUSPEND_CLEAR')) {
     define('ZONE_SUSPEND_CLEAR', -1);
+    define('ZONE_SUSPEND_1DAY', 1);
+    define('ZONE_SUSPEND_2DAY', 2);
+    define('ZONE_SUSPEND_7DAY', 7);
 }
 
 // aktuelle Aktivität
@@ -42,6 +53,8 @@ class HydrawiseZone extends IPSModule
     use HydrawiseCommon;
     use HydrawiseLibrary;
 
+    public static $support_waterusage = false;
+
     public function Create()
     {
         parent::Create();
@@ -58,19 +71,19 @@ class HydrawiseZone extends IPSModule
         $associations = [];
         $associations[] = ['Wert' => ZONE_ACTION_STOP, 'Name' => $this->Translate('Stop'), 'Farbe' => 0xEE0000];
         $associations[] = ['Wert' => ZONE_ACTION_DEFAULT, 'Name' => $this->Translate('Default'), 'Farbe' => 0x32CD32];
-        $associations[] = ['Wert' =>  1, 'Name' => $this->Translate('1 min'), 'Farbe' => -1];
-        $associations[] = ['Wert' =>  2, 'Name' => $this->Translate('2 min'), 'Farbe' => -1];
-        $associations[] = ['Wert' =>  5, 'Name' => $this->Translate('5 min'), 'Farbe' => -1];
-        $associations[] = ['Wert' => 10, 'Name' => $this->Translate('10 min'), 'Farbe' => -1];
-        $associations[] = ['Wert' => 15, 'Name' => $this->Translate('15 min'), 'Farbe' => -1];
-        $associations[] = ['Wert' => 20, 'Name' => $this->Translate('20 min'), 'Farbe' => -1];
+        $associations[] = ['Wert' => ZONE_ACTION_1MIN, 'Name' => $this->Translate('1 min'), 'Farbe' => -1];
+        $associations[] = ['Wert' => ZONE_ACTION_2MIN, 'Name' => $this->Translate('2 min'), 'Farbe' => -1];
+        $associations[] = ['Wert' => ZONE_ACTION_5MIN, 'Name' => $this->Translate('5 min'), 'Farbe' => -1];
+        $associations[] = ['Wert' => ZONE_ACTION_10MIN, 'Name' => $this->Translate('10 min'), 'Farbe' => -1];
+        $associations[] = ['Wert' => ZONE_ACTION_15MIN, 'Name' => $this->Translate('15 min'), 'Farbe' => -1];
+        $associations[] = ['Wert' => ZONE_ACTION_20MIN, 'Name' => $this->Translate('20 min'), 'Farbe' => -1];
         $this->CreateVarProfile('Hydrawise.ZoneAction', VARIABLETYPE_INTEGER, '', 0, 0, 0, 1, '', $associations);
 
         $associations = [];
         $associations[] = ['Wert' => ZONE_SUSPEND_CLEAR, 'Name' => $this->Translate('Clear'), 'Farbe' => 0xEE0000];
-        $associations[] = ['Wert' => 1, 'Name' => $this->Translate('1 day'), 'Farbe' => -1];
-        $associations[] = ['Wert' => 2, 'Name' => $this->Translate('2 days'), 'Farbe' => -1];
-        $associations[] = ['Wert' => 7, 'Name' => $this->Translate('1 week'), 'Farbe' => -1];
+        $associations[] = ['Wert' => ZONE_SUSPEND_1DAY, 'Name' => $this->Translate('1 day'), 'Farbe' => -1];
+        $associations[] = ['Wert' => ZONE_SUSPEND_2DAY, 'Name' => $this->Translate('2 days'), 'Farbe' => -1];
+        $associations[] = ['Wert' => ZONE_SUSPEND_7DAY, 'Name' => $this->Translate('1 week'), 'Farbe' => -1];
         $this->CreateVarProfile('Hydrawise.ZoneSuspend', VARIABLETYPE_INTEGER, '', 0, 0, 0, 1, '', $associations);
 
         $associations[] = ['Wert' => ZONE_WORKFLOW_SUSPENDED, 'Name' => $this->Translate('suspended'), 'Farbe' => 0xFF5D5D];
@@ -103,7 +116,7 @@ class HydrawiseZone extends IPSModule
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
         $with_workflow = $this->ReadPropertyBoolean('with_workflow');
         $with_status = $this->ReadPropertyBoolean('with_status');
-        $with_flowrate = $this->ReadPropertyInteger('with_flowrate');
+        $with_flowrate = self::$support_waterusage ? $this->ReadPropertyInteger('with_flowrate') : false;
 
         $vpos = 1;
 
@@ -117,8 +130,8 @@ class HydrawiseZone extends IPSModule
 
         // aktueller Bewässerungszyklus
         $this->MaintainVariable('TimeLeft', $this->Translate('Time left'), VARIABLETYPE_STRING, '', $vpos++, true);
-        $this->MaintainVariable('WaterUsage', $this->Translate('Water usage'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, true);
-        $this->MaintainVariable('WaterFlowrate', $this->Translate('Water flow rate'), VARIABLETYPE_FLOAT, 'Hydrawise.WaterFlowrate', $vpos++, $with_flowrate != FLOW_RATE_NONE);
+        $this->MaintainVariable('WaterUsage', $this->Translate('Water usage'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, self::$support_waterusage);
+        $this->MaintainVariable('WaterFlowrate', $this->Translate('Water flow rate'), VARIABLETYPE_FLOAT, 'Hydrawise.WaterFlowrate', $vpos++, self::$support_waterusage && $with_flowrate != FLOW_RATE_NONE);
 
         // Aktionen
         $this->MaintainVariable('ZoneAction', $this->Translate('Zone operation'), VARIABLETYPE_INTEGER, 'Hydrawise.ZoneAction', $vpos++, true);
@@ -131,7 +144,7 @@ class HydrawiseZone extends IPSModule
 
         // Tageswerte
         $this->MaintainVariable('DailyDuration', $this->Translate('Duration of runs (today)'), VARIABLETYPE_INTEGER, 'Hydrawise.Duration', $vpos++, $with_daily_value);
-        $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
+        $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, self::$support_waterusage && $with_daily_value);
 
         $this->MaintainAction('ZoneAction', true);
         $this->MaintainAction('SuspendUntil', true);
@@ -157,7 +170,7 @@ class HydrawiseZone extends IPSModule
             }
         }
 
-        $dataFilter = '.*controller_id[^:]*:["]*' . $controller_id . '.*';
+        $dataFilter = '.*' . $controller_id . '.*';
         $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
         $this->SetReceiveDataFilter($dataFilter);
 
@@ -202,7 +215,9 @@ class HydrawiseZone extends IPSModule
         $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_workflow', 'caption' => 'watering workflow'];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_status', 'caption' => 'watering status'];
-        $items[] = ['type' => 'Select', 'name' => 'with_flowrate', 'caption' => 'flowrate', 'options' => $opts_flowrate];
+        if (self::$support_waterusage) {
+            $items[] = ['type' => 'Select', 'name' => 'with_flowrate', 'caption' => 'flowrate', 'options' => $opts_flowrate];
+        }
         $items[] = ['type' => 'SelectScript', 'name' => 'visibility_script', 'caption' => 'optional script to hide/show variables'];
         $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional zone data'];
 
@@ -261,7 +276,7 @@ class HydrawiseZone extends IPSModule
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
         $with_workflow = $this->ReadPropertyBoolean('with_workflow');
         $with_status = $this->ReadPropertyBoolean('with_status');
-        $with_flowrate = $this->ReadPropertyInteger('with_flowrate');
+        $with_flowrate = self::$support_waterusage ? $this->ReadPropertyInteger('with_flowrate') : false;
         $visibility_script = $this->ReadPropertyInteger('visibility_script');
 
         $err = '';
@@ -310,71 +325,94 @@ class HydrawiseZone extends IPSModule
 
         $this->SendDebug(__FUNCTION__, 'now=' . date('d.m.Y H:i', $now) . ', server_time=' . date('d.m.Y H:i', $server_time), 0);
 
-        $running = isset($controller['running']) ? $controller['running'] : '';
+        $relay['name'] = IPS_GetName($this->InstanceID);
 
-        $lastwater = $relay['lastwater'];
-        $lastrun = strtotime($lastwater);
-        $this->SetValue('LastRun', $lastrun);
+        $time = $relay['time'];
+        $period = $relay['period'];
 
-        $nicetime = $relay['nicetime'];
-        $tm = date_create_from_format('D, j* F g:ia', $nicetime);
-        $nextrun = $tm ? (int) $tm->format('U') : 0;
-        $this->SetValue('NextRun', $nextrun);
-
-        $is_running = false;
+        $nextrun = 0;
+        $run_seconds = 0;
+        $running = false;
         $time_left = 0;
-        $water_usage = 0;
-        if ($running != '') {
-            foreach ($running as $run) {
-                if ($relay_id != $run['relay_id']) {
-                    continue;
-                }
-                $is_running = true;
-                $time_left = $run['time_left'];
-                $water_usage = $this->GetArrayElem($run, 'water_int', 0);
-                $this->SendDebug(__FUNCTION__, 'time_left=' . $time_left . ', water_usage=' . $water_usage, 0);
-            }
+        $suspended = false;
+        $suspended_until = 0;
+
+        $type = $relay['type'];
+        switch ($type) {
+            case RELAY_TYPE_PROGRAMMED:
+                $nextrun = $server_time + $time;
+                $run_seconds = $this->GetArrayElem($relay, 'run', 0);
+                break;
+            case RELAY_TYPE_RUNNING:
+                $running = true;
+                $time_left = $this->GetArrayElem($relay, 'run', 0);
+                break;
+            case RELAY_TYPE_SUSPENDED:
+                $suspended = true;
+                $suspended_until = 0; //$time;
+                break;
+            default:
+                break;
+
         }
 
-        $this->SetValue('ZoneAction', $is_running ? -1 : 0);
+        if ($running) {
+            $this->SetValue('ZoneAction', ZONE_ACTION_STOP);
+        } else {
+            $lastrun = $this->GetValue('LastRun');
+            $this->SetValue('ZoneAction', ZONE_ACTION_DEFAULT);
+        }
 
-        $suspended = isset($relay['suspended']) ? $relay['suspended'] : 0;
-        $is_suspended = $suspended > 0;
-        $this->SetValue('SuspendUntil', $suspended);
+        if (!$running && !$suspended) {
+            $this->SetValue('NextRun', $nextrun);
+            $this->SetValue('NextDuration', ceil($run_seconds / 60));
+        }
 
-        $this->SetValue('SuspendAction', $is_suspended ? -1 : 1);
+        if ($suspended) {
+            $this->SetValue('SuspendUntil', $suspended_until);
+            $this->SetValue('SuspendAction', ZONE_SUSPEND_CLEAR);
+        } else {
+            $this->SetValue('SuspendUntil', 0);
+            $this->SetValue('SuspendAction', ZONE_SUSPEND_1DAY);
+        }
 
-        $run_seconds = isset($relay['run_seconds']) ? $relay['run_seconds'] : 0;
-        // auf ganze Minuten aufrunden, weil Läufe im Minutenraster durchgeführt werden (Ausnahme: manueller Abbruch)
-        $run_seconds = ceil($run_seconds / 60);
-        $this->SetValue('NextDuration', $run_seconds);
-
-        $this->SendDebug(__FUNCTION__, 'lastwater=' . $lastwater . ' => ' . $lastrun . ', nicetime=' . $nicetime . ' => ' . $nextrun . ', suspended=' . $suspended, 0);
-
-        if ($is_running) {
+        if ($running) {
             $buf = $this->GetBuffer('currentRun');
             if ($buf != '') {
                 $current_run = json_decode($buf, true);
-                $last_water_usage = $current_run['water_usage'];
+                if (self::$support_waterusage) {
+                    $last_water_usage = $current_run['water_usage'];
+                }
                 $last_server_time = $current_run['server_time'];
             } else {
-                $last_water_usage = 0;
-                $last_server_time = $lastrun;
+                if (self::$support_waterusage) {
+                    $last_water_usage = 0;
+                }
+                // bis zum Ende des Laufs ist "NextRun" der Zeitpunkt des aktuellen Laufs
+                $last_server_time = $this->GetValue('NextRun');
+                if (abs($last_server_time - $server_time) > 60) {
+                    $last_server_time = $server_time;
+                }
             }
 
-            $time_begin = $lastrun;
+            $time_begin = $last_server_time;
             $time_end = $server_time + $time_left;
 
-            $tot_time_duration = $server_time - $time_begin;
-            $avg_water_flowrate = $tot_time_duration ? floor($water_usage / ($tot_time_duration / 60.0) * 100) / 100 : 0;
-
-            $cur_time_duration = $server_time - $last_server_time;
-            $cur_water_usage = $water_usage - $last_water_usage;
-            $cur_water_flowrate = $cur_time_duration ? floor($cur_water_usage / ($cur_time_duration / 60.0) * 100) / 100 : 0;
-
             $this->SetValue('TimeLeft', $this->seconds2duration($time_left));
-            $this->SetValue('WaterUsage', $water_usage);
-            switch ($with_flowrate) {
+
+            $tot_time_duration = $server_time - $time_begin;
+            $cur_time_duration = $server_time - $last_server_time;
+
+            if (self::$support_waterusage) {
+                $water_usage = 0;
+
+                $avg_water_flowrate = $tot_time_duration ? floor($water_usage / ($tot_time_duration / 60.0) * 100) / 100 : 0;
+
+                $cur_water_usage = $water_usage - $last_water_usage;
+                $cur_water_flowrate = $cur_time_duration ? floor($cur_water_usage / ($cur_time_duration / 60.0) * 100) / 100 : 0;
+
+                $this->SetValue('WaterUsage', $water_usage);
+                switch ($with_flowrate) {
                 case FLOW_RATE_AVERAGE:
                     $this->SetValue('WaterFlowrate', $avg_water_flowrate);
                     break;
@@ -383,24 +421,38 @@ class HydrawiseZone extends IPSModule
                     break;
                 default:
                     break;
+                }
+
+                $current_run = [
+                    'time_begin'    => $time_begin,
+                    'time_end'      => $time_end,
+                    'time_left'     => $time_left,
+                    'water_usage'   => $water_usage,
+                    'server_time'	  => $server_time,
+                ];
+
+                $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
+                $this->SendDebug(__FUNCTION__, ' * avg: time_duration=' . $tot_time_duration . ', water_usage=' . $water_usage . ' => flowrate=' . $avg_water_flowrate, 0);
+                $this->SendDebug(__FUNCTION__, ' * cur: time_duration=' . $cur_time_duration . ', water_usage=' . $cur_water_usage . ' => flowrate=' . $cur_water_flowrate, 0);
+            } else {
+                $current_run = [
+                    'time_begin'    => $time_begin,
+                    'time_end'      => $time_end,
+                    'time_left'     => $time_left,
+                    'server_time'	  => $server_time,
+                ];
+
+                $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', duration=' . $cur_time_duration, 0);
             }
 
-            $current_run = [
-                'time_begin'    => $time_begin,
-                'time_end'      => $time_end,
-                'time_left'     => $time_left,
-                'water_usage'   => $water_usage,
-                'server_time'	  => $server_time,
-            ];
             $this->SetBuffer('currentRun', json_encode($current_run));
-            $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
-            $this->SendDebug(__FUNCTION__, ' * avg: time_duration=' . $tot_time_duration . ', water_usage=' . $water_usage . ' => flowrate=' . $avg_water_flowrate, 0);
-            $this->SendDebug(__FUNCTION__, ' * cur: time_duration=' . $cur_time_duration . ', water_usage=' . $cur_water_usage . ' => flowrate=' . $cur_water_flowrate, 0);
         } else {
             $this->SetValue('TimeLeft', '');
-            $this->SetValue('WaterUsage', 0);
-            if ($with_flowrate != FLOW_RATE_NONE) {
-                $this->SetValue('WaterFlowrate', 0);
+            if (self::$support_waterusage) {
+                $this->SetValue('WaterUsage', 0);
+                if ($with_flowrate != FLOW_RATE_NONE) {
+                    $this->SetValue('WaterFlowrate', 0);
+                }
             }
 
             $buf = $this->GetBuffer('currentRun');
@@ -410,33 +462,45 @@ class HydrawiseZone extends IPSModule
                 $time_begin = $current_run['time_begin'];
                 $time_end = $current_run['time_end'];
                 $time_left = $current_run['time_left'];
-                $water_usage = $current_run['water_usage'];
 
+                // Abbruch eines Laufs
+                if ($time_end > $server_time) {
+                    $time_end = $server_time;
+                }
                 $time_duration = $time_end - $time_begin;
                 // auf ganze Minuten aufrunden, weil Läufe im Minutenraster durchgeführt werden (Ausnahme: manueller Abbruch)
                 $time_duration = ceil($time_duration / 60);
+
                 $time_done = $time_end - $time_begin - $time_left;
 
-                $water_estimated = ceil($water_usage / $time_done * ($time_duration * 60));
+                if (self::$support_waterusage) {
+                    $water_usage = $current_run['water_usage'];
+                    $water_estimated = ceil($water_usage / $time_done * ($time_duration * 60));
 
-                $this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
-                $this->SendDebug(__FUNCTION__, ' * duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
+                    $this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
+                    $this->SendDebug(__FUNCTION__, ' * duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
+                } else {
+                    $this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', duration=' . $time_duration, 0);
+                }
 
                 $this->SetValue('LastDuration', $time_duration);
                 if ($with_daily_value) {
                     $duration = $this->GetValue('DailyDuration') + $time_duration;
                     $this->SetValue('DailyDuration', $duration);
 
-                    $water_usage = $this->GetValue('DailyWaterUsage') + $water_estimated;
-                    $this->SetValue('DailyWaterUsage', $water_usage);
+                    if (self::$support_waterusage) {
+                        $water_usage = $this->GetValue('DailyWaterUsage') + $water_estimated;
+                        $this->SetValue('DailyWaterUsage', $water_usage);
+                    }
                 }
+                $this->SetValue('LastRun', $time_begin);
                 $this->SetBuffer('currentRun', '');
             }
         }
 
         $zone_status = ZONE_STATUS_IDLE;
         $workflow = ZONE_WORKFLOW_MANUAL;
-        if ($is_running) {
+        if ($running) {
             $zone_status = ZONE_STATUS_WATERING;
             $workflow = ZONE_WORKFLOW_WATERING;
         } else {
@@ -454,7 +518,7 @@ class HydrawiseZone extends IPSModule
                 }
             }
         }
-        if ($is_suspended) {
+        if ($suspended) {
             $zone_status = ZONE_STATUS_SUSPENDED;
             $workflow = ZONE_WORKFLOW_SUSPENDED;
         }
@@ -468,7 +532,7 @@ class HydrawiseZone extends IPSModule
         if ($visibility_script > 0) {
             $opts = [
                 'InstanceID'       => $this->InstanceID,
-                'suspended_until'  => $suspended,
+                'suspended_until'  => $suspended_until,
                 'next_duration'    => $run_seconds,
                 'time_left'        => $time_left,
             ];
@@ -487,7 +551,9 @@ class HydrawiseZone extends IPSModule
 
         if ($with_daily_value) {
             $this->SetValue('DailyDuration', 0);
-            $this->SetValue('DailyWaterUsage', 0);
+            if (self::$support_waterusage) {
+                $this->SetValue('DailyWaterUsage', 0);
+            }
         }
     }
 

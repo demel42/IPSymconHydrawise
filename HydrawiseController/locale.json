@@ -31,6 +31,13 @@
 			"category for components to be created": "Kategorie für anzulegende Komponente",
             "category": "Kategorie",
 
+			"Name": "Name",
+			"Ident": "Ident",
+			"Type": "Typ",
+
+			"sensor": "Messfühler",
+			"flow meter": "Durchflussmesser",
+
 			"Communication": "Kommunikation",
 			"Update data every X seconds": "Aktualisiere Daten alle X Sekunden",
 			"Interval": "Intervall",
@@ -40,7 +47,6 @@
 			"Minutes": "Minuten",
 
 			"Update Data": "Aktualisiere Daten",
-			"Module description": "Modulbeschreibung",
 
 			"no": "nein",
 			"today": "heute",
