@@ -288,12 +288,12 @@ class HydrawiseZone extends IPSModule
             $id = $this->GetArrayElem($controller, 'controller_id', '');
             if ($controller_id != $id) {
                 $err = 'controller_id "' . $controller_id . '" not found';
-                $statuscode = self::IS_CONTROLLER_MISSING;
+                $statuscode = self::$IS_CONTROLLER_MISSING;
                 $do_abort = true;
             }
         } else {
             $err = 'no data';
-            $statuscode = self::IS_NODATA;
+            $statuscode = self::$IS_NODATA;
             $do_abort = true;
         }
 
@@ -309,7 +309,7 @@ class HydrawiseZone extends IPSModule
         }
         if ($relay_found == false) {
             $err = 'relay_id "' . $relay_id . '" not found';
-            $statuscode = self::IS_ZONE_MISSING;
+            $statuscode = self::$IS_ZONE_MISSING;
             $do_abort = true;
         }
 
@@ -403,6 +403,9 @@ class HydrawiseZone extends IPSModule
             $tot_time_duration = $server_time - $time_begin;
             $cur_time_duration = $server_time - $last_server_time;
 
+            $begin = date('d.m.Y H:i', $time_begin);
+            $end = date('d.m.Y H:i', $time_end);
+
             if (self::$support_waterusage) {
                 $water_usage = 0;
 
@@ -423,26 +426,21 @@ class HydrawiseZone extends IPSModule
                     break;
                 }
 
-                $current_run = [
-                    'time_begin'    => $time_begin,
-                    'time_end'      => $time_end,
-                    'time_left'     => $time_left,
-                    'water_usage'   => $water_usage,
-                    'server_time'	  => $server_time,
-                ];
-
-                $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
-                $this->SendDebug(__FUNCTION__, ' * avg: time_duration=' . $tot_time_duration . ', water_usage=' . $water_usage . ' => flowrate=' . $avg_water_flowrate, 0);
-                $this->SendDebug(__FUNCTION__, ' * cur: time_duration=' . $cur_time_duration . ', water_usage=' . $cur_water_usage . ' => flowrate=' . $cur_water_flowrate, 0);
+                $this->SendDebug(__FUNCTION__, 'save: begin=' . $begin . ', end=' . $end . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
+                $this->SendDebug(__FUNCTION__, ' * avg: time_duration=' . $tot_time_duration . 's, water_usage=' . $water_usage . ' => flowrate=' . $avg_water_flowrate, 0);
+                $this->SendDebug(__FUNCTION__, ' * cur: time_duration=' . $cur_time_duration . 's, water_usage=' . $cur_water_usage . ' => flowrate=' . $cur_water_flowrate, 0);
             } else {
-                $current_run = [
-                    'time_begin'    => $time_begin,
-                    'time_end'      => $time_end,
-                    'time_left'     => $time_left,
-                    'server_time'	  => $server_time,
-                ];
+                $this->SendDebug(__FUNCTION__, 'save: begin=' . $begin . ', end=' . $end . ', left=' . $time_left . ', duration=' . $cur_time_duration . ' sec', 0);
+            }
 
-                $this->SendDebug(__FUNCTION__, 'save: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', duration=' . $cur_time_duration, 0);
+            $current_run = [
+                'time_begin'    => $time_begin,
+                'time_end'      => $time_end,
+                'time_left'     => $time_left,
+                'server_time'   => $server_time,
+            ];
+            if (self::$support_waterusage) {
+                $current_run['water_usage'] = $water_usage;
             }
 
             $this->SetBuffer('currentRun', json_encode($current_run));
@@ -467,20 +465,23 @@ class HydrawiseZone extends IPSModule
                 if ($time_end > $server_time) {
                     $time_end = $server_time;
                 }
-                $time_duration = $time_end - $time_begin;
+                $duration = $time_end - $time_begin;
                 // auf ganze Minuten aufrunden, weil Läufe im Minutenraster durchgeführt werden (Ausnahme: manueller Abbruch)
-                $time_duration = ceil($time_duration / 60);
+                $time_duration = ceil($duration / 60);
 
                 $time_done = $time_end - $time_begin - $time_left;
 
+                $begin = date('d.m.Y H:i', $time_begin);
+                $end = date('d.m.Y H:i', $time_end);
+
                 if (self::$support_waterusage) {
                     $water_usage = $current_run['water_usage'];
-                    $water_estimated = ceil($water_usage / $time_done * ($time_duration * 60));
+                    $water_estimated = ceil($water_usage / $time_done * $duration);
 
-                    $this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
-                    $this->SendDebug(__FUNCTION__, ' * duration=' . $time_duration . ', done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
+                    $this->SendDebug(__FUNCTION__, 'restore: begin=' . $begin . ', end=' . $end . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
+                    $this->SendDebug(__FUNCTION__, ' * duration=' . $duration . 's/' . $time_duration . 'm, done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
                 } else {
-                    $this->SendDebug(__FUNCTION__, 'restore: begin=' . date('d.m.Y H:i', $time_begin) . ', end=' . date('d.m.Y H:i', $time_end) . ', left=' . $time_left . ', duration=' . $time_duration, 0);
+                    $this->SendDebug(__FUNCTION__, 'restore: begin=' . $begin . ', end=' . $end . ', left=' . $time_left . ', duration=' . $duration . 's/' . $time_duration . 'm', 0);
                 }
 
                 $this->SetValue('LastDuration', $time_duration);

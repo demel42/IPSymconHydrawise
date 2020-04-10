@@ -33,7 +33,7 @@ class HydrawiseIO extends IPSModule
 
         $api_key = $this->ReadPropertyString('api_key');
         if ($api_key == '') {
-            $this->SetStatus(self::IS_INVALIDCONFIG);
+            $this->SetStatus(self::$IS_INVALIDCONFIG);
             return;
         }
 
@@ -292,33 +292,33 @@ class HydrawiseIO extends IPSModule
         $err = '';
         $data = '';
         if ($cerrno) {
-            $statuscode = self::IS_SERVERERROR;
+            $statuscode = self::$IS_SERVERERROR;
             $err = 'got curl-errno ' . $cerrno . ' (' . $cerror . ')';
         } elseif ($httpcode != 200) {
             if ($httpcode == 400 || $httpcode == 401) {
-                $statuscode = self::IS_UNAUTHORIZED;
+                $statuscode = self::$IS_UNAUTHORIZED;
                 $err = 'got http-code ' . $httpcode . ' (unauthorized)';
             } elseif ($httpcode >= 500 && $httpcode <= 599) {
-                $statuscode = self::IS_SERVERERROR;
+                $statuscode = self::$IS_SERVERERROR;
                 $err = 'got http-code ' . $httpcode . ' (server error)';
             } elseif ($httpcode == 429) {
-                $statuscode = self::IS_TOOMANYREQUESTS;
+                $statuscode = self::$IS_TOOMANYREQUESTS;
                 $err = 'got http-code ' . $httpcode . ' (too many requests)';
             } else {
-                $statuscode = self::IS_HTTPERROR;
+                $statuscode = self::$IS_HTTPERROR;
                 $err = 'got http-code ' . $httpcode;
             }
         } elseif ($cdata == '') {
-            $statuscode = self::IS_INVALIDDATA;
+            $statuscode = self::$IS_INVALIDDATA;
             $err = 'no data';
         } else {
             $jdata = json_decode($cdata, true);
             if ($jdata == '') {
-                $statuscode = self::IS_INVALIDDATA;
+                $statuscode = self::$IS_INVALIDDATA;
                 $err = 'malformed response';
             } elseif (isset($jdata['error_msg'])) {
                 $err = $jdata['error_msg'];
-                $statuscode = $err == 'unauthorised' ? self::IS_UNAUTHORIZED : self::IS_INVALIDDATA;
+                $statuscode = $err == 'unauthorised' ? self::$IS_UNAUTHORIZED : self::$IS_INVALIDDATA;
             } else {
                 $data = $cdata;
             }
