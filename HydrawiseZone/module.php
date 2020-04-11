@@ -338,6 +338,9 @@ class HydrawiseZone extends IPSModule
         $suspended_until = 0;
 
         $type = $relay['type'];
+        if ($relay['timestr'] == 'Now') {
+            $type = RELAY_TYPE_RUNNING;
+        }
         switch ($type) {
             case RELAY_TYPE_PROGRAMMED:
                 $nextrun = $server_time + $time;

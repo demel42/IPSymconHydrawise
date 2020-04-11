@@ -658,6 +658,9 @@ class HydrawiseController extends IPSModule
                 $suspended = false;
 
                 $type = $relay['type'];
+                if ($relay['timestr'] == 'Now') {
+                    $type = RELAY_TYPE_RUNNING;
+                }
                 switch ($type) {
                     case RELAY_TYPE_PROGRAMMED:
                         $nextrun = $server_time + $time;
@@ -794,7 +797,7 @@ class HydrawiseController extends IPSModule
 
                 $done_zone = [
                     'name'              => $name,
-                    'timestamp'         => $nextrun,
+                    'timestamp'         => $lastrun,
                     'duration'          => $duration,
                     'is_running'        => $is_running,
                     'daily_duration'    => $daily_duration,
