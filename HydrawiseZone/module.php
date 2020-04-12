@@ -386,6 +386,7 @@ class HydrawiseZone extends IPSModule
                 if (self::$support_waterusage) {
                     $last_water_usage = $current_run['water_usage'];
                 }
+                $time_begin = $current_run['time_begin'];
                 $last_server_time = $current_run['server_time'];
             } else {
                 if (self::$support_waterusage) {
@@ -396,9 +397,9 @@ class HydrawiseZone extends IPSModule
                 if (abs($last_server_time - $server_time) > 60) {
                     $last_server_time = $server_time;
                 }
+                $time_begin = $last_server_time;
             }
 
-            $time_begin = $last_server_time;
             $time_end = $server_time + $time_left;
 
             $this->SetValue('TimeLeft', $this->seconds2duration($time_left));
@@ -433,7 +434,7 @@ class HydrawiseZone extends IPSModule
                 $this->SendDebug(__FUNCTION__, ' * avg: time_duration=' . $tot_time_duration . 's, water_usage=' . $water_usage . ' => flowrate=' . $avg_water_flowrate, 0);
                 $this->SendDebug(__FUNCTION__, ' * cur: time_duration=' . $cur_time_duration . 's, water_usage=' . $cur_water_usage . ' => flowrate=' . $cur_water_flowrate, 0);
             } else {
-                $this->SendDebug(__FUNCTION__, 'save: begin=' . $begin . ', end=' . $end . ', left=' . $time_left . ', duration=' . $cur_time_duration . ' sec', 0);
+                $this->SendDebug(__FUNCTION__, 'save: begin=' . $begin . ', end=' . $end . ', left=' . $time_left . ', duration=' . $tot_time_duration . ' sec', 0);
             }
 
             $current_run = [
