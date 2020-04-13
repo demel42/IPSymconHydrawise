@@ -338,26 +338,23 @@ class HydrawiseZone extends IPSModule
         $suspended_until = 0;
 
         $type = $relay['type'];
-        if ($relay['timestr'] == 'Now') {
-            $type = RELAY_TYPE_RUNNING;
-        }
-        switch ($type) {
-            case RELAY_TYPE_PROGRAMMED:
-                $nextrun = $server_time + $time;
-                $run_seconds = $this->GetArrayElem($relay, 'run', 0);
-                break;
-            case RELAY_TYPE_RUNNING:
+
+        $timestr = $relay['timestr'];
+        switch ($timestr) {
+            case 'Now':
                 $running = true;
                 $time_left = $this->GetArrayElem($relay, 'run', 0);
                 break;
-            case RELAY_TYPE_SUSPENDED:
+            case '':
                 $suspended = true;
                 $suspended_until = 0; //$time;
                 break;
             default:
+                $nextrun = $server_time + $time;
+                $run_seconds = $this->GetArrayElem($relay, 'run', 0);
                 break;
-
         }
+        $this->SendDebug(__FUNCTION__, 'type=' . $type . ', timestr="' . $timestr . '", running=' . $this->bool2str($running) . ', suspended=' . $this->bool2str($suspended) . ', time=' . $time . '/' . date('d.m.Y H:i', $server_time + $time), 0);
 
         if ($running) {
             $this->SetValue('ZoneAction', ZONE_ACTION_STOP);
@@ -463,7 +460,6 @@ class HydrawiseZone extends IPSModule
 
                 $time_begin = $current_run['time_begin'];
                 $time_end = $current_run['time_end'];
-                $time_left = $current_run['time_left'];
 
                 // Abbruch eines Laufs
                 if ($time_end > $server_time) {
@@ -473,19 +469,19 @@ class HydrawiseZone extends IPSModule
                 // auf ganze Minuten aufrunden, weil Läufe im Minutenraster durchgeführt werden (Ausnahme: manueller Abbruch)
                 $time_duration = ceil($duration / 60);
 
-                $time_done = $time_end - $time_begin - $time_left;
-
                 $begin = date('d.m.Y H:i', $time_begin);
                 $end = date('d.m.Y H:i', $time_end);
 
                 if (self::$support_waterusage) {
                     $water_usage = $current_run['water_usage'];
+                    $time_left = $current_run['time_left'];
+                    $time_done = $time_end - $time_begin - $time_left;
                     $water_estimated = ceil($water_usage / $time_done * $duration);
 
                     $this->SendDebug(__FUNCTION__, 'restore: begin=' . $begin . ', end=' . $end . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
                     $this->SendDebug(__FUNCTION__, ' * duration=' . $duration . 's/' . $time_duration . 'm, done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
                 } else {
-                    $this->SendDebug(__FUNCTION__, 'restore: begin=' . $begin . ', end=' . $end . ', left=' . $time_left . ', duration=' . $duration . 's/' . $time_duration . 'm', 0);
+                    $this->SendDebug(__FUNCTION__, 'restore: begin=' . $begin . ', end=' . $end . ', duration=' . $duration . 's/' . $time_duration . 'm', 0);
                 }
 
                 $this->SetValue('LastDuration', $time_duration);

@@ -658,24 +658,21 @@ class HydrawiseController extends IPSModule
                 $suspended = false;
 
                 $type = $relay['type'];
-                if ($relay['timestr'] == 'Now') {
-                    $type = RELAY_TYPE_RUNNING;
-                }
-                switch ($type) {
-                    case RELAY_TYPE_PROGRAMMED:
-                        $nextrun = $server_time + $time;
-                        $run_seconds = $this->GetArrayElem($relay, 'run', 0);
-                        break;
-                    case RELAY_TYPE_RUNNING:
+
+                $timestr = $relay['timestr'];
+                switch ($timestr) {
+                    case 'Now':
                         $running = true;
                         $time_left = $this->GetArrayElem($relay, 'run', 0);
                         break;
-                    case RELAY_TYPE_SUSPENDED:
+                    case '':
                         $suspended = true;
+                        $suspended_until = 0; //$time;
                         break;
                     default:
+                        $nextrun = $server_time + $time;
+                        $run_seconds = $this->GetArrayElem($relay, 'run', 0);
                         break;
-
                 }
 
                 $relay['nextrun'] = $nextrun;
