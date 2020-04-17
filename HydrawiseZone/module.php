@@ -354,7 +354,7 @@ class HydrawiseZone extends IPSModule
                 $run_seconds = $this->GetArrayElem($relay, 'run', 0);
                 break;
         }
-        $this->SendDebug(__FUNCTION__, 'type=' . $type . ', timestr="' . $timestr . '", running=' . $this->bool2str($running) . ', suspended=' . $this->bool2str($suspended) . ', time=' . $time . '/' . date('d.m.Y H:i', $server_time + $time), 0);
+        // $this->SendDebug(__FUNCTION__, 'type=' . $type . ', timestr="' . $timestr . '", running=' . $this->bool2str($running) . ', suspended=' . $this->bool2str($suspended) . ', time=' . $time . '/' . date('d.m.Y H:i', $server_time + $time), 0);
 
         if ($running) {
             $this->SetValue('ZoneAction', ZONE_ACTION_STOP);
