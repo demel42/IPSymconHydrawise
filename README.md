@@ -324,7 +324,7 @@ GUIDs
 	- Suspendierung einer Zone mit einer Dauer kürzer als (vermutlich) einer Woche wird nicht als Suspendierung gemeldet
 	- die wöchentliche Bewässerungszeit und Wassereinsparung
 	- das aktuelles Wetter und Vorhersage
-  - Abruf von Daten aus dem lokalen Hydrawise-Controller um Lücken in der Hydrawise-API zu füllen
+  - optionaler Abruf von Daten aus dem lokalen Hydrawise-Controller um Lücken in der Hydrawise-API zu füllen
 
 - 1.20 @ 01.01.2020 15:47
   - Fix bei Vorhersage
