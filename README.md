@@ -325,6 +325,8 @@ GUIDs
 	- die wöchentliche Bewässerungszeit und Wassereinsparung
 	- das aktuelles Wetter und Vorhersage
   - optionaler Abruf von Daten aus dem lokalen Hydrawise-Controller um Lücken in der Hydrawise-API zu füllen
+    - Ermittlung des Wasserverbrauchs und der Durchflussrate
+    - Endzeitpunkt der Suspendierung einer Zone
 
 - 1.20 @ 01.01.2020 15:47
   - Fix bei Vorhersage
