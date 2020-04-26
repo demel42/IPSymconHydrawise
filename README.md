@@ -147,7 +147,7 @@ if ($data) {
     echo $result;
 }
 ```
-Die Beschreibung der Struktur siehe _HydrawiseController_GetRawData()_.
+Die Beschreibung der Struktur siehe _Hydrawise_GetRawData()_.
 
 Beispiel in module.php sind _Build_StatusBox()_ und _ProcessHook_Status()_.
 
@@ -242,7 +242,63 @@ stoppt eine laufende Bewässerung.
 setzt die Bewässerung bis zum angegebenen Zeitpunkt aus.
 
 `bool Hydrawise_Resume(int $InstanzID)`<br>
-aktiviet wieder die normale Bewässerung.
+aktiviert wieder die normale Bewässerung.
+
+`string Hydrawise_GetRawData(int $InstanzID)`<br>
+liefert die aufbereiteten Daten des Controllers, z.B. um damit einen Status-Auѕgabe zu machen.
+
+#### Datenstrukturen
+
+| Variable          | Datenty        | Bedeutung |
+| :-----------      | :------------- | :-------- |
+| status            | string         | Status des Controllers |
+| last_contact_ts   | UNIX-Timestamp | letzter Kontakt des Controller zur Cloud |
+| name              | string         | Bezeichnung des Controllers |
+|                   |                | |
+| running_zones     | Objekt-Liste   | Liste der zur Zeit bewässerten Zonen |
+| done_zones        | Objekt-Liste   | Liste der heute bereits bewässerten Zonen |
+| today_zones       | Objekt-Liste   | Liste der heute noch zu bewässernden Zonen |
+| future_zones      | Objekt-Liste   | Liste der geplanten Bewässerungen |
+
+
+#### zur Zeit bewässerte Zone (running_zones)
+
+| Variable          | Datenty        | Bedeutung |
+| :-----------      | :------------- | :-------- |
+| name              | string         | Bezeichnung der Zone |
+| duration          | integer        | verbleibende Dauer in Sekunden |
+| waterflow         | integer        | altueller Wasserverbrauch in l/min |
+
+
+#### bereits bewässerte Zone (done_zones)
+
+| Variable          | Datenty        | Bedeutung |
+| :-----------      | :------------- | :-------- |
+| name              | string         | Bezeichnung der Zone |
+| timestamp         | UNIX-Timestamp | Zeitpunkt des letzten Laufs |
+| duration          | integer        | Dauer des letzten Laufs in Sekunden |
+| is_running        | boolean        | wird zur Zeit bewässert (bei mehreren Zyklen pro Tag) |
+| daily_duration    | integer        | Dauer aller Zyklen des Tages in Sekunden |
+| daily_waterusage  | integer        | Wasserverbrauch aller Zyklen des Tages in Liter |
+
+
+#### heute noch zu bewässernde Zone (today_zones)
+
+| Variable          | Datenty        | Bedeutung |
+| :-----------      | :------------- | :-------- |
+| name              | string         | Bezeichnung des Controllers |
+| timestamp         | UNIX-Timestamp | Zeitpunkt des nächsten Laufs |
+| duration          | integer        | Dauer des nächsten Laufs in Sekunden |
+
+
+#### geplante Bewässerungen (future_zones)
+
+| Variable          | Datenty        | Bedeutung |
+| :-----------      | :------------- | :-------- |
+| name              | string         | Bezeichnung des Controllers |
+| timestamp         | UNIX-Timestamp | Zeitpunkt des nächsten Laufs |
+| duration          | integer        | Dauer des nächsten Laufs in Sekunden |
+
 
 ## 6. Anhang
 
