@@ -10,11 +10,6 @@ class HydrawiseController extends IPSModule
     use HydrawiseCommon;
     use HydrawiseLibrary;
 
-    public static $support_waterusage = false;
-    public static $support_observations = false;
-    public static $support_forecast = false;
-    public static $support_info = false;
-
     public function Create()
     {
         parent::Create();
@@ -33,21 +28,14 @@ class HydrawiseController extends IPSModule
 
         $this->RegisterPropertyBoolean('with_last_contact', true);
         $this->RegisterPropertyBoolean('with_last_message', true);
-        $this->RegisterPropertyBoolean('with_info', false);
-        $this->RegisterPropertyBoolean('with_observations', true);
-        $this->RegisterPropertyInteger('num_forecast', 0);
+        $this->RegisterPropertyBoolean('with_waterusage', true);
         $this->RegisterPropertyBoolean('with_status_box', false);
         $this->RegisterPropertyBoolean('with_daily_value', true);
 
         $this->RegisterPropertyInteger('ImportCategoryID', 0);
 
-        $this->CreateVarProfile('Hydrawise.Temperatur', VARIABLETYPE_FLOAT, ' °C', -10, 30, 0, 1, 'Temperature');
-        $this->CreateVarProfile('Hydrawise.WaterSaving', VARIABLETYPE_INTEGER, ' %', 0, 0, 0, 0, 'Drops');
-        $this->CreateVarProfile('Hydrawise.Rainfall', VARIABLETYPE_FLOAT, ' mm', 0, 60, 0, 1, 'Rainfall');
-        $this->CreateVarProfile('Hydrawise.ProbabilityOfRain', VARIABLETYPE_INTEGER, ' %', 0, 0, 0, 0, 'Rainfall');
-        $this->CreateVarProfile('Hydrawise.WindSpeed', VARIABLETYPE_FLOAT, ' km/h', 0, 100, 0, 0, 'WindSpeed');
-        $this->CreateVarProfile('Hydrawise.Humidity', VARIABLETYPE_FLOAT, ' %', 0, 100, 0, 0, 'Drops');
         $this->CreateVarProfile('Hydrawise.Duration', VARIABLETYPE_INTEGER, ' min', 0, 0, 0, 0, 'Hourglass');
+        $this->CreateVarProfile('Hydrawise.Flowmeter', VARIABLETYPE_FLOAT, ' l', 0, 0, 0, 0, 'Gauge');
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
 
@@ -87,11 +75,9 @@ class HydrawiseController extends IPSModule
         $controller_id = $this->ReadPropertyString('controller_id');
         $with_last_contact = $this->ReadPropertyBoolean('with_last_contact');
         $with_last_message = $this->ReadPropertyBoolean('with_last_message');
-        $with_info = self::$support_info ? $this->ReadPropertyBoolean('with_info') : false;
-        $with_observations = self::$support_observations ? $this->ReadPropertyBoolean('with_observations') : false;
-        $num_forecast = self::$support_forecast ? $this->ReadPropertyInteger('num_forecast') : 0;
         $with_status_box = $this->ReadPropertyBoolean('with_status_box');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
+        $with_waterusage = $this->ReadPropertyBoolean('with_waterusage');
 
         $vpos = 1;
 
@@ -99,25 +85,24 @@ class HydrawiseController extends IPSModule
         $this->MaintainVariable('LastContact', $this->Translate('last contact'), VARIABLETYPE_INTEGER, '~UnixTimestamp', $vpos++, $with_last_contact);
         $this->MaintainVariable('LastMessage', $this->Translate('last message'), VARIABLETYPE_STRING, '', $vpos++, $with_last_message);
         $this->MaintainVariable('DailyReference', $this->Translate('day of cumulation'), VARIABLETYPE_INTEGER, '~UnixTimestampDate', $vpos++, $with_daily_value);
-        $this->MaintainVariable('DailyWateringTime', $this->Translate('Watering time (day)'), VARIABLETYPE_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info && $with_daily_value);
-        $this->MaintainVariable('WateringTime', $this->Translate('Watering time (week)'), VARIABLETYPE_INTEGER, 'Hydrawise.Duration', $vpos++, $with_info);
-        $this->MaintainVariable('WaterSaving', $this->Translate('Water saving'), VARIABLETYPE_INTEGER, 'Hydrawise.WaterSaving', $vpos++, $with_info);
+        $this->MaintainVariable('DailyDuration', $this->Translate('Watering time (today)'), VARIABLETYPE_INTEGER, 'Hydrawise.Duration', $vpos++, $with_daily_value);
+        $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value && $with_waterusage);
 
-        $this->MaintainVariable('ObsRainDay', $this->Translate('Rainfall (last day)'), VARIABLETYPE_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
-        $this->MaintainVariable('ObsRainWeek', $this->Translate('Rainfall (last week)'), VARIABLETYPE_FLOAT, 'Hydrawise.Rainfall', $vpos++, $with_observations);
-        $this->MaintainVariable('ObsCurTemp', $this->Translate('currrent Temperature'), VARIABLETYPE_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
-        $this->MaintainVariable('ObsMaxTemp', $this->Translate('maximum Temperature (24h)'), VARIABLETYPE_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_observations);
+        $this->UnregisterVariable('WateringTime');
+        $this->UnregisterVariable('WaterSaving');
 
-        $words = ['today', 'tomorrow', 'overmorrow'];
+        $this->UnregisterVariable('ObsRainDay');
+        $this->UnregisterVariable('ObsRainWeek');
+        $this->UnregisterVariable('ObsCurTemp');
+        $this->UnregisterVariable('ObsMaxTemp');
+
         for ($i = 0; $i < 3; $i++) {
-            $with_forecast = $i < $num_forecast;
-            $s = ' (' . $this->Translate($words[$i]) . ')';
-            $this->MaintainVariable('Forecast' . $i . 'Conditions', $this->Translate('Conditions') . $s, VARIABLETYPE_STRING, '', $vpos++, $with_forecast);
-            $this->MaintainVariable('Forecast' . $i . 'TempMax', $this->Translate('maximum Temperature') . $s, VARIABLETYPE_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
-            $this->MaintainVariable('Forecast' . $i . 'TempMin', $this->Translate('minimum Temperature') . $s, VARIABLETYPE_FLOAT, 'Hydrawise.Temperatur', $vpos++, $with_forecast);
-            $this->MaintainVariable('Forecast' . $i . 'ProbabilityOfRain', $this->Translate('Probability of rainfall') . $s, VARIABLETYPE_INTEGER, 'Hydrawise.ProbabilityOfRain', $vpos++, $with_forecast);
-            $this->MaintainVariable('Forecast' . $i . 'WindSpeed', $this->Translate('Windspeed') . $s, VARIABLETYPE_FLOAT, 'Hydrawise.WindSpeed', $vpos++, $with_forecast);
-            $this->MaintainVariable('Forecast' . $i . 'Humidity', $this->Translate('Humidity') . $s, VARIABLETYPE_FLOAT, 'Hydrawise.Humidity', $vpos++, $with_forecast);
+            $this->UnregisterVariable('Forecast' . $i . 'Conditions');
+            $this->UnregisterVariable('Forecast' . $i . 'TempMax');
+            $this->UnregisterVariable('Forecast' . $i . 'TempMin');
+            $this->UnregisterVariable('Forecast' . $i . 'ProbabilityOfRain');
+            $this->UnregisterVariable('Forecast' . $i . 'WindSpeed');
+            $this->UnregisterVariable('Forecast' . $i . 'Humidity');
         }
 
         $this->MaintainVariable('StatusBox', $this->Translate('State of irrigation'), VARIABLETYPE_STRING, '~HTMLBox', $vpos++, $with_status_box);
@@ -178,7 +163,7 @@ class HydrawiseController extends IPSModule
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
         $data = $this->SendDataToParent(json_encode($data));
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-        $controller = json_decode($data, true);
+        $controller = $data != false ? json_decode($data, true) : [];
         $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
 
         $config_list = [];
@@ -307,12 +292,6 @@ class HydrawiseController extends IPSModule
 
     public function GetFormElements()
     {
-        $opts_forecast = [];
-        $opts_forecast[] = ['caption' => $this->Translate('no'), 'value' => 0];
-        $opts_forecast[] = ['caption' => $this->Translate('today'), 'value' => 1];
-        $opts_forecast[] = ['caption' => $this->Translate('tomorrow'), 'value' => 2];
-        $opts_forecast[] = ['caption' => $this->Translate('overmorrow'), 'value' => 3];
-
         $formElements = [];
         $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];
 
@@ -325,17 +304,9 @@ class HydrawiseController extends IPSModule
         $items = [];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_last_contact', 'caption' => 'last contact to Hydrawise'];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_last_message', 'caption' => 'last message'];
-        if (self::$support_info) {
-            $items[] = ['type' => 'CheckBox', 'name' => 'with_info', 'caption' => 'info'];
-        }
-        if (self::$support_observations) {
-            $items[] = ['type' => 'CheckBox', 'name' => 'with_observations', 'caption' => 'observations'];
-        }
-        if (self::$support_forecast) {
-            $items[] = ['type' => 'Select', 'name' => 'num_forecast', 'caption' => 'forecast', 'options' => $opts_forecast];
-        }
         $items[] = ['type' => 'CheckBox', 'name' => 'with_status_box', 'caption' => 'html-box with state of irrigation'];
         $items[] = ['type' => 'SelectScript', 'name' => 'statusbox_script', 'caption' => 'alternate script to use for the "StatusBox"'];
+        $items[] = ['type' => 'CheckBox', 'name' => 'with_waterusage', 'caption' => 'water usage'];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
         $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional controller data'];
 
@@ -425,8 +396,8 @@ class HydrawiseController extends IPSModule
         $jdata = json_decode($data, true);
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
 
-        if (isset($jdata['Buffer'])) {
-            $this->DecodeData($jdata['Buffer']);
+        if (isset($jdata['AllData'])) {
+            $this->DecodeData($jdata['AllData']);
         } elseif (isset($jdata['Function'])) {
             $controller_id = $this->ReadPropertyString('controller_id');
             if (isset($jdata['controller_id']) && $jdata['controller_id'] != $controller_id) {
@@ -455,9 +426,7 @@ class HydrawiseController extends IPSModule
         $with_last_contact = $this->ReadPropertyBoolean('with_last_contact');
         $with_last_message = $this->ReadPropertyBoolean('with_last_message');
         $minutes2fail = $this->ReadPropertyInteger('minutes2fail');
-        $with_info = self::$support_info ? $this->ReadPropertyBoolean('with_info') : false;
-        $with_observations = self::$support_observations ? $this->ReadPropertyBoolean('with_observations') : false;
-        $num_forecast = self::$support_forecast ? $this->ReadPropertyInteger('num_forecast') : 0;
+        $with_waterusage = $this->ReadPropertyBoolean('with_waterusage');
         $with_status_box = $this->ReadPropertyBoolean('with_status_box');
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
 
@@ -526,97 +495,11 @@ class HydrawiseController extends IPSModule
             if ($message == '') {
                 $varID = $this->GetIDForIdent('LastMessage');
                 $r = IPS_GetVariable($varID);
-                if ($r['VariableUpdated'] < time() - 60) {
+                if ($r['VariableUpdated'] < time() - 60 && GetValue($varID) != '') {
                     $this->SetValue('LastMessage', '');
                 }
             } else {
                 $this->SetValue('LastMessage', $message);
-            }
-        }
-
-        if ($with_observations) {
-            $obs_rain_day = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_rain']);
-            if ($obs_rain_day != '') {
-                $this->SetValue('ObsRainDay', $obs_rain_day);
-            }
-
-            $obs_rain_week = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_rain_week']);
-            if ($obs_rain_week != '') {
-                $this->SetValue('ObsRainWeek', $obs_rain_week);
-            }
-
-            $obs_curtemp = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_currenttemp']);
-            if ($obs_curtemp != '') {
-                $this->SetValue('ObsCurTemp', $obs_curtemp);
-            }
-
-            $obs_maxtemp = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['obs_maxtemp']);
-            if ($obs_maxtemp != '') {
-                $this->SetValue('ObsMaxTemp', $obs_maxtemp);
-            }
-        }
-
-        if ($with_info) {
-            $watering_time = preg_replace('/^([0-9\.,]*).*$/', '$1', $controller['watering_time']);
-            $this->SetValue('WateringTime', $watering_time);
-
-            $water_saving = $controller['water_saving'];
-            $this->SetValue('WaterSaving', $water_saving);
-
-            if ($with_daily_value) {
-                $old_watering_time = $this->GetBuffer('WateringTime');
-                if ($old_watering_time != '' && $old_watering_time < $watering_time) {
-                    $new_watering_time = $this->GetValue('DailyWateringTime') + ($watering_time - $old_watering_time);
-                    $this->SendDebug(__FUNCTION__, 'new_watering_time=' . $new_watering_time, 0);
-                    $this->SetValue('DailyWateringTime', $new_watering_time);
-                } else {
-                    $this->SendDebug(__FUNCTION__, 'weekly watering_time=' . $watering_time . ' => unchanged', 0);
-                }
-                $this->SetBuffer('WateringTime', $watering_time);
-            }
-        }
-
-        if ($num_forecast) {
-            $n = 0;
-            $forecast = $controller['forecast'];
-            if (count($forecast) > 0) {
-                foreach ($forecast as $i => $value) {
-                    if ($i >= $num_forecast) {
-                        continue;
-                    }
-
-                    $_forcecast = $forecast[$i];
-
-                    $this->SendDebug(__FUNCTION__, '_forcecast=' . print_r($_forcecast, true), 0);
-
-                    $temp_hi = preg_replace('/^([0-9\.,-]*).*$/', '$1', $_forcecast['temp_hi']);
-                    $this->SendDebug(__FUNCTION__, 'temp_hi=' . $temp_hi, 0);
-                    $this->SetValue('Forecast' . $i . 'TempMax', $temp_hi);
-
-                    $temp_lo = preg_replace('/^([0-9\.,-]*).*$/', '$1', $_forcecast['temp_lo']);
-                    $this->SendDebug(__FUNCTION__, 'temp_lo=' . $temp_lo, 0);
-                    $this->SetValue('Forecast' . $i . 'TempMin', $temp_lo);
-
-                    $humidity = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['humidity']);
-                    $this->SendDebug(__FUNCTION__, 'humidity=' . $humidity, 0);
-                    $this->SetValue('Forecast' . $i . 'Humidity', $humidity);
-
-                    $wind = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['wind']);
-                    $this->SendDebug(__FUNCTION__, 'wind=' . $wind, 0);
-                    $this->SetValue('Forecast' . $i . 'WindSpeed', $wind);
-
-                    $pop = preg_replace('/^([0-9\.,]*).*$/', '$1', $_forcecast['pop']);
-                    $this->SendDebug(__FUNCTION__, 'pop=' . $pop, 0);
-                    $this->SetValue('Forecast' . $i . 'ProbabilityOfRain', $pop);
-
-                    $conditions = $_forcecast['conditions'];
-                    $this->SendDebug(__FUNCTION__, 'conditions=' . $conditions, 0);
-                    $this->SetValue('Forecast' . $i . 'Conditions', $conditions);
-
-                    if ($n++ == 3) {
-                        break;
-                    }
-                }
             }
         }
 
@@ -626,62 +509,90 @@ class HydrawiseController extends IPSModule
         $done_zones = [];
         $future_zones = [];
 
+        $daily_duration = 0;
+        $daily_waterusage = 0;
+
         $relays = $controller['relays'];
         if (count($relays) > 0) {
-
-            // Daten aus den HydrawiseZone-Instanzen ergänzen
             $instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
             $_relays = $relays;
             $relays = [];
             foreach ($_relays as $relay) {
                 $relay_id = $relay['relay_id'];
 
+                // Daten aus den HydrawiseZone-Instanzen ergänzen
                 foreach ($instIDs as $instID) {
                     $cfg = IPS_GetConfiguration($instID);
                     $jcfg = json_decode($cfg, true);
                     if ($jcfg['relay_id'] == $relay_id) {
+                        $relay['name'] = IPS_GetName($instID);
                         $varID = @IPS_GetObjectIDByIdent('LastRun', $instID);
                         if ($varID) {
                             $relay['lastrun'] = GetValue($varID);
                         }
-                        $relay['name'] = IPS_GetName($instID);
-                        break;
+                        $varID = @IPS_GetObjectIDByIdent('WaterFlowrate', $instID);
+                        if ($varID) {
+                            $relay['waterflow'] = GetValue($varID);
+                        }
+                        $varID = @IPS_GetObjectIDByIdent('SuspendUntil', $instID);
+                        if ($varID) {
+                            $relay['suspended_until'] = GetValue($varID);
+                        }
+                        $varID = @IPS_GetObjectIDByIdent('DailyWaterUsage', $instID);
+                        if ($varID) {
+                            $daily_waterusage += GetValue($varID);
+                        }
+                        $varID = @IPS_GetObjectIDByIdent('DailyDuration', $instID);
+                        if ($varID) {
+                            $daily_duration += GetValue($varID);
+                        }
                     }
                 }
 
                 $time = $relay['time'];
 
                 $nextrun = 0;
-                $run_seconds = 0;
-                $running = false;
+                $duration = 0;
+                $is_running = false;
                 $time_left = 0;
-                $suspended = false;
+                $is_suspended = false;
+                $waterflow = '';
 
                 $type = $relay['type'];
 
                 $timestr = $relay['timestr'];
                 switch ($timestr) {
                     case 'Now':
-                        $running = true;
+                        $is_running = true;
                         $time_left = $this->GetArrayElem($relay, 'run', 0);
+                        $waterflow = $this->GetArrayElem($relay, 'waterflow', '');
+                        $this->SendDebug(__FUNCTION__, 'is running, time_left=' . $time_left . 's, waterflow=' . $waterflow . 'l/min', 0);
                         break;
                     case '':
-                        $suspended = true;
-                        $suspended_until = 0; //$time;
+                        $is_suspended = true;
+                        $suspended_until = $this->GetArrayElem($relay, 'suspended', 0);
+                        $this->SendDebug(__FUNCTION__, 'is suspended, suspended_until=' . date('d.m. H:i', (int) $suspended_until), 0);
                         break;
                     default:
                         $nextrun = $server_time + $time;
-                        $run_seconds = $this->GetArrayElem($relay, 'run', 0);
+                        $duration = $this->GetArrayElem($relay, 'run', 0);
+                        $this->SendDebug(__FUNCTION__, 'is idle, nextrun=' . date('d.m. H:i', (int) $nextrun) . ', duration=' . $duration . 's', 0);
                         break;
                 }
 
                 $relay['nextrun'] = $nextrun;
-                $relay['run_seconds'] = $run_seconds;
-                $relay['running'] = $running;
+                $relay['duration'] = $duration;
+                $relay['is_running'] = $is_running;
                 $relay['time_left'] = $time_left;
-                $relay['suspended'] = $suspended;
+                $relay['is_suspended'] = $is_suspended;
+                $relay['waterflow'] = $waterflow;
 
                 $relays[] = $relay;
+            }
+
+            $this->SetValue('DailyDuration', $daily_duration);
+            if ($with_waterusage) {
+                $this->SetValue('DailyWaterUsage', $daily_waterusage);
             }
 
             usort($relays, ['HydrawiseController', 'cmp_relays_nextrun']);
@@ -689,14 +600,16 @@ class HydrawiseController extends IPSModule
             // aktuell durchgeführte Bewässerung
             foreach ($relays as $relay) {
                 $relay_id = $relay['relay_id'];
-                if (isset($relay['running']) && $relay['running']) {
+                if (isset($relay['is_running']) && $relay['is_running']) {
                     $name = $relay['name'];
                     $time_left = $relay['time_left'];
                     $duration = $this->seconds2duration($time_left);
+                    $waterflow = $relay['waterflow'];
 
                     $running_zone = [
-                        'name'     => $name,
-                        'duration' => $duration
+                        'name'      => $name,
+                        'duration'  => $duration,
+                        'waterflow' => $waterflow,
                     ];
                     $running_zones[] = $running_zone;
                 }
@@ -707,10 +620,10 @@ class HydrawiseController extends IPSModule
                 $name = $relay['name'];
 
                 $duration = '';
-                if (isset($relay['run_seconds'])) {
+                if (isset($relay['duration'])) {
                     // auf Minuten aufrunden
-                    $run_seconds = (int) ceil($relay['run_seconds'] / 60) * 60;
-                    $duration = $this->seconds2duration($run_seconds);
+                    $duration = (int) ceil($relay['duration'] / 60) * 60;
+                    $duration = $this->seconds2duration($duration);
                 }
 
                 $timestr = $relay['timestr'];
@@ -721,7 +634,7 @@ class HydrawiseController extends IPSModule
                 }
 
                 if ($is_today) {
-                    if (isset($relay['running']) && $relay['running']) {
+                    if (isset($relay['is_running']) && $relay['is_running']) {
                         continue;
                     }
                     // was kommt heute noch?
@@ -732,7 +645,7 @@ class HydrawiseController extends IPSModule
                     ];
                     $today_zones[] = $today_zone;
                 } elseif ($nextrun) {
-                    if (isset($relay['suspended']) && $relay['suspended']) {
+                    if (isset($relay['is_suspended']) && $relay['is_suspended']) {
                         continue;
                     }
                     // was kommt in den nächsten Tagen
@@ -751,6 +664,7 @@ class HydrawiseController extends IPSModule
                 $relay_id = $relay['relay_id'];
                 $name = $relay['name'];
                 $lastrun = $relay['lastrun'];
+                $this->SendDebug(__FUNCTION__, 'relay=' . $relay_id . '(' . $name . '), lastrun=' . date('d.m. H:i', (int) $lastrun), 0);
 
                 $is_today = false;
                 if (date('d.m.Y', $lastrun) == date('d.m.Y', $now)) {
@@ -762,9 +676,7 @@ class HydrawiseController extends IPSModule
 
                 $duration = '';
                 $daily_duration = '';
-                if (self::$support_waterusage) {
-                    $daily_waterusage = '';
-                }
+                $daily_waterusage = '';
                 foreach ($instIDs as $instID) {
                     $cfg = IPS_GetConfiguration($instID);
                     $jcfg = json_decode($cfg, true);
@@ -779,7 +691,7 @@ class HydrawiseController extends IPSModule
                             if ($varID) {
                                 $daily_duration = GetValue($varID);
                             }
-                            if (self::$support_waterusage) {
+                            if ($with_waterusage) {
                                 $varID = @IPS_GetObjectIDByIdent('DailyWaterUsage', $instID);
                                 if ($varID) {
                                     $daily_waterusage = GetValue($varID);
@@ -790,7 +702,7 @@ class HydrawiseController extends IPSModule
                     }
                 }
 
-                $is_running = isset($relay['running']) ? $relay['running'] : false;
+                $is_running = isset($relay['is_running']) ? $relay['is_running'] : false;
 
                 $done_zone = [
                     'name'              => $name,
@@ -798,10 +710,8 @@ class HydrawiseController extends IPSModule
                     'duration'          => $duration,
                     'is_running'        => $is_running,
                     'daily_duration'    => $daily_duration,
+                    'daily_waterusage'  => $daily_waterusage
                 ];
-                if (self::$support_waterusage) {
-                    $done_zone['daily_waterusage'] = $daily_waterusage;
-                }
                 $done_zones[] = $done_zone;
             }
         }
@@ -838,16 +748,18 @@ class HydrawiseController extends IPSModule
 
     protected function ClearDailyValue()
     {
-        $controller_id = $this->ReadPropertyString('controller_id');
-        $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
-        $with_info = $this->ReadPropertyBoolean('with_info');
-
         $this->SendDebug(__FUNCTION__, '', 0);
 
-        if ($with_daily_value && $with_info) {
-            $this->SetValue('DailyWateringTime', 0);
+        $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
+        if ($with_daily_value) {
+            $this->SetValue('DailyDuration', 0);
+            $with_waterusage = $this->ReadPropertyBoolean('with_waterusage');
+            if ($with_waterusage) {
+                $this->SetValue('DailyWaterUsage', 0);
+            }
         }
 
+        $controller_id = $this->ReadPropertyString('controller_id');
         $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'ClearDailyValue', 'controller_id' => $controller_id];
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
         $this->SendDataToParent(json_encode($data));
@@ -855,6 +767,8 @@ class HydrawiseController extends IPSModule
 
     private function Build_StatusBox($controller_data)
     {
+        $with_waterusage = $this->ReadPropertyBoolean('with_waterusage');
+
         $html = '';
 
         $html .= "<style>\n";
@@ -868,7 +782,8 @@ class HydrawiseController extends IPSModule
         $html .= "#spalte_uhrzeit { width: 70px; }\n";
         $html .= "#spalte_dauer { width: 60px; }\n";
         $html .= "#spalte_volumen { width: 70px; }\n";
-        $html .= "#spalte_rest { width: 180px; }\n";
+        $html .= "#spalte_flow { width: 80px; }\n";
+        $html .= "#spalte_rest { width: 100px; }\n";
         $html .= "</style>\n";
 
         $running_zones = $controller_data['running_zones'];
@@ -881,16 +796,23 @@ class HydrawiseController extends IPSModule
         foreach ($running_zones as $zone) {
             $name = $zone['name'];
             $duration = $zone['duration'];
+            $waterflow = $zone['waterflow'];
 
             if (!$b) {
                 $html .= "<br>\n";
                 $html .= "<table>\n";
                 $html .= "<colgroup><col></colgroup>\n";
                 $html .= "<colgroup><col id='spalte_rest'></colgroup>\n";
+                if ($waterflow != '') {
+                    $html .= "<colgroup><col id='spalte_flow'></colgroup>\n";
+                }
                 $html .= "<thead>\n";
                 $html .= "<tr>\n";
                 $html .= "<th>derzeitige Bewässerung</th>\n";
                 $html .= "<th>Restdauer</th>\n";
+                if ($waterflow != '') {
+                    $html .= "<th>Rate</th>\n";
+                }
                 $html .= "</tr>\n";
                 $html .= "</thead>\n";
                 $html .= "<tdata>\n";
@@ -899,7 +821,11 @@ class HydrawiseController extends IPSModule
 
             $html .= "<tr>\n";
             $html .= "<td>$name</td>\n";
-            $html .= "<td>$duration</td>\n";
+            $html .= "<td class='right-align'>$duration</td>\n";
+            if ($waterflow != '') {
+                $waterflow = ceil($waterflow * 10) / 10;
+                $html .= "<td class='right-align'>$waterflow l/m</td>\n";
+            }
             $html .= "</tr>\n";
         }
         if ($b) {
@@ -952,7 +878,7 @@ class HydrawiseController extends IPSModule
             $duration = $zone['duration'];
             $daily_duration = $zone['daily_duration'];
             $_daily_duration = $this->seconds2duration($daily_duration * 60);
-            if (self::$support_waterusage) {
+            if ($with_waterusage) {
                 $daily_waterusage = ceil($zone['daily_waterusage']);
             }
             $is_running = $zone['is_running'];
@@ -968,14 +894,14 @@ class HydrawiseController extends IPSModule
                 $html .= "<colgroup><col id='spalte_uhrzeit'></colgroup>\n";
                 $html .= "<colgroup><col id='spalte_dauer'></colgroup>\n";
                 $html .= "<colgroup><col id='spalte_dauer'></colgroup>\n";
-                if (self::$support_waterusage) {
+                if ($with_waterusage) {
                     $html .= "<colgroup><col id='spalte_volumen'></colgroup>\n";
                 }
                 $html .= "<thead>\n";
                 $html .= "<tr>\n";
                 $html .= "<th>heute bereits durchgeführte Bewässerung</th>\n";
                 $html .= "<th colspan='2'>zuletzt</th>\n";
-                if (self::$support_waterusage) {
+                if ($with_waterusage) {
                     $html .= "<th colspan='2'>gesamt</th>\n";
                 } else {
                     $html .= "<th colspan='1'>gesamt</th>\n";
@@ -987,7 +913,7 @@ class HydrawiseController extends IPSModule
                 $html .= "<th>Uhrzeit</th>\n";
                 $html .= "<th>Dauer</th>\n";
                 $html .= "<th>Dauer</th>\n";
-                if (self::$support_waterusage) {
+                if ($with_waterusage) {
                     $html .= "<th>Menge</th>\n";
                 }
                 $html .= "</tr>\n";
@@ -1002,7 +928,7 @@ class HydrawiseController extends IPSModule
             $html .= "<td class='right-align'>$time</td>\n";
             $html .= "<td class='right-align'>$duration</td>\n";
             $html .= "<td class='right-align'>$_daily_duration</td>\n";
-            if (self::$support_waterusage) {
+            if ($with_waterusage) {
                 $html .= "<td class='right-align'>$daily_waterusage l</td>\n";
             }
             $html .= "</tr>\n";
@@ -1053,6 +979,8 @@ class HydrawiseController extends IPSModule
 
     private function ProcessHook_Status()
     {
+        $with_waterusage = $this->ReadPropertyBoolean('with_waterusage');
+
         $s = $this->GetBuffer('Data');
         $controller_data = json_decode($s, true);
 
@@ -1084,7 +1012,8 @@ class HydrawiseController extends IPSModule
         $html .= "#spalte_dauer { width: 40px; }\n";
         $html .= "#spalte_uhrzeit { width: 70px; }\n";
         $html .= "#spalte_volumen { width: 50px; }\n";
-        $html .= "#spalte_rest { width: 130px; }\n";
+        $html .= "#spalte_flow { width: 60px; }\n";
+        $html .= "#spalte_rest { width: 55px; }\n";
         $html .= "</style>\n";
 
         if ($controller_data != '') {
@@ -1125,16 +1054,23 @@ class HydrawiseController extends IPSModule
             foreach ($running_zones as $zone) {
                 $name = $zone['name'];
                 $duration = $zone['duration'];
+                $waterflow = $zone['waterflow'];
 
                 if (!$b) {
                     $html .= "derzeitige Bewässerung\n";
                     $html .= "<table>\n";
                     $html .= "<colgroup><col></colgroup>\n";
                     $html .= "<colgroup><col id='spalte_rest'></colgroup>\n";
+                    if ($waterflow != '') {
+                        $html .= "<colgroup><col id='spalte_flow'></colgroup>\n";
+                    }
                     $html .= "<thead>\n";
                     $html .= "<tr>\n";
                     $html .= "<th>Bezeichnung</th>\n";
-                    $html .= "<th>Restdauer</th>\n";
+                    $html .= "<th>Rest</th>\n";
+                    if ($waterflow != '') {
+                        $html .= "<th>Rate</th>\n";
+                    }
                     $html .= "</tr>\n";
                     $html .= "</thead>\n";
                     $html .= "<tdata>\n";
@@ -1143,7 +1079,11 @@ class HydrawiseController extends IPSModule
 
                 $html .= "<tr>\n";
                 $html .= "<td>$name</td>\n";
-                $html .= "<td>$duration</td>\n";
+                $html .= "<td class='right-align'>$duration</td>\n";
+                if ($waterflow != '') {
+                    $waterflow = ceil($waterflow);
+                    $html .= "<td class='right-align'>$waterflow l/m</td>\n";
+                }
                 $html .= "</tr>\n";
             }
             if ($b) {
@@ -1196,7 +1136,7 @@ class HydrawiseController extends IPSModule
                 $duration = $zone['duration'];
                 $daily_duration = $zone['daily_duration'];
                 $_daily_duration = $this->seconds2duration($daily_duration * 60);
-                if (self::$support_waterusage) {
+                if ($with_waterusage) {
                     $daily_waterusage = ceil($zone['daily_waterusage']);
                 }
 
@@ -1205,14 +1145,14 @@ class HydrawiseController extends IPSModule
                     $html .= "<table>\n";
                     $html .= "<colgroup><col></colgroup>\n";
                     $html .= "<colgroup><col id='spalte_dauer'></colgroup>\n";
-                    if (self::$support_waterusage) {
+                    if ($with_waterusage) {
                         $html .= "<colgroup><col id='spalte_volumen'></colgroup>\n";
                     }
                     $html .= "<thead>\n";
                     $html .= "<tr>\n";
                     $html .= "<th>Bezeichnung</th>\n";
                     $html .= "<th>Dauer</th>\n";
-                    if (self::$support_waterusage) {
+                    if ($with_waterusage) {
                         $html .= "<th>Menge</th>\n";
                     }
                     $html .= "</tr>\n";
@@ -1224,7 +1164,7 @@ class HydrawiseController extends IPSModule
                 $html .= "<tr>\n";
                 $html .= "<td>$name</td>\n";
                 $html .= "<td align='right'>$_daily_duration</td>\n";
-                if (self::$support_waterusage) {
+                if ($with_waterusage) {
                     $html .= "<td align='right'>$daily_waterusage l</td>\n";
                 }
                 $html .= "</tr>\n";

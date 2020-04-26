@@ -8,6 +8,10 @@
 				"API-Key von https://app.hydrawise.com/config/account",
 			"API-Key": "API-Key",
 
+			"local Hydrawise-Controller": "lokaler Hydrawise-Controller",
+			"Hostname": "Hostname",
+			"Password": "Passwort",
+
             "Communication": "Kommunikation",
 			"Ignore HTTP-Error X times": "HTTP-Fehler X-fach ignorieren",
             "Count": "Anzahl",
@@ -16,8 +20,6 @@
 			"invalid account-data": "ungültige Zugangsdaten",
 			"valid account-data": "gültige Zugangsdaten",
             "registered controller found": "registrierte Controller gefunden",
-
-			"Module description": "Modulbeschreibung",
 
 			"Instance getting created": "Instanz wird erstellt",
 			"Instance is active": "Instanz ist aktiv",

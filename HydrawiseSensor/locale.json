@@ -20,10 +20,7 @@
 			"normally open, start zone": "Ruhezustand offen, Zone starten",
 			"flow meter": "Durchflussmesser",
 
-			"Module description": "Modulbeschreibung",
-
-			"Water usage (week)": "Wasserverbrauch (Woche)",
-			"Water usage (day)": "Wasserverbrauch (heute)",
+			"Water usage (today)": "Wasserverbrauch (heute)",
 			"Water flow rate (current)": "Wasser-Durchflussmenge (aktuell)",
 
 			"State": "Zustand",

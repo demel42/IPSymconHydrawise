@@ -8,8 +8,6 @@
 			"Name": "Name",
 			"Serial number": "Seriennummer",
 
-			"Module description": "Modulbeschreibung",
-
 			"Instance getting created": "Instanz wird erstellt",
 			"Instance is active": "Instanz ist aktiv",
 			"Instance is deleted": "Instanz wird gelöscht",

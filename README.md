@@ -67,6 +67,8 @@ Bei einer erneuten Betätigung dieser Funktion werden eventuelle gelöschte Inst
 `HydrawiseIO_UpdateData(int $InstanzID)`
 
 ruft die Daten von Hydrawise ab. Wird automatisch zyklisch durch die Instanz durchgeführt im Abstand wie in der Konfiguration angegeben. Die Daten werden an _HydrawiseController_ weitergeleitet und von dort an _HydrawiseSensor_ und _Hydrawise_.
+Da die neuen Hydrawise-API 1.4 einige Daten nicht mehr liefert, ruft die Instanz Daten aus dem lokalen Hydrawise-Controller ab - ist eine undokumentierte API, liefert aber wieder wichtige Informationen, u.a. zur Dauer der Suspendierung einer Zone und zum Wasserverbrauch.
+Es entfallen mit der API grundsätzlich die Wettervorhersage, das aktuelle Wetter sowie die Angaben zur Wassereinsparung; andere Daten werden nun selbst ermittelt und können daher etwas von der Hydrawise-App abweichen.
 
 ## 5. Konfiguration
 
@@ -76,11 +78,16 @@ Hierüber findet die http-Kommunikation statt.
 
 #### Properties
 
-| Eigenschaft              | Typ     | Standardwert | Beschreibung |
-| :----------------------- | :------ | :----------- | :----------- |
-| Instanz ist deaktiviert  | boolean | false        | Instanz temporär deaktivieren |
-|                          |         |              | |
-| Hydrawise-Zugangsdaten   | string  |              | Benutzername und Passwort von https://app.hydrawise.com/config/login |
+| Eigenschaft                  | Typ     | Standardwert | Beschreibung |
+| :--------------------------- | :------ | :----------- | :----------- |
+| Instanz ist deaktiviert      | boolean | false        | Instanz temporär deaktivieren |
+|                              |         |              | |
+| Hydrawise-Zugangsdaten       |         |              | Benutzername und Passwort von https://app.hydrawise.com/config/login |
+| API-Key                      | string  |              | API-Key aus Hydrawiese-App (_Kontoinformationen_) |
+|                              |         |              | |
+| lokaler Hydrawise-Controller |         |              | Angaben zum lokalen Hydrawise-Controller |
+| Hostname                     |  string |              | Hostname oder IP-Adresse des Controllers im lokalen Netz |
+| Passwort                     |  string |              | lokales Passwort, sichtbar auf dem Controller-Display (_Settings_ -> _Config_) |
 
 #### Schaltflächen
 
@@ -113,12 +120,10 @@ werden vom Konfigurator beim Anlegen der Instanz gesetzt.
 | controller_id          | string  |                 | interne ID des Controllers, wird vom Konfigurator gefüllt |
 |                        |         |                 | |
 | with_last_contact      | boolean | true            | letzter Kontakt mit Hydrawise |
-| with_last_message      | boolean | false           | eventuell Nachricht zu der letzten Kommunikation |
-| with_info              | boolean | true            | Informationen zur Gesamt-Bewässerungszeit etc. |
-| with_observations      | boolean | true            | Wetterbeobachtungen (der verknüpften Wetterstationen) |
-| num_forecast           | integer | 0               | Wettervorhersage (__0__=_keine_, __1__=_heute_, __2__=_morgen_, __3__=_übermorgen_ |
-| with_status_box        | boolean | false           | HTML-Box mit einer Zusammenfassung der altuellen Bewässerung |
+| with_last_message      | boolean | false           | eventuell Nachricht zu der letzten Kommunikation, verschwindet nach 60 Sekunden wieder |
+| with_waterusage        | boolean | true            | Informationen zum Wasserverbrauch |
 | with_daily_value       | boolean | true            | Ermittlung von Tageswerten für Gesamtbewässerungszeit |
+| with_status_box        | boolean | false           | HTML-Box mit einer Zusammenfassung der altuellen Bewässerung |
 |                        |         |                 | |
 | statusbox_script       | integer | 0               | Script zum Füllen der Variable _StatusBox_ |
 | hook                   | string  | /hook/Hydrawise | bei mehreren Controller müssen die Webhook unterschiedlich heissen |
@@ -156,8 +161,6 @@ Beispiel in module.php sind _Build_StatusBox()_ und _ProcessHook_Status()_.
 es werden einige Variable angelegt, zum Teil optional. Zur Erklärung:
 - _DailyReference_, ist ein UNIX-Timestamp, der das Datum enthält, auf den sich die Tageswerte beziehen. Wird automatisch bei dem ersten Nachricht nach Mitternacht auf den aktuellen Tag gestellt.
 Betrifft die Variablen, die mit _Daily_ beginnen.
-- _Obs*_: sind die Wetterbeobachtungen
-- _Forecast*_: sind die Wettervorhersagen
 
 ### HydrawiseSensor
 
@@ -174,10 +177,6 @@ Entspricht den bis zu 2 Sensoren; bisher unterstützt wird der Typ _flow meter_,
 | with_flowrate    | boolean | true         | Darstellung der aktuellen Wasser-Durchlaufmenge |
 | with_daily_value | boolean | true         | Tageswerte |
 
-#### Statusvariablen
-
-- _Flow_: Wert eines Sensors vom Typ _flow meter_, als Angabe _letzte Woche_ (was auch immer da genau ist).
-- _DailyFlow_: errechneter Tageswert aus _Flow_.
 
 ### HydrawiseZone
 
@@ -191,10 +190,10 @@ Das sind die einzelnen Bewässerungskreise, hier sind alle Zonen-spezifischen Da
 | relay_id          | string  |              | interne ID der Zone, wird vom Konfigurator gefüllt |
 | connector         | integer |              | Anschluss am Controller |
 |                   |         |              | |
-| with_daily_value  | boolean | true         | Tageswerte |
 | with_workflow     | boolean | false        | Ablauf der Bewässerung (siehe Hydrawise.ZoneWorkflow) |
 | with_status       | boolean | false        | Bewässerungsstatus (siehe Hydrawise.ZoneStatus) |
 | with_flowrate     | integer | _average_    | Darstellung der aktuellen Wasser-Durchlaufmenge der Zone |
+| with_daily_value  | boolean | true         | Tageswerte |
 |                   |         |              | |
 | visibility_script | integer | 0            | Script um die Sichtbarkeit von Variablen zu steuern |
 
@@ -228,7 +227,7 @@ Eine Anpassung an eigene Bedürfnisse ist möglich, der Wert der Assoziation ist
   - Hydrawise.Duration, Hydrawise.ProbabilityOfRain, Hydrawise.WaterSaving, Hydrawise.ZoneWorkflow, Hydrawise.ZoneStatus
 
 * Float<br>
-  - Hydrawise.Flowmeter, Hydrawise.WaterFlowrate, Hydrawise.Humidity, Hydrawise.Rainfall, Hydrawise.Temperatur, Hydrawise.WindSpeed
+  - Hydrawise.Flowmeter, Hydrawise.WaterFlowrate
 
 ### Funktionen
 
@@ -316,7 +315,7 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.21 @ 10.04.2020 17:10
+- 1.21 @ 26.04.2020 15:07
   - Anpassung an die neue API-Version 1.4<br>
     die API liefert keine Information mehr über:
 	- über den Wasserverbrauch eines Bewässerungszklus
@@ -325,6 +324,7 @@ GUIDs
 	- Suspendierung einer Zone mit einer Dauer kürzer als (vermutlich) einer Woche wird nicht als Suspendierung gemeldet
 	- die wöchentliche Bewässerungszeit und Wassereinsparung
 	- das aktuelles Wetter und Vorhersage
+  - Abruf von Daten aus dem lokalen Hydrawise-Controller um Lücken in der Hydrawise-API zu füllen
 
 - 1.20 @ 01.01.2020 15:47
   - Fix bei Vorhersage

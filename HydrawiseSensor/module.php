@@ -10,8 +10,6 @@ class HydrawiseSensor extends IPSModule
     use HydrawiseCommon;
     use HydrawiseLibrary;
 
-    public static $support_waterusage = false;
-
     public function Create()
     {
         parent::Create();
@@ -40,16 +38,15 @@ class HydrawiseSensor extends IPSModule
         $controller_id = $this->ReadPropertyString('controller_id');
         $connector = $this->ReadPropertyInteger('connector');
         $model = $this->ReadPropertyInteger('model');
-        $with_daily_value = self::$support_waterusage ? $this->ReadPropertyBoolean('with_daily_value') : false;
-        $with_flowrate = self::$support_waterusage ? $this->ReadPropertyBoolean('with_flowrate') : false;
+        $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
+        $with_flowrate = $this->ReadPropertyBoolean('with_flowrate');
 
         $vpos = 1;
 
         switch ($model) {
             case SENSOR_FLOW_METER:
                 $this->MaintainVariable('WaterFlowrate', $this->Translate('Water flow rate (current)'), VARIABLETYPE_FLOAT, 'Hydrawise.WaterFlowrate', $vpos++, $with_flowrate);
-                $this->MaintainVariable('DailyFlow', $this->Translate('Water usage (day)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
-                $this->MaintainVariable('Flow', $this->Translate('Water usage (week)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, self::$support_waterusage);
+                $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
                 break;
             case SENSOR_NORMALLY_CLOSE_START:
             case SENSOR_NORMALLY_OPEN_STOP:
@@ -61,6 +58,9 @@ class HydrawiseSensor extends IPSModule
                 $mode_txt = 'unsupported';
                 break;
         }
+
+        $this->UnregisterVariable('DailyFlow');
+        $this->UnregisterVariable('Flow');
 
         switch ($model) {
             case SENSOR_FLOW_METER:
@@ -128,12 +128,10 @@ class HydrawiseSensor extends IPSModule
         $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basic configuration (don\'t change)'];
 
         if ($model == SENSOR_FLOW_METER) {
-            if (self::$support_waterusage) {
-                $items = [];
-                $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
-                $items[] = ['type' => 'CheckBox', 'name' => 'with_flowrate', 'caption' => 'flowrate'];
-                $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional sensor data'];
-            }
+            $items = [];
+            $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
+            $items[] = ['type' => 'CheckBox', 'name' => 'with_flowrate', 'caption' => 'flowrate'];
+            $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional sensor data'];
         }
 
         return $formElements;
@@ -160,8 +158,8 @@ class HydrawiseSensor extends IPSModule
         $jdata = json_decode($data, true);
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
 
-        if (isset($jdata['Buffer'])) {
-            $this->DecodeData($jdata['Buffer']);
+        if (isset($jdata['AllData'])) {
+            $this->DecodeData($jdata['AllData']);
         } elseif (isset($jdata['Function'])) {
             $controller_id = $this->ReadPropertyString('controller_id');
             if (isset($jdata['controller_id']) && $jdata['controller_id'] != $controller_id) {
@@ -229,15 +227,8 @@ class HydrawiseSensor extends IPSModule
                 $this->SendDebug(__FUNCTION__, 'sensor=' . print_r($sensor, true), 0);
                 switch ($model) {
                     case SENSOR_FLOW_METER:
-                        if (!self::$support_waterusage) {
-                            break;
-                        }
-                        if (isset($sensor['flow']['week'])) {
-                            $flow = preg_replace('/^([0-9\.,]*).*$/', '$1', $sensor['flow']['week']);
-                            $this->SetValue('Flow', $flow);
-                        }
                         $water_flowrate = 0;
-                        $daily_flow = 0;
+                        $daily_waterusage = 0;
                         if (isset($sensor['relays'])) {
                             $relays = $sensor['relays'];
                             $instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
@@ -245,20 +236,22 @@ class HydrawiseSensor extends IPSModule
                                 $relay_id = IPS_GetProperty($instID, 'relay_id');
                                 foreach ($relays as $relay) {
                                     if ($relay['id'] == $relay_id) {
+                                        $name = IPS_GetName($instID);
+
                                         $varID = @IPS_GetObjectIDByIdent('WaterFlowrate', $instID);
                                         if ($varID) {
                                             $f = GetValueFloat($varID);
                                             if ($f > 0) {
                                                 $water_flowrate = $f;
-                                                $this->SendDebug(__FUNCTION__, '  relay_id=' . $relay_id . ', water_flowrate=' . $water_flowrate, 0);
+                                                $this->SendDebug(__FUNCTION__, '  relay_id=' . $relay_id . '(' . $name . '), water_flowrate=' . $water_flowrate, 0);
                                             }
                                         }
                                         if ($with_daily_value) {
                                             $varID = @IPS_GetObjectIDByIdent('DailyWaterUsage', $instID);
                                             if ($varID) {
-                                                $daily_waterusage = GetValueFloat($varID);
-                                                $daily_flow += $daily_waterusage;
-                                                $this->SendDebug(__FUNCTION__, '  relay_id=' . $relay_id . ', daily_waterusage=' . $daily_waterusage . ' => daily_flow=' . $daily_flow, 0);
+                                                $f = GetValueFloat($varID);
+                                                $daily_waterusage += $f;
+                                                $this->SendDebug(__FUNCTION__, '  relay_id=' . $relay_id . '(' . $name . '), waterusage=' . $f . ' => ' . $daily_waterusage, 0);
                                             }
                                         }
                                         break;
@@ -271,8 +264,8 @@ class HydrawiseSensor extends IPSModule
                                 $this->SetValue('WaterFlowrate', $water_flowrate);
                             }
                             if ($with_daily_value) {
-                                $this->SendDebug(__FUNCTION__, 'daily_flow=' . $daily_flow, 0);
-                                $this->SetValue('DailyFlow', $daily_flow);
+                                $this->SendDebug(__FUNCTION__, 'daily_waterusage=' . $daily_waterusage, 0);
+                                $this->SetValue('DailyWaterUsage', $daily_waterusage);
                             }
                         }
                         break;
@@ -300,12 +293,11 @@ class HydrawiseSensor extends IPSModule
 
     protected function ClearDailyValue()
     {
-        $with_daily_value = self::$support_waterusage ? $this->ReadPropertyBoolean('with_daily_value') : false;
-
         $this->SendDebug(__FUNCTION__, '', 0);
 
+        $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
         if ($with_daily_value) {
-            $this->SetValue('DailyFlow', 0);
+            $this->SetValue('DailyWaterUsage', 0);
         }
     }
 }
