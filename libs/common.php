@@ -19,17 +19,17 @@ if (!defined('RELAY_TYPE_PROGRAMMED')) {
 
 trait HydrawiseCommon
 {
-    public static $IS_INVALIDCONFIG = IS_EBASE;
-    public static $IS_UNAUTHORIZED = IS_EBASE;
-    public static $IS_SERVERERROR = IS_EBASE;
-    public static $IS_HTTPERROR = IS_EBASE;
-    public static $IS_INVALIDDATA = IS_EBASE;
-    public static $IS_NODATA = IS_EBASE;
-    public static $IS_NOCONROLLER = IS_EBASE;
-    public static $IS_CONTROLLER_MISSING = IS_EBASE;
-    public static $IS_ZONE_MISSING = IS_EBASE;
-    public static $IS_USEDWEBHOOK = IS_EBASE;
-    public static $IS_TOOMANYREQUESTS = IS_EBASE;
+    public static $IS_INVALIDCONFIG = IS_EBASE + 1;
+    public static $IS_UNAUTHORIZED = IS_EBASE + 1;
+    public static $IS_SERVERERROR = IS_EBASE + 3;
+    public static $IS_HTTPERROR = IS_EBASE + 4;
+    public static $IS_INVALIDDATA = IS_EBASE + 5;
+    public static $IS_NODATA = IS_EBASE + 6;
+    public static $IS_NOCONROLLER = IS_EBASE + 7;
+    public static $IS_CONTROLLER_MISSING = IS_EBASE + 8;
+    public static $IS_ZONE_MISSING = IS_EBASE + 9;
+    public static $IS_USEDWEBHOOK = IS_EBASE + 10;
+    public static $IS_TOOMANYREQUESTS = IS_EBASE + 11;
 
     protected function SetValue($Ident, $Value)
     {
