@@ -125,6 +125,11 @@ werden vom Konfigurator beim Anlegen der Instanz gesetzt.
 | with_daily_value       | boolean | true            | Ermittlung von Tageswerten für Gesamtbewässerungszeit |
 | with_status_box        | boolean | false           | HTML-Box mit einer Zusammenfassung der altuellen Bewässerung |
 |                        |         |                 | |
+|                        |         |                 | |
+| WaterMeterID           | integer | 0               | Variablen-ID des Wasseruhr-Zählers |
+| WaterMeterFactor       | float   | 1.0000          | Umrechnungsfaktor in Liter (z.B. 1000 wenn die Variable in m3 angibt) |
+|                        |         |                 | |
+|                        |         |                 | |
 | statusbox_script       | integer | 0               | Script zum Füllen der Variable _StatusBox_ |
 | hook                   | string  | /hook/Hydrawise | bei mehreren Controller müssen die Webhook unterschiedlich heissen |
 | webhook_script         | integer | 0               | Script zur Verwendung im WebHook |
@@ -134,11 +139,16 @@ werden vom Konfigurator beim Anlegen der Instanz gesetzt.
 |                        |         |                 | |
 | minutes2fail           | integer | 30              | Dauer, bis die Kommunikation als gestört gilt |
 |                        |         |                 | |
+| ImportCategoryID       | integer | 0               | ID der Kategorie unterhalb der die Instanzen angelegt werden |
 | Sensoren und Zonen     |         |                 | Konfigurator zur Anlage der Komponenten dieses Controllers |
 
 Erläuterung zu _minutes2fail_: Das hier angebbare Minuten-Intervall dient zu Überprüfung der Kommunikation zwischen dem Controller und dem Hydrawise-Server.
 Ist die Zeit überschritten, wird die Variable _Status_ des Controllers auf Fehler gesetzt.
 Anmerkung: die Variable _Status_ wird auch auf Fehler gesetzt wenn das IO-Modul einen Fehler feststellt.
+
+Erläuterung zu _WaterMeter_: in der offiziellen Hydrawise-API sind seit Version 1.4 keine ANgaben zum Wasserverbrauch bzw Durchfluß mehr enthalten.
+In der inoffiziellen lokalen API, die ich optional ebenfalls nutze, gibt es eine Angabe, die ich als aktuellen Wasster-Durchfluß interpretiere, die aber bei manchen Zonen Phantasiewerte liefert.
+Daher kann man zur Ermittlung dieser Werte auf eine externe Wasseruhr zugreifen, das ersetzt die Verwendung der internen Angaben; vom Prinzip her wären die internen Informationen im Hydrawise natürlich viel exakter, insbesondere bei kurzen Zyklen und/oder geringen Mengen wird es potentiell ungenauer.
 
 Erläuterung zu _statusbox_script_, _webhook_script_:
 Mit diesen Scripten kann man eine alternative Darstellung realisieren.
@@ -315,7 +325,7 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.21 @ 30.04.2020 14:54
+- 1.21 @ 03.05.2020 16:29
   - Anpassung an die neue API-Version 1.4<br>
     die API liefert keine Information mehr über:
 	- über den Wasserverbrauch eines Bewässerungszklus
@@ -327,6 +337,8 @@ GUIDs
   - optionaler Abruf von Daten aus dem lokalen Hydrawise-Controller um Lücken in der Hydrawise-API zu füllen
     - Ermittlung des Wasserverbrauchs und der Durchflussrate
     - Endzeitpunkt der Suspendierung einer Zone
+  - optionale Auswertung eines externen Wasserzählers zur Berechnung von Wasserverbrauch und Durchfluß<br>
+    Hintergrund: die Angabe in der Datenabrufen sind leider ziemlich unzuverlässig
 
 - 1.20 @ 01.01.2020 15:47
   - Fix bei Vorhersage

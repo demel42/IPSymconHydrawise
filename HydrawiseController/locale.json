@@ -15,7 +15,13 @@
 			"html-box with state of irrigation": "HTML-Box mit dem Status der Bewässerung",
 			"alternate script to use for the \"StatusBox\"": "alternatives Script zur Verwendung für die \"StatusBox\"",
 			"water usage": "Wasserverbrauch",
+			"water meter": "Wasserzähler",
 			"daily sum": "Tageswerte",
+
+			"optional wexternal water meter": "optionaler externer Wasserzähler",
+			"using instead the Hydrawise-intern information of waterflow": "Verwendung anstelle der Hydrawise-internen Informationen über der Wasser-Durchfluß",
+			"Counter-variable": "Zählervarable",
+			" ... conversion factor to liter": " ... Umrechnungsformel in Liter",
 
 			"Webhook": "Webhook",
 			"alternate script to use for Webhook": "alternatives Scripte für den Webhook",

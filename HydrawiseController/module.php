@@ -32,6 +32,9 @@ class HydrawiseController extends IPSModule
         $this->RegisterPropertyBoolean('with_status_box', false);
         $this->RegisterPropertyBoolean('with_daily_value', true);
 
+        $this->RegisterPropertyInteger('WaterMeterID', 0);
+        $this->RegisterPropertyFloat('WaterMeterFactor', 1);
+
         $this->RegisterPropertyInteger('ImportCategoryID', 0);
 
         $this->CreateVarProfile('Hydrawise.Duration', VARIABLETYPE_INTEGER, ' min', 0, 0, 0, 0, 'Hourglass');
@@ -133,7 +136,7 @@ class HydrawiseController extends IPSModule
         foreach ($refs as $ref) {
             $this->UnregisterReference($ref);
         }
-        $propertyNames = ['ImportCategoryID', 'statusbox_script', 'webhook_script'];
+        $propertyNames = ['ImportCategoryID', 'statusbox_script', 'webhook_script', 'WaterMeterID'];
         foreach ($propertyNames as $name) {
             $oid = $this->ReadPropertyInteger($name);
             if ($oid > 0) {
@@ -309,6 +312,12 @@ class HydrawiseController extends IPSModule
         $items[] = ['type' => 'CheckBox', 'name' => 'with_waterusage', 'caption' => 'water usage'];
         $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
         $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional controller data'];
+
+        $items = [];
+        $items[] = ['type' => 'Label', 'caption' => 'using instead the Hydrawise-intern information of waterflow'];
+        $items[] = ['type' => 'SelectVariable', 'name' => 'WaterMeterID', 'caption' => 'Counter-variable'];
+        $items[] = ['type' => 'NumberSpinner', 'digits' => 4, 'name' => 'WaterMeterFactor', 'caption' => ' ... conversion factor to liter'];
+        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional wexternal water meter'];
 
         $items = [];
         $items[] = ['type' => 'ValidationTextBox', 'name' => 'hook', 'caption' => 'Webhook'];

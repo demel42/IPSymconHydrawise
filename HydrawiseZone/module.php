@@ -372,7 +372,7 @@ class HydrawiseZone extends IPSModule
 
         $timestr = $relay['timestr'];
         $suspended_until = $this->GetArrayElem($relay, 'suspended', 0);
-        if ($suspended_until > 0) {
+        if ($suspended_until > 0 && $timestr != 'Now') {
             $timestr = '';
         }
         switch ($timestr) {
@@ -415,14 +415,28 @@ class HydrawiseZone extends IPSModule
         }
 
         if ($is_running) {
+            $waterMeterID = false;
+            $waterMeterFactor = 0.0;
+            $instIDs = IPS_GetInstanceListByModuleID('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}');
+            foreach ($instIDs as $instID) {
+                if (IPS_GetProperty($instID, 'controller_id') == $controller_id) {
+                    $waterMeterID = IPS_GetProperty($instID, 'WaterMeterID');
+                    $waterMeterFactor = (float) IPS_GetProperty($instID, 'WaterMeterFactor');
+                    break;
+                }
+            }
+            $water_counter = $waterMeterID != false ? (float) GetValue($waterMeterID) : 0;
+
             $buf = $this->GetBuffer('currentRun');
             if ($buf != '') {
                 $current_run = json_decode($buf, true);
                 $last_water_usage = $current_run['water_usage'];
+                $last_water_counter = $current_run['water_counter'];
                 $time_begin = $current_run['time_begin'];
                 $last_server_time = $current_run['server_time'];
             } else {
                 $last_water_usage = 0;
+                $last_water_counter = $water_counter;
                 $last_server_time = $this->GetValue('NextRun'); // bis zum Ende des Laufs ist "NextRun" der Zeitpunkt des aktuellen Laufs
                 if (abs($last_server_time - $server_time) > 60) {
                     $last_server_time = $server_time;
@@ -441,12 +455,32 @@ class HydrawiseZone extends IPSModule
             $end = date('d.m.Y H:i', $time_end);
 
             if ($with_waterusage) {
-                $water_usage = $this->GetValue('WaterUsage');
-                $cur_water_flowrate = $waterflow;
-                $cur_water_usage = $cur_water_flowrate * ($cur_time_duration / 60.0);
-                $water_usage += $cur_water_usage;
+                if ($waterMeterID != false) {
+                    $water_usage = round(($water_counter - $last_water_counter) * $waterMeterFactor);
+                    $cur_water_usage = $water_usage - $this->GetValue('WaterUsage');
+                    if ($cur_water_usage > 0 && $cur_time_duration > 0) {
+                        $cur_water_flowrate = $cur_water_usage / ($cur_time_duration / 60.0);
+                        $cur_water_flowrate = floor($cur_water_flowrate * 100) / 100;
+                    } else {
+                        $cur_water_flowrate = 0;
+                    }
+                } else {
+                    $water_usage = $this->GetValue('WaterUsage');
+                    $cur_water_flowrate = $waterflow;
+                    if ($cur_time_duration > 0) {
+                        $cur_water_usage = $cur_water_flowrate * ($cur_time_duration / 60.0);
+                    } else {
+                        $cur_water_usage = 0;
+                    }
+                    $water_usage += $cur_water_usage;
+                }
 
-                $avg_water_flowrate = $tot_time_duration ? floor($water_usage / ($tot_time_duration / 60.0) * 100) / 100 : 0;
+                if ($water_usage > 0 && $tot_time_duration > 0) {
+                    $avg_water_flowrate = $water_usage / ($tot_time_duration / 60.0);
+                    $avg_water_flowrate = floor($avg_water_flowrate * 100) / 100;
+                } else {
+                    $avg_water_flowrate = 0;
+                }
 
                 $this->SetValue('WaterUsage', $water_usage);
                 switch ($with_flowrate) {
@@ -463,6 +497,9 @@ class HydrawiseZone extends IPSModule
                 $this->SendDebug(__FUNCTION__, 'save: begin=' . $begin . ', end=' . $end . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
                 $this->SendDebug(__FUNCTION__, ' * avg: duration=' . $tot_time_duration . 's, water_usage=' . $water_usage . ' => flowrate=' . $avg_water_flowrate, 0);
                 $this->SendDebug(__FUNCTION__, ' * cur: duration=' . $cur_time_duration . 's, water_usage=' . $cur_water_usage . ' => flowrate=' . $cur_water_flowrate, 0);
+                if ($waterMeterID != false) {
+                    $this->SendDebug(__FUNCTION__, ' * watermeter: start=' . $last_water_counter . ', cur=' . $water_counter, 0);
+                }
             } else {
                 $this->SendDebug(__FUNCTION__, 'save: begin=' . $begin . ', end=' . $end . ', left=' . $time_left . 's, duration=' . $tot_time_duration . 's', 0);
             }
@@ -472,6 +509,7 @@ class HydrawiseZone extends IPSModule
                 'time_end'      => $time_end,
                 'time_left'     => $time_left,
                 'server_time'   => $server_time,
+                'water_counter'	=> $last_water_counter,
             ];
             if ($with_waterusage) {
                 $current_run['water_usage'] = $water_usage;
@@ -489,6 +527,17 @@ class HydrawiseZone extends IPSModule
 
             $buf = $this->GetBuffer('currentRun');
             if ($buf != '') {
+                $waterMeterID = false;
+                $waterMeterFactor = 0.0;
+                $instIDs = IPS_GetInstanceListByModuleID('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}');
+                foreach ($instIDs as $instID) {
+                    if (IPS_GetProperty($instID, 'controller_id') == $controller_id) {
+                        $waterMeterID = IPS_GetProperty($instID, 'WaterMeterID');
+                        $waterMeterFactor = (float) IPS_GetProperty($instID, 'WaterMeterFactor');
+                        break;
+                    }
+                }
+
                 $current_run = json_decode($buf, true);
 
                 $time_begin = $current_run['time_begin'];
@@ -506,13 +555,28 @@ class HydrawiseZone extends IPSModule
                 $end = date('d.m.Y H:i', $time_end);
 
                 if ($with_waterusage) {
-                    $water_usage = $current_run['water_usage'];
                     $time_left = $current_run['time_left'];
                     $time_done = $time_end - $time_begin - $time_left;
-                    $water_estimated = ceil($water_usage / $time_done * $duration);
+
+                    if ($waterMeterID != false) {
+                        $water_counter = (float) GetValue($waterMeterID);
+                        $last_water_counter = $current_run['water_counter'];
+                        $water_usage = round(($water_counter - $last_water_counter) * $waterMeterFactor);
+                        $water_estimated = $water_usage;
+                    } else {
+                        $water_usage = $current_run['water_usage'];
+                        if ($water_usage > 0 && $time_done > 0) {
+                            $water_estimated = ceil($water_usage / $time_done * $duration);
+                        } else {
+                            $water_estimated = 0;
+                        }
+                    }
 
                     $this->SendDebug(__FUNCTION__, 'restore: begin=' . $begin . ', end=' . $end . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
                     $this->SendDebug(__FUNCTION__, ' * duration=' . $duration . 's/' . $time_duration . 'm, done=' . $time_done . ' => water_estimated=' . $water_estimated, 0);
+                    if ($waterMeterID != false) {
+                        $this->SendDebug(__FUNCTION__, ' * watermeter: start=' . $last_water_counter . ', cur=' . $water_counter, 0);
+                    }
                 } else {
                     $this->SendDebug(__FUNCTION__, 'restore: begin=' . $begin . ', end=' . $end . ', duration=' . $duration . 's/' . $time_duration . 'm', 0);
                 }
