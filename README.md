@@ -325,6 +325,9 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.22 @ 17.06.2020 21:40
+  - Fix: falscher Timer
+
 - 1.21 @ 03.05.2020 16:29
   - Anpassung an die neue API-Version 1.4<br>
     die API liefert keine Information mehr über:
