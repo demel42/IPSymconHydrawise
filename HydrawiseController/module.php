@@ -628,19 +628,22 @@ class HydrawiseController extends IPSModule
                         $is_running = true;
                         $time_left = $this->GetArrayElem($relay, 'run', 0);
                         $waterflow = $this->GetArrayElem($relay, 'waterflow', '');
-                        $this->SendDebug(__FUNCTION__, 'is running, time_left=' . $time_left . 's, waterflow=' . $waterflow . 'l/min', 0);
+                        $s = 'is running, time_left=' . $time_left . 's, waterflow=' . $waterflow . 'l/min';
                         break;
                     case '':
                         $is_suspended = true;
                         $suspended_until = $this->GetArrayElem($relay, 'suspended', 0);
-                        $this->SendDebug(__FUNCTION__, 'is suspended, suspended_until=' . date('d.m. H:i', (int) $suspended_until), 0);
+                        $s = 'is suspended, suspended_until=' . date('d.m. H:i', (int) $suspended_until);
                         break;
                     default:
                         $nextrun = $server_time + $time;
                         $duration = $this->GetArrayElem($relay, 'run', 0);
-                        $this->SendDebug(__FUNCTION__, 'is idle, nextrun=' . date('d.m. H:i', (int) $nextrun) . ', duration=' . $duration . 's', 0);
+                        $s = 'is idle, nextrun=' . date('d.m. H:i', (int) $nextrun) . ', duration=' . $duration . 's';
                         break;
                 }
+
+                $name = $relay['name'];
+                $this->SendDebug(__FUNCTION__, 'relay=' . $relay_id . '(' . $name . '): ' . $s . ', lastrun=' . date('d.m. H:i', (int) $relay['lastrun']), 0);
 
                 $relay['nextrun'] = $nextrun;
                 $relay['duration'] = $duration;
@@ -726,7 +729,6 @@ class HydrawiseController extends IPSModule
                 $relay_id = $relay['relay_id'];
                 $name = $relay['name'];
                 $lastrun = $relay['lastrun'];
-                $this->SendDebug(__FUNCTION__, 'relay=' . $relay_id . '(' . $name . '), lastrun=' . date('d.m. H:i', (int) $lastrun), 0);
 
                 $is_today = false;
                 if (date('d.m.Y', $lastrun) == date('d.m.Y', $now)) {
