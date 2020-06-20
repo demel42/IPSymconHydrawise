@@ -96,13 +96,6 @@ class HydrawiseIO extends IPSModule
         return $form;
     }
 
-    protected function SendData($data)
-    {
-        $data['DataID'] = '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}';
-        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-        $this->SendDataToChildren(json_encode($data));
-    }
-
     public function ForwardData($data)
     {
         $inst = IPS_GetInstance($this->InstanceID);
@@ -122,8 +115,14 @@ class HydrawiseIO extends IPSModule
                     $ret = $this->SendCommand($jdata['Url']);
                     break;
                 case 'ClearDailyValue':
-                    $data = ['Function' => $jdata['Function'], 'controller_id' => $jdata['controller_id']];
-                    $this->SendData($data);
+                    // an HydrawiseSensor, HydrawiseZone
+                    $sdata = [
+                        'DataID'        => '{D957666E-B6E3-A44F-2515-9B5F009ACC2D}',
+                        'Function'      => $jdata['Function'],
+                        'controller_id' => $jdata['controller_id']
+                    ];
+                    $this->SendDebug(__FUNCTION__, 'SendDataToChildren(' . print_r($sdata, true) . ')', 0);
+                    $this->SendDataToChildren(json_encode($sdata));
                     break;
                 case 'UpdateController':
                     $controller_id = $jdata['controller_id'];
@@ -140,9 +139,24 @@ class HydrawiseIO extends IPSModule
                     $controller_id = $jdata['controller_id'];
                     $ret = $this->GetControllerDetails($controller_id);
                     break;
+                case 'CollectZoneValues':
+                    $controller_id = $jdata['controller_id'];
+                    $ret = $this->CollectZoneValues($controller_id);
+                    break;
+                case 'CollectControllerValues':
+                    $controller_id = $jdata['controller_id'];
+                    $ret = $this->CollectControllerValues($controller_id);
+                    break;
                 case 'SetMessage':
-                    $data = ['Function' => $jdata['Function'], 'msg' => $jdata['msg'], 'controller_id' => $jdata['controller_id']];
-                    $this->SendData($data);
+                    // an HydrawiseController
+                    $sdata = [
+                        'DataID'        => '{A800ED12-C177-80A3-A15C-0B6E0052640D}',
+                        'Function'      => $jdata['Function'],
+                        'msg'           => $jdata['msg'],
+                        'controller_id' => $jdata['controller_id']
+                    ];
+                    $this->SendDebug(__FUNCTION__, 'SendDataToChildren(' . print_r($sdata, true) . ')', 0);
+                    $this->SendDataToChildren(json_encode($sdata));
                     break;
                 default:
                     $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata['Function'] . '"', 0);
@@ -259,7 +273,13 @@ class HydrawiseIO extends IPSModule
             $jdata['status'] = $status;
             $jdata['local'] = $local_data;
             $data = json_encode($jdata);
-            $this->SendData(['AllData' => $data]);
+            // an HydrawiseController, HydrawiseSensor, HydrawiseZone
+            $sdata = [
+                'DataID'  => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}',
+                'AllData' => $data
+            ];
+            $this->SendDebug(__FUNCTION__, 'SendDataToChildren(' . print_r($sdata, true) . ')', 0);
+            $this->SendDataToChildren(json_encode($sdata));
             $this->SetStatus(IS_ACTIVE);
             $status = true;
         } else {
@@ -283,7 +303,13 @@ class HydrawiseIO extends IPSModule
             $jdata = json_decode($data, true);
             $jdata['controller_id'] = $controller_id;
             $data = json_encode($jdata);
-            $this->SendData(['LocalData' => $data]);
+            // an HydrawiseController
+            $sdata = [
+                'DataID'    => '{A800ED12-C177-80A3-A15C-0B6E0052640D}',
+                'LocalData' => $data
+            ];
+            $this->SendDebug(__FUNCTION__, 'SendDataToChildren(' . print_r($sdata, true) . ')', 0);
+            $this->SendDataToChildren(json_encode($sdata));
             $this->SetStatus(IS_ACTIVE);
             $status = true;
         } else {
@@ -293,6 +319,44 @@ class HydrawiseIO extends IPSModule
         $ret = json_encode(['status' => $status]);
         $this->SendDebug(__FUNCTION__, 'ret=' . print_r($ret, true), 0);
         return $ret;
+    }
+
+    private function CollectZoneValues(string $controller_id)
+    {
+        if ($this->GetStatus() == IS_INACTIVE) {
+            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            return false;
+        }
+
+        // an HydrawiseZone
+        $sdata = [
+            'DataID'        => '{C424E279-1362-96A6-7D22-B879926BF95F}',
+            'Function'      => 'CollectZoneValues',
+            'controller_id' => $controller_id
+        ];
+        $this->SendDebug(__FUNCTION__, 'SendDataToChildren(' . print_r($sdata, true) . ')', 0);
+        $responses = $this->SendDataToChildren(json_encode($sdata));
+        $this->SendDebug(__FUNCTION__, 'responses=' . print_r($responses, true), 0);
+        return json_encode($responses);
+    }
+
+    private function CollectControllerValues(string $controller_id)
+    {
+        if ($this->GetStatus() == IS_INACTIVE) {
+            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            return false;
+        }
+
+        // an HydrawiseController
+        $sdata = [
+            'DataID'        => '{A800ED12-C177-80A3-A15C-0B6E0052640D}',
+            'Function'      => 'CollectControllerValues',
+            'controller_id' => $controller_id
+        ];
+        $this->SendDebug(__FUNCTION__, 'SendDataToChildren(' . print_r($sdata, true) . ')', 0);
+        $responses = $this->SendDataToChildren(json_encode($sdata));
+        $this->SendDebug(__FUNCTION__, 'responses=' . print_r($responses, true), 0);
+        return json_encode($responses);
     }
 
     private function GetControllerDetails(string $controller_id)

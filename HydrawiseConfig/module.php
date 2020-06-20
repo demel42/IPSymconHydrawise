@@ -65,9 +65,13 @@ class HydrawiseConfig extends IPSModule
 
     public function getConfiguratorValues()
     {
-        $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CustomerDetails'];
-        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-        $data = $this->SendDataToParent(json_encode($data));
+        // an HydrawiseIO
+        $sdata = [
+            'DataID'   => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+            'Function' => 'CustomerDetails'
+        ];
+        $this->SendDebug(__FUNCTION__, 'SendDataToParent(' . print_r($sdata, true) . ')', 0);
+        $data = $this->SendDataToParent(json_encode($sdata));
         $customer = json_decode($data, true);
         $this->SendDebug(__FUNCTION__, 'customer=' . print_r($customer, true), 0);
 

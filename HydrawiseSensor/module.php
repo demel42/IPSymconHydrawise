@@ -169,9 +169,6 @@ class HydrawiseSensor extends IPSModule
                     case 'ClearDailyValue':
                         $this->ClearDailyValue();
                         break;
-                    case 'SetMessage':
-                        $this->SendDebug(__FUNCTION__, 'ignore function "' . $jdata['Function'] . '"', 0);
-                        break;
                     default:
                         $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata['Function'] . '"', 0);
                         break;
@@ -231,30 +228,32 @@ class HydrawiseSensor extends IPSModule
                         $daily_waterusage = 0;
                         if (isset($sensor['relays'])) {
                             $relays = $sensor['relays'];
-                            $instIDs = IPS_GetInstanceListByModuleID('{6A0DAE44-B86A-4D50-A76F-532365FD88AE}');
-                            foreach ($instIDs as $instID) {
-                                $relay_id = IPS_GetProperty($instID, 'relay_id');
-                                foreach ($relays as $relay) {
-                                    if ($relay['id'] == $relay_id) {
-                                        $name = IPS_GetName($instID);
 
-                                        $varID = @IPS_GetObjectIDByIdent('WaterFlowrate', $instID);
-                                        if ($varID) {
-                                            $f = GetValueFloat($varID);
+                            $ret = $this->CollectZoneValues();
+                            $responses = json_decode($ret, true);
+
+                            foreach ($relays as $relay) {
+                                $relay_id = $relay['id'];
+
+                                // Daten aus den HydrawiseZone-Instanzen ergänzen
+                                foreach ($responses as $response) {
+                                    $values = json_decode($response, true);
+                                    if ($values['relay_id'] == $relay_id) {
+                                        $name = $values['Name'];
+                                        if (isset($values['WaterFlowrate'])) {
+                                            $f = $values['WaterFlowrate'];
                                             if ($f > 0) {
-                                                $water_flowrate = $f;
+                                                $water_flowrate += $f;
                                                 $this->SendDebug(__FUNCTION__, '  relay_id=' . $relay_id . '(' . $name . '), water_flowrate=' . $water_flowrate, 0);
                                             }
                                         }
-                                        if ($with_daily_value) {
-                                            $varID = @IPS_GetObjectIDByIdent('DailyWaterUsage', $instID);
-                                            if ($varID) {
-                                                $f = GetValueFloat($varID);
+                                        if (isset($values['DailyWaterUsage'])) {
+                                            $f = $values['DailyWaterUsage'];
+                                            if ($f > 0) {
                                                 $daily_waterusage += $f;
                                                 $this->SendDebug(__FUNCTION__, '  relay_id=' . $relay_id . '(' . $name . '), waterusage=' . $f . ' => ' . $daily_waterusage, 0);
                                             }
                                         }
-                                        break;
                                     }
                                 }
                             }
@@ -299,5 +298,25 @@ class HydrawiseSensor extends IPSModule
         if ($with_daily_value) {
             $this->SetValue('DailyWaterUsage', 0);
         }
+    }
+
+    public function CollectZoneValues()
+    {
+        if ($this->GetStatus() == IS_INACTIVE) {
+            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            return;
+        }
+
+        // an HydrawiseIO
+        $controller_id = $this->ReadPropertyString('controller_id');
+        $sdata = [
+            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+            'Function'      => 'CollectZoneValues',
+            'controller_id' => $controller_id
+        ];
+        $this->SendDebug(__FUNCTION__, 'SendDataToParent(' . print_r($sdata, true) . ')', 0);
+        $responses = $this->SendDataToParent(json_encode($sdata));
+        $this->SendDebug(__FUNCTION__, 'responses=' . print_r($responses, true), 0);
+        return $responses;
     }
 }

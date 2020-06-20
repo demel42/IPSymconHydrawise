@@ -261,8 +261,9 @@ class HydrawiseZone extends IPSModule
                     case 'ClearDailyValue':
                         $this->ClearDailyValue();
                         break;
-                    case 'SetMessage':
-                        $this->SendDebug(__FUNCTION__, 'ignore function "' . $jdata['Function'] . '"', 0);
+                    case 'CollectZoneValues':
+                        $responses = $this->CollectZoneValues();
+                        return $responses;
                         break;
                     default:
                         $this->SendDebug(__FUNCTION__, 'unknown function "' . $jdata['Function'] . '"', 0);
@@ -417,14 +418,18 @@ class HydrawiseZone extends IPSModule
         if ($is_running) {
             $waterMeterID = false;
             $waterMeterFactor = 0.0;
-            $instIDs = IPS_GetInstanceListByModuleID('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}');
-            foreach ($instIDs as $instID) {
-                if (IPS_GetProperty($instID, 'controller_id') == $controller_id) {
-                    $waterMeterID = IPS_GetProperty($instID, 'WaterMeterID');
-                    $waterMeterFactor = (float) IPS_GetProperty($instID, 'WaterMeterFactor');
+
+            $ret = $this->CollectControllerValues();
+            $responses = json_decode($ret, true);
+            foreach ($responses as $response) {
+                $values = json_decode($response, true);
+                if ($values['controller_id'] == $controller_id) {
+                    $waterMeterID = $values['WaterMeterID'];
+                    $waterMeterFactor = $values['waterMeterFactor'];
                     break;
                 }
             }
+
             $water_counter = $waterMeterID != false ? (float) GetValue($waterMeterID) : 0;
 
             $buf = $this->GetBuffer('currentRun');
@@ -437,7 +442,7 @@ class HydrawiseZone extends IPSModule
             } else {
                 $last_water_usage = 0;
                 $last_water_counter = $water_counter;
-                $last_server_time = $this->GetValue('NextRun'); // bis zum Ende des Laufs ist "NextRun" der Zeitpunkt des aktuellen Laufs
+                $last_server_time = (int) $this->GetValue('NextRun'); // bis zum Ende des Laufs ist "NextRun" der Zeitpunkt des aktuellen Laufs
                 if (abs($last_server_time - $server_time) > 60) {
                     $last_server_time = $server_time;
                 }
@@ -529,11 +534,14 @@ class HydrawiseZone extends IPSModule
             if ($buf != '') {
                 $waterMeterID = false;
                 $waterMeterFactor = 0.0;
-                $instIDs = IPS_GetInstanceListByModuleID('{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}');
-                foreach ($instIDs as $instID) {
-                    if (IPS_GetProperty($instID, 'controller_id') == $controller_id) {
-                        $waterMeterID = IPS_GetProperty($instID, 'WaterMeterID');
-                        $waterMeterFactor = (float) IPS_GetProperty($instID, 'WaterMeterFactor');
+
+                $ret = $this->CollectControllerValues();
+                $responses = json_decode($ret, true);
+                foreach ($responses as $response) {
+                    $values = json_decode($response, true);
+                    if ($values['controller_id'] == $controller_id) {
+                        $waterMeterID = $values['WaterMeterID'];
+                        $waterMeterFactor = $values['waterMeterFactor'];
                         break;
                     }
                 }
@@ -655,6 +663,59 @@ class HydrawiseZone extends IPSModule
         }
     }
 
+    protected function CollectZoneValues()
+    {
+        $relay_id = $this->ReadPropertyString('relay_id');
+
+        $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
+        $with_waterusage = $this->ReadPropertyBoolean('with_waterusage');
+        $with_flowrate = $this->ReadPropertyInteger('with_flowrate');
+
+        $jdata = [
+            'relay_id'     => $relay_id,
+            'Name'         => IPS_GetName($this->InstanceID),
+            'LastRun'      => (int) $this->GetValue('LastRun'),
+            'SuspendUntil' => (int) $this->GetValue('SuspendUntil'),
+            'LastDuration' => (int) $this->GetValue('LastDuration'),
+        ];
+
+        if ($with_daily_value) {
+            $jdata['DailyDuration'] = (int) $this->GetValue('DailyDuration');
+        }
+
+        if ($with_daily_value && $with_waterusage) {
+            $jdata['DailyWaterUsage'] = (float) $this->GetValue('DailyWaterUsage');
+        }
+
+        if ($with_flowrate != FLOW_RATE_NONE) {
+            $jdata['WaterFlowrate'] = (float) $this->GetValue('WaterFlowrate');
+        }
+
+        $data = json_encode($jdata);
+        $this->SendDebug(__FUNCTION__, 'data=' . $data, 0);
+        return $data;
+    }
+
+    protected function CollectControllerValues()
+    {
+        if ($this->GetStatus() == IS_INACTIVE) {
+            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            return;
+        }
+
+        // an HydrawiseIO
+        $controller_id = $this->ReadPropertyString('controller_id');
+        $sdata = [
+            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+            'Function'      => 'CollectControllerValues',
+            'controller_id' => $controller_id
+        ];
+        $this->SendDebug(__FUNCTION__, 'SendDataToParent(' . print_r($sdata, true) . ')', 0);
+        $responses = $this->SendDataToParent(json_encode($sdata));
+        $this->SendDebug(__FUNCTION__, 'responses=' . print_r($responses, true), 0);
+        return $responses;
+    }
+
     public function RequestAction($Ident, $Value)
     {
         switch ($Ident) {
@@ -699,22 +760,40 @@ class HydrawiseZone extends IPSModule
 
     private function SendCmdUrl($url)
     {
-        $SendData = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'CmdUrl', 'Url' => $url];
-        $data = $this->SendDataToParent(json_encode($SendData));
+        // an HydrawiseIO
+        $sdata = [
+            'DataID'   => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+            'Function' => 'CmdUrl',
+            'Url'      => $url
+        ];
+        $this->SendDebug(__FUNCTION__, 'SendDataToParent(' . print_r($sdata, true) . ')', 0);
+        $data = $this->SendDataToParent(json_encode($sdata));
         $jdata = json_decode($data, true);
+
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($jdata, true), 0);
 
         if (isset($jdata['msg'])) {
+            // an HydrawiseIO
             $controller_id = $this->ReadPropertyString('controller_id');
-            $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'SetMessage', 'msg' => $jdata['msg'], 'controller_id' => $controller_id];
-            $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-            $this->SendDataToParent(json_encode($data));
+            $sdata = [
+                'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+                'Function'      => 'SetMessage',
+                'msg'           => $jdata['msg'],
+                'controller_id' => $controller_id
+            ];
+            $this->SendDebug(__FUNCTION__, 'SendDataToParent(' . print_r($sdata, true) . ')', 0);
+            $data = $this->SendDataToParent(json_encode($sdata));
         }
 
+        // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
-        $data = ['DataID' => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', 'Function' => 'UpdateController', 'controller_id' => $controller_id];
-        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-        $this->SendDataToParent(json_encode($data));
+        $sdata = [
+            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+            'Function'      => 'UpdateController',
+            'controller_id' => $controller_id
+        ];
+        $this->SendDebug(__FUNCTION__, 'SendDataToParent(' . print_r($sdata, true) . ')', 0);
+        $data = $this->SendDataToParent(json_encode($sdata));
 
         return $jdata['status'];
     }

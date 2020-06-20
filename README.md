@@ -320,10 +320,18 @@ GUIDs
   - HydrawiseZone: `{6A0DAE44-B86A-4D50-A76F-532365FD88AE}`
   - HydrawiseSensor: `{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}`
 - Nachrichten:
-  - `{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}`: an HydrawiseConfig, HydrawiseController, HydrawiseSensor, HydrawiseZone
   - `{B54B579C-3992-4C1D-B7A8-4A129A78ED03}`: an HydrawiseIO
+  - `{A800ED12-C177-80A3-A15C-0B6E0052640D}`: an HydrawiseController
+  - `{C424E279-1362-96A6-7D22-B879926BF95F}`: an HydrawiseZone
+  - `{D957666E-B6E3-A44F-2515-9B5F009ACC2D}`: an HydrawiseSensor, HydrawiseZone
+  - `{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}`: an HydrawiseController, HydrawiseSensor, HydrawiseZone
 
 ## 7. Versions-Historie
+
+- 1.23 @ 20.06.2020 14:33
+  - Anpassungen an IPS 5.4<br>
+    - Umstellung der Variablenabfrage von HydrawiseZone/HydrawiseController-Instanzen auf Nachrichtenfluss<br>
+      SendDataToChildren() liefert nun ein Array der Werte der ReceivsData-Rückgabewerte
 
 - 1.22 @ 17.06.2020 21:40
   - Fix: falscher Timer
