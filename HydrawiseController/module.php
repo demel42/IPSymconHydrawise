@@ -803,7 +803,7 @@ class HydrawiseController extends IPSModule
 
         // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
-        $data = [
+        $sdata = [
             'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
             'Function'      => 'ClearDailyValue',
             'controller_id' => $controller_id
