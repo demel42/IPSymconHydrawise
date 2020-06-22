@@ -467,7 +467,6 @@ class HydrawiseController extends IPSModule
                         break;
                     case 'CollectControllerValues':
                         $responses = $this->CollectControllerValues();
-        $this->SendDebug(__FUNCTION__, 'responses=' . $responses, 0);
                         return $responses;
                         break;
                     default:

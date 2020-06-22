@@ -273,7 +273,7 @@ class HydrawiseIO extends IPSModule
             $jdata['status'] = $status;
             $jdata['local'] = $local_data;
             $data = json_encode($jdata);
-            // an HydrawiseController, HydrawiseSensor, HydrawiseZone
+            // an HydrawiseSensor, HydrawiseZone
             $sdata = [
                 'DataID'  => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}',
                 'AllData' => $data
