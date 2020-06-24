@@ -328,7 +328,7 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.23 @ 21.06.2020 18:05
+- 1.23 @ 24.06.2020 12:47
   - Anpassungen an IPS 5.4<br>
     - Umstellung der Variablenabfrage von HydrawiseZone/HydrawiseController-Instanzen auf Nachrichtenfluss<br>
       SendDataToChildren() liefert nun ein Array der Werte der ReceivsData-Rückgabewerte
