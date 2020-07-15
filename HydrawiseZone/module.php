@@ -203,28 +203,88 @@ class HydrawiseZone extends IPSModule
             }
         }
 
-        $opts_flowrate = [];
-        $opts_flowrate[] = ['caption' => $this->Translate('no value'), 'value' => FLOW_RATE_NONE];
-        $opts_flowrate[] = ['caption' => $this->Translate('average of cycle'), 'value' => FLOW_RATE_AVERAGE];
-        $opts_flowrate[] = ['caption' => $this->Translate('current value'), 'value' => FLOW_RATE_CURRENT];
+        $opts_flowrate = [
+            [
+                'caption' => 'no value',
+                'value'   => FLOW_RATE_NONE
+            ],
+            [
+                'caption' => 'average of cycle',
+                'value'   => FLOW_RATE_AVERAGE
+            ],
+            [
+                'caption' => 'current value',
+                'value'   => FLOW_RATE_CURRENT
+            ]
+        ];
 
         $formElements = [];
-        $formElements[] = ['type' => 'Label', 'caption' => 'Hydrawise Zone'];
+        $formElements[] = [
+            'type' => 'Label', 'caption' => 'Hydrawise Zone'
+        ];
 
         $items = [];
-        $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
-        $items[] = ['type' => 'ValidationTextBox', 'name' => 'relay_id', 'caption' => 'Zone-ID'];
-        $items[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'Connector', 'options' => $opts_connector];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basic configuration (don\'t change)'];
+        $items[] = [
+            'type'    => 'ValidationTextBox',
+            'name'    => 'controller_id',
+            'caption' => 'Controller-ID',
+            'enabled' => false
+        ];
+        $items[] = [
+            'type'    => 'ValidationTextBox',
+            'name'    => 'relay_id',
+            'caption' => 'Zone-ID',
+            'enabled' => false
+        ];
+        $items[] = [
+            'type'    => 'Select',
+            'name'    => 'connector',
+            'caption' => 'Connector',
+            'options' => $opts_connector,
+			'enabled' => false
+        ];
+        $formElements[] = [
+            'type'    => 'ExpansionPanel',
+            'items'   => $items,
+            'caption' => 'Basic configuration (don\'t change)'
+        ];
 
         $items = [];
-        $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
-        $items[] = ['type' => 'CheckBox', 'name' => 'with_workflow', 'caption' => 'watering workflow'];
-        $items[] = ['type' => 'CheckBox', 'name' => 'with_status', 'caption' => 'watering status'];
-        $items[] = ['type' => 'CheckBox', 'name' => 'with_waterusage', 'caption' => 'water usage'];
-        $items[] = ['type' => 'Select', 'name' => 'with_flowrate', 'caption' => 'flowrate', 'options' => $opts_flowrate];
-        $items[] = ['type' => 'SelectScript', 'name' => 'visibility_script', 'caption' => 'optional script to hide/show variables'];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional zone data'];
+        $items[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'with_daily_value',
+            'caption' => 'daily sum'
+        ];
+        $items[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'with_workflow',
+            'caption' => 'watering workflow'
+        ];
+        $items[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'with_status',
+            'caption' => 'watering status'
+        ];
+        $items[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'with_waterusage',
+            'caption' => 'water usage'
+        ];
+        $items[] = [
+            'type'    => 'Select',
+            'name'    => 'with_flowrate',
+            'caption' => 'flowrate',
+            'options' => $opts_flowrate];
+        $items[] = [
+            'type'    => 'SelectScript',
+            'name'    => 'visibility_script',
+            'caption' => 'optional script to hide/show variables'
+        ];
+        $formElements[] = [
+            'type'    => 'ExpansionPanel',
+            'items'   => $items,
+            'caption' => 'optional zone data'
+        ];
 
         return $formElements;
     }

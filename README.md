@@ -329,8 +329,9 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.24 @ 13.07.2020 14:56
+- 1.24 @ 15.07.2020 12:31
   - LICENSE.md hinzugefügt
+  - Properties der Basiskonfiguration sind nicht mehr editierbar
 
 - 1.23 @ 24.06.2020 12:47
   - Anpassungen an IPS 5.4<br>

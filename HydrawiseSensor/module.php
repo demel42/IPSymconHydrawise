@@ -110,28 +110,83 @@ class HydrawiseSensor extends IPSModule
             $opts_connector[] = ['caption' => $l, 'value' => $s];
         }
 
-        $opts_model = [];
-        $opts_model[] = ['caption' => $this->Translate('unknown'), 'value' => 0];
-        $opts_model[] = ['caption' => $this->Translate('normally close, action start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
-        $opts_model[] = ['caption' => $this->Translate('normally open, action stop'), 'value' => SENSOR_NORMALLY_OPEN_STOP];
-        $opts_model[] = ['caption' => $this->Translate('normally close, action stop'), 'value' => SENSOR_NORMALLY_CLOSE_STOP];
-        $opts_model[] = ['caption' => $this->Translate('normally open, action start'), 'value' => SENSOR_NORMALLY_CLOSE_START];
-        $opts_model[] = ['caption' => $this->Translate('flow meter'), 'value' => SENSOR_FLOW_METER];
+        $opts_model = [
+            [
+                'caption' => 'unknown',
+                'value'   => 0
+            ],
+            [
+                'caption' => 'normally close, action start',
+                'value'   => SENSOR_NORMALLY_CLOSE_START
+            ],
+            [
+                'caption' => 'normally open, action stop',
+                'value'   => SENSOR_NORMALLY_OPEN_STOP
+            ],
+            [
+                'caption' => 'normally close, action stop',
+                'value'   => SENSOR_NORMALLY_CLOSE_STOP
+            ],
+            [
+                'caption' => 'normally open, action start',
+                'value'   => SENSOR_NORMALLY_CLOSE_START
+            ],
+            [
+                'caption' => 'flow meter',
+                'value'   => SENSOR_FLOW_METER
+            ],
+        ];
 
         $formElements = [];
-        $formElements[] = ['type' => 'Label', 'caption' => 'Hydrawise Sensor'];
+        $formElements[] = [
+            'type'    => 'Label',
+            'caption' => 'Hydrawise Sensor'
+        ];
 
         $items = [];
-        $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
-        $items[] = ['type' => 'Select', 'name' => 'connector', 'caption' => 'connector', 'options' => $opts_connector];
-        $items[] = ['type' => 'Select', 'name' => 'model', 'caption' => 'model', 'options' => $opts_model];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basic configuration (don\'t change)'];
+        $items[] = [
+            'type'    => 'ValidationTextBox',
+            'name'    => 'controller_id',
+            'caption' => 'Controller-ID',
+            'enabled' => false
+        ];
+        $items[] = [
+            'type'    => 'Select',
+            'name'    => 'connector',
+            'caption' => 'connector',
+            'options' => $opts_connector,
+            'enabled' => false
+        ];
+        $items[] = [
+            'type'    => 'Select',
+            'name'    => 'model',
+            'caption' => 'model',
+            'options' => $opts_model,
+            'enabled' => false
+        ];
+        $formElements[] = [
+            'type'    => 'ExpansionPanel',
+            'items'   => $items,
+            'caption' => 'Basic configuration (don\'t change)'
+        ];
 
         if ($model == SENSOR_FLOW_METER) {
             $items = [];
-            $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
-            $items[] = ['type' => 'CheckBox', 'name' => 'with_flowrate', 'caption' => 'flowrate'];
-            $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional sensor data'];
+            $items[] = [
+                'type'    => 'CheckBox',
+                'name'    => 'with_daily_value',
+                'caption' => 'daily sum'
+            ];
+            $items[] = [
+                'type'    => 'CheckBox',
+                'name'    => 'with_flowrate',
+                'caption' => 'flowrate'
+            ];
+            $formElements[] = [
+                'type'    => 'ExpansionPanel',
+                'items'   => $items,
+                'caption' => 'optional sensor data'
+            ];
         }
 
         return $formElements;

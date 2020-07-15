@@ -301,44 +301,142 @@ class HydrawiseController extends IPSModule
     public function GetFormElements()
     {
         $formElements = [];
-        $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];
+        $formElements[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'module_disable',
+            'caption' => 'Instance is disabled'
+        ];
 
-        $formElements[] = ['type' => 'Label', 'caption' => 'Hydrawise Controller'];
-
-        $items = [];
-        $items[] = ['type' => 'ValidationTextBox', 'name' => 'controller_id', 'caption' => 'Controller-ID'];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Basic configuration (don\'t change)'];
-
-        $items = [];
-        $items[] = ['type' => 'CheckBox', 'name' => 'with_last_contact', 'caption' => 'last contact to Hydrawise'];
-        $items[] = ['type' => 'CheckBox', 'name' => 'with_last_message', 'caption' => 'last message'];
-        $items[] = ['type' => 'CheckBox', 'name' => 'with_status_box', 'caption' => 'html-box with state of irrigation'];
-        $items[] = ['type' => 'SelectScript', 'name' => 'statusbox_script', 'caption' => 'alternate script to use for the "StatusBox"'];
-        $items[] = ['type' => 'CheckBox', 'name' => 'with_waterusage', 'caption' => 'water usage'];
-        $items[] = ['type' => 'CheckBox', 'name' => 'with_daily_value', 'caption' => 'daily sum'];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional controller data'];
+        $formElements[] = [
+            'type'    => 'Label',
+            'caption' => 'Hydrawise Controller'
+        ];
 
         $items = [];
-        $items[] = ['type' => 'Label', 'caption' => 'using instead the Hydrawise-intern information of waterflow'];
-        $items[] = ['type' => 'SelectVariable', 'name' => 'WaterMeterID', 'caption' => 'Counter-variable'];
-        $items[] = ['type' => 'NumberSpinner', 'digits' => 4, 'name' => 'WaterMeterFactor', 'caption' => ' ... conversion factor to liter'];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'optional wexternal water meter'];
+        $items[] = [
+            'type'    => 'ValidationTextBox',
+            'name'    => 'controller_id',
+            'caption' => 'Controller-ID',
+            'enabled' => false
+        ];
+        $formElements[] = [
+            'type'    => 'ExpansionPanel',
+            'items'   => $items,
+            'caption' => 'Basic configuration (don\'t change)'
+        ];
 
         $items = [];
-        $items[] = ['type' => 'ValidationTextBox', 'name' => 'hook', 'caption' => 'Webhook'];
-        $items[] = ['type' => 'SelectScript', 'name' => 'webhook_script', 'caption' => 'alternate script to use for Webhook'];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Webhook'];
+        $items[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'with_last_contact',
+            'caption' => 'last contact to Hydrawise'
+        ];
+        $items[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'with_last_message',
+            'caption' => 'last message'
+        ];
+        $items[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'with_status_box',
+            'caption' => 'html-box with state of irrigation'
+        ];
+        $items[] = [
+            'type'    => 'SelectScript',
+            'name'    => 'statusbox_script',
+            'caption' => 'alternate script to use for the "StatusBox"'
+        ];
+        $items[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'with_waterusage',
+            'caption' => 'water usage'
+        ];
+        $items[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'with_daily_value',
+            'caption' => 'daily sum'
+        ];
+        $formElements[] = [
+            'type'    => 'ExpansionPanel',
+            'items'   => $items,
+            'caption' => 'optional controller data'
+        ];
 
         $items = [];
-        $items[] = ['type' => 'Label', 'caption' => 'Update data every X seconds'];
-        $items[] = ['type' => 'NumberSpinner', 'name' => 'update_interval', 'caption' => 'Interval', 'suffix' => 'Seconds'];
-        $items[] = ['type' => 'Label', 'caption' => 'Duration until the connection to hydrawise is marked disturbed'];
-        $items[] = ['type' => 'IntervalBox', 'name' => 'minutes2fail', 'caption' => 'Minutes'];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Communication'];
+        $items[] = [
+            'type'    => 'Label',
+            'caption' => 'using instead the Hydrawise-intern information of waterflow'
+        ];
+        $items[] = [
+            'type'    => 'SelectVariable',
+            'name'    => 'WaterMeterID',
+            'caption' => 'Counter-variable'
+        ];
+        $items[] = [
+            'type'    => 'NumberSpinner',
+            'digits'  => 4,
+            'name'    => 'WaterMeterFactor',
+            'caption' => ' ... conversion factor to liter'
+        ];
+        $formElements[] = [
+            'type'    => 'ExpansionPanel',
+            'items'   => $items,
+            'caption' => 'optional wexternal water meter'
+        ];
 
         $items = [];
-        $items[] = ['type' => 'Label', 'caption' => 'category for components to be created'];
-        $items[] = ['name' => 'ImportCategoryID', 'type' => 'SelectCategory', 'caption' => 'category'];
+        $items[] = [
+            'type'    => 'ValidationTextBox',
+            'name'    => 'hook',
+            'caption' => 'Webhook'
+        ];
+        $items[] = [
+            'type'    => 'SelectScript',
+            'name'    => 'webhook_script',
+            'caption' => 'alternate script to use for Webhook'
+        ];
+        $formElements[] = [
+            'type'    => 'ExpansionPanel',
+            'items'   => $items,
+            'caption' => 'Webhook'
+        ];
+
+        $items = [];
+        $items[] = [
+            'type'    => 'Label',
+            'caption' => 'Update data every X seconds'
+        ];
+        $items[] = [
+            'type'    => 'NumberSpinner',
+            'name'    => 'update_interval',
+            'caption' => 'Interval',
+            'suffix'  => 'Seconds'
+        ];
+        $items[] = [
+            'type'    => 'Label',
+            'caption' => 'Duration until the connection to hydrawise is marked disturbed'
+        ];
+        $items[] = [
+            'type'    => 'IntervalBox',
+            'name'    => 'minutes2fail',
+            'caption' => 'Minutes'
+        ];
+        $formElements[] = [
+            'type'    => 'ExpansionPanel',
+            'items'   => $items,
+            'caption' => 'Communication'
+        ];
+
+        $items = [];
+        $items[] = [
+            'type'    => 'Label',
+            'caption' => 'category for components to be created'
+        ];
+        $items[] = [
+            'type'    => 'SelectCategory',
+            'name'    => 'ImportCategoryID',
+            'caption' => 'category'
+        ];
 
         $entries = $this->getConfiguratorValues();
         $configurator = [
@@ -370,7 +468,11 @@ class HydrawiseController extends IPSModule
             'values' => $entries
         ];
         $items[] = $configurator;
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Sensors and zones'];
+        $formElements[] = [
+            'type'    => 'ExpansionPanel',
+            'items'   => $items,
+            'caption' => 'Sensors and zones'
+        ];
 
         return $formElements;
     }

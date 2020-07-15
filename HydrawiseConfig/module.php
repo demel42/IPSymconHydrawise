@@ -125,9 +125,16 @@ class HydrawiseConfig extends IPSModule
     {
         $formElements = [];
 
-        $formElements[] = ['type' => 'Label', 'caption' => 'Hydrawise Configurator'];
+        $formElements[] = [
+            'type'    => 'Label',
+            'caption' => 'Hydrawise Configurator'
+        ];
 
-        $formElements[] = ['name' => 'ImportCategoryID', 'type' => 'SelectCategory', 'caption' => 'category'];
+        $formElements[] = [
+            'type'    => 'SelectCategory',
+            'name'    => 'ImportCategoryID',
+            'caption' => 'category'
+        ];
 
         $entries = $this->getConfiguratorValues();
         $configurator = [

@@ -53,7 +53,11 @@ class HydrawiseIO extends IPSModule
     protected function GetFormActions()
     {
         $formActions = [];
-        $formActions[] = ['type' => 'Button', 'caption' => 'Test account', 'onClick' => 'Hydrawise_TestAccount($id);'];
+        $formActions[] = [
+            'type'    => 'Button',
+            'caption' => 'Test account',
+            'onClick' => 'Hydrawise_TestAccount($id);'
+        ];
 
         return $formActions;
     }
@@ -61,21 +65,57 @@ class HydrawiseIO extends IPSModule
     public function GetFormElements()
     {
         $formElements = [];
-        $formElements[] = ['type' => 'CheckBox', 'name' => 'module_disable', 'caption' => 'Instance is disabled'];
+        $formElements[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'module_disable',
+            'caption' => 'Instance is disabled'
+        ];
 
         $items = [];
-        $items[] = ['type' => 'Label', 'caption' => 'API-Key from https://app.hydrawise.com/config/account'];
-        $items[] = ['type' => 'ValidationTextBox', 'name' => 'api_key', 'caption' => 'API-Key'];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Hydrawise Access-Details'];
+        $items[] = [
+            'type'    => 'Label',
+            'caption' => 'API-Key from https://app.hydrawise.com/config/account'
+        ];
+        $items[] = [
+            'type'    => 'ValidationTextBox',
+            'name'    => 'api_key',
+            'caption' => 'API-Key'
+        ];
+        $formElements[] = [
+            'type'    => 'ExpansionPanel',
+            'items'   => $items,
+            'caption' => 'Hydrawise Access-Details'
+        ];
 
         $items = [];
-        $items[] = ['type' => 'ValidationTextBox', 'name' => 'host', 'caption' => 'Hostname'];
-        $items[] = ['type' => 'ValidationTextBox', 'name' => 'password', 'caption' => 'Password'];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'local Hydrawise-Controller'];
+        $items[] = [
+            'type'    => 'ValidationTextBox',
+            'name'    => 'host',
+            'caption' => 'Hostname'
+        ];
+        $items[] = [
+            'type'    => 'ValidationTextBox',
+            'name'    => 'password',
+            'caption' => 'Password'
+        ];
+        $formElements[] = [
+            'type'    => 'ExpansionPanel',
+            'items'   => $items,
+            'caption' => 'local Hydrawise-Controller'
+        ];
 
         $items = [];
-        $items[] = ['type' => 'NumberSpinner', 'name' => 'ignore_http_error', 'caption' => 'Ignore HTTP-Error X times', 'suffix' => 'Count'];
-        $formElements[] = ['type' => 'ExpansionPanel', 'items' => $items, 'caption' => 'Communication'];
+        $items[] = [
+            'type'    => 'NumberSpinner',
+            'name'    => 'ignore_http_error',
+            'caption' => 'Ignore HTTP-Error X times',
+            'suffix'  => 'Count'
+        ];
+        $formElements[] = [
+            'type'    => 'ExpansionPanel',
+            'items'   => $items,
+            'caption' => 'Communication'
+        ];
 
         return $formElements;
     }
