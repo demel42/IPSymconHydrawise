@@ -241,7 +241,7 @@ class HydrawiseZone extends IPSModule
             'name'    => 'connector',
             'caption' => 'Connector',
             'options' => $opts_connector,
-			'enabled' => false
+            'enabled' => false
         ];
         $formElements[] = [
             'type'    => 'ExpansionPanel',
