@@ -332,6 +332,8 @@ GUIDs
 - 1.24 @ 22.07.2020 14:48 (beta)
   - LICENSE.md hinzugefügt
   - Properties der Basiskonfiguration sind nicht mehr editierbar
+  - Nutzung von HasActiveParent(): Anzeige im Konfigurationsformular sowie entsprechende Absicherung von SendDataToParent()
+  - interne Funktionen sind nun "private"
   - library.php in local.php umbenannt
   - lokale Funktionen aus common.php in locale.php verlagert
 

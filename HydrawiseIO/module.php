@@ -50,7 +50,7 @@ class HydrawiseIO extends IPSModule
         $this->SetStatus(IS_ACTIVE);
     }
 
-    protected function GetFormActions()
+    private function GetFormActions()
     {
         $formActions = [];
         $formActions[] = [
@@ -62,7 +62,7 @@ class HydrawiseIO extends IPSModule
         return $formActions;
     }
 
-    public function GetFormElements()
+    private function GetFormElements()
     {
         $formElements = [];
         $formElements[] = [

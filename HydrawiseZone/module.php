@@ -183,14 +183,14 @@ class HydrawiseZone extends IPSModule
         $this->SetStatus(IS_ACTIVE);
     }
 
-    protected function GetFormActions()
+    private function GetFormActions()
     {
         $formActions = [];
 
         return $formActions;
     }
 
-    public function GetFormElements()
+    private function GetFormElements()
     {
         $opts_connector = [];
         $opts_connector[] = ['caption' => $this->Translate('no'), 'value' => 0];

@@ -38,7 +38,7 @@ class HydrawiseConfig extends IPSModule
         $this->SetStatus(IS_ACTIVE);
     }
 
-    protected function GetFormActions()
+    private function GetFormActions()
     {
         $formActions = [];
 
@@ -125,7 +125,7 @@ class HydrawiseConfig extends IPSModule
         return $entries;
     }
 
-    public function GetFormElements()
+    private function GetFormElements()
     {
         $formElements = [];
 

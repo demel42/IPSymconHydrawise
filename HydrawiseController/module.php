@@ -294,7 +294,7 @@ class HydrawiseController extends IPSModule
         return $entries;
     }
 
-    public function GetFormElements()
+    private function GetFormElements()
     {
         $formElements = [];
 
@@ -480,7 +480,7 @@ class HydrawiseController extends IPSModule
         return $formElements;
     }
 
-    protected function GetFormActions()
+    private function GetFormActions()
     {
         $formActions = [];
 

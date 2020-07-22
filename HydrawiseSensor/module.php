@@ -93,14 +93,14 @@ class HydrawiseSensor extends IPSModule
         $this->SetStatus(IS_ACTIVE);
     }
 
-    protected function GetFormActions()
+    private function GetFormActions()
     {
         $formActions = [];
 
         return $formActions;
     }
 
-    public function GetFormElements()
+    private function GetFormElements()
     {
         $model = $this->ReadPropertyInteger('model');
         $opts_connector = [];
