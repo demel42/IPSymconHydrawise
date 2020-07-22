@@ -219,6 +219,14 @@ class HydrawiseZone extends IPSModule
         ];
 
         $formElements = [];
+
+        if ($this->HasActiveParent() == false) {
+            $formElements[] = [
+                'type'    => 'Label',
+                'caption' => 'Instance has no active parent instance',
+            ];
+        }
+
         $formElements[] = [
             'type' => 'Label', 'caption' => 'Hydrawise Zone'
         ];
@@ -762,6 +770,11 @@ class HydrawiseZone extends IPSModule
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
             return;
         }
+        if ($this->HasActiveParent() == false) {
+            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
+            $this->LogMessage('has no active parent instance', KL_WARNING);
+            return;
+        }
 
         // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
@@ -820,6 +833,12 @@ class HydrawiseZone extends IPSModule
 
     private function SendCmdUrl($url)
     {
+        if ($this->HasActiveParent() == false) {
+            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
+            $this->LogMessage('has no active parent instance', KL_WARNING);
+            return;
+        }
+
         // an HydrawiseIO
         $sdata = [
             'DataID'   => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',

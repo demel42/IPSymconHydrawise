@@ -65,6 +65,14 @@ class HydrawiseConfig extends IPSModule
 
     public function getConfiguratorValues()
     {
+        $entries = [];
+
+        if ($this->HasActiveParent() == false) {
+            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
+            $this->LogMessage('has no active parent instance', KL_WARNING);
+            return $entries;
+        }
+
         // an HydrawiseIO
         $sdata = [
             'DataID'   => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
@@ -74,8 +82,6 @@ class HydrawiseConfig extends IPSModule
         $data = $this->SendDataToParent(json_encode($sdata));
         $customer = json_decode($data, true);
         $this->SendDebug(__FUNCTION__, 'customer=' . print_r($customer, true), 0);
-
-        $config_list = [];
 
         if ($customer != '') {
             $controllers = $this->GetArrayElem($customer, 'controllers', '');
@@ -96,34 +102,39 @@ class HydrawiseConfig extends IPSModule
                         }
                     }
 
-                    $create = [
-                        'moduleID'      => $guid,
-                        'location'      => $this->SetLocation(),
-                        'configuration' => [
-                            'controller_id' => "$controller_id",
-                        ]
-                    ];
-                    $create['info'] = $this->Translate('Controller') . ' (' . $controller_name . ')';
-
                     $entry = [
                         'instanceID'    => $instanceID,
                         'name'          => $controller_name,
                         'serial_number' => $serial_number,
-                        'create'        => $create
+                        'create'        => [
+                            'moduleID'      => $guid,
+                            'location'      => $this->SetLocation(),
+                            'info'          => $this->Translate('Controller') . ' (' . $controller_name . ')',
+                            'configuration' => [
+                                'controller_id' => "$controller_id",
+                            ]
+                        ]
                     ];
 
-                    $config_list[] = $entry;
+                    $entries[] = $entry;
                     $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
                 }
             }
         }
 
-        return $config_list;
+        return $entries;
     }
 
     public function GetFormElements()
     {
         $formElements = [];
+
+        if ($this->HasActiveParent() == false) {
+            $formElements[] = [
+                'type'    => 'Label',
+                'caption' => 'Instance has no active parent instance',
+            ];
+        }
 
         $formElements[] = [
             'type'    => 'Label',
@@ -137,7 +148,7 @@ class HydrawiseConfig extends IPSModule
         ];
 
         $entries = $this->getConfiguratorValues();
-        $configurator = [
+        $formElements[] = [
             'type'    => 'Configurator',
             'name'    => 'controller',
             'caption' => 'Controller',
@@ -160,7 +171,6 @@ class HydrawiseConfig extends IPSModule
             ],
             'values' => $entries
         ];
-        $formElements[] = $configurator;
 
         return $formElements;
     }

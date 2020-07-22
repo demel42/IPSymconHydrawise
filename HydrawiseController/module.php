@@ -151,16 +151,16 @@ class HydrawiseController extends IPSModule
         $this->SetStatus(IS_ACTIVE);
     }
 
-    protected function GetFormActions()
-    {
-        $formActions = [];
-        $formActions[] = ['type' => 'Button', 'caption' => 'Update Data', 'onClick' => 'Hydrawise_UpdateController($id);'];
-
-        return $formActions;
-    }
-
     public function getConfiguratorValues()
     {
+        $entries = [];
+
+        if ($this->HasActiveParent() == false) {
+            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
+            $this->LogMessage('has no active parent instance', KL_WARNING);
+            return $entries;
+        }
+
         // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
         $sdata = [
@@ -173,8 +173,6 @@ class HydrawiseController extends IPSModule
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
         $controller = $data != false ? json_decode($data, true) : [];
         $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
-
-        $config_list = [];
 
         if ($controller != '') {
             $controller_name = $this->GetArrayElem($controller, 'name', '');
@@ -239,7 +237,7 @@ class HydrawiseController extends IPSModule
                         'create'      => $create
                     ];
 
-                    $config_list[] = $entry;
+                    $entries[] = $entry;
                     $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
                 }
             }
@@ -288,19 +286,25 @@ class HydrawiseController extends IPSModule
                         'create'      => $create
                     ];
 
-                    $config_list[] = $entry;
-
-                    // $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
+                    $entries[] = $entry;
                 }
             }
         }
 
-        return $config_list;
+        return $entries;
     }
 
     public function GetFormElements()
     {
         $formElements = [];
+
+        if ($this->HasActiveParent() == false) {
+            $formElements[] = [
+                'type'    => 'Label',
+                'caption' => 'Instance has no active parent instance',
+            ];
+        }
+
         $formElements[] = [
             'type'    => 'CheckBox',
             'name'    => 'module_disable',
@@ -439,7 +443,7 @@ class HydrawiseController extends IPSModule
         ];
 
         $entries = $this->getConfiguratorValues();
-        $configurator = [
+        $items[] = [
             'type'    => 'Configurator',
             'name'    => 'components',
             'caption' => 'Components',
@@ -467,7 +471,6 @@ class HydrawiseController extends IPSModule
             ],
             'values' => $entries
         ];
-        $items[] = $configurator;
         $formElements[] = [
             'type'    => 'ExpansionPanel',
             'items'   => $items,
@@ -475,6 +478,19 @@ class HydrawiseController extends IPSModule
         ];
 
         return $formElements;
+    }
+
+    protected function GetFormActions()
+    {
+        $formActions = [];
+
+        $formActions[] = [
+            'type'    => 'Button',
+            'caption' => 'Update Data',
+            'onClick' => 'Hydrawise_UpdateController($id);'
+        ];
+
+        return $formActions;
     }
 
     public function GetConfigurationForm()
@@ -499,6 +515,11 @@ class HydrawiseController extends IPSModule
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
             return;
         }
+        if ($this->HasActiveParent() == false) {
+            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
+            $this->LogMessage('has no active parent instance', KL_WARNING);
+            return;
+        }
 
         // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
@@ -515,6 +536,11 @@ class HydrawiseController extends IPSModule
     {
         if ($this->GetStatus() == IS_INACTIVE) {
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            return;
+        }
+        if ($this->HasActiveParent() == false) {
+            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
+            $this->LogMessage('has no active parent instance', KL_WARNING);
             return;
         }
 
@@ -891,7 +917,11 @@ class HydrawiseController extends IPSModule
 
     protected function ClearDailyValue()
     {
-        $this->SendDebug(__FUNCTION__, '', 0);
+        if ($this->HasActiveParent() == false) {
+            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
+            $this->LogMessage('has no active parent instance', KL_WARNING);
+            return;
+        }
 
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
         if ($with_daily_value) {

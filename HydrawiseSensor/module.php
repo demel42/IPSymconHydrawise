@@ -138,6 +138,14 @@ class HydrawiseSensor extends IPSModule
         ];
 
         $formElements = [];
+
+        if ($this->HasActiveParent() == false) {
+            $formElements[] = [
+                'type'    => 'Label',
+                'caption' => 'Instance has no active parent instance',
+            ];
+        }
+
         $formElements[] = [
             'type'    => 'Label',
             'caption' => 'Hydrawise Sensor'
@@ -359,6 +367,11 @@ class HydrawiseSensor extends IPSModule
     {
         if ($this->GetStatus() == IS_INACTIVE) {
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            return;
+        }
+        if ($this->HasActiveParent() == false) {
+            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
+            $this->LogMessage('has no active parent instance', KL_WARNING);
             return;
         }
 
