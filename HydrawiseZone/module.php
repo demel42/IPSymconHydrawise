@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
-require_once __DIR__ . '/../libs/library.php';  // modul-bezogene Funktionen
+require_once __DIR__ . '/../libs/local.php';   // lokale Funktionen
 
 // Zone-Action
 if (!defined('ZONE_ACTION_STOP')) {
@@ -51,7 +51,7 @@ if (!defined('FLOW_RATE_NONE')) {
 class HydrawiseZone extends IPSModule
 {
     use HydrawiseCommon;
-    use HydrawiseLibrary;
+    use HydrawiseLocal;
 
     public function Create()
     {

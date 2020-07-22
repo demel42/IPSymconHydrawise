@@ -329,9 +329,11 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.24 @ 15.07.2020 12:31
+- 1.24 @ 22.07.2020 14:48 (beta)
   - LICENSE.md hinzugefügt
   - Properties der Basiskonfiguration sind nicht mehr editierbar
+  - library.php in local.php umbenannt
+  - lokale Funktionen aus common.php in locale.php verlagert
 
 - 1.23 @ 24.06.2020 12:47
   - Anpassungen an IPS 5.4<br>
