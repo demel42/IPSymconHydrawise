@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-trait HydrawiseCommon
+trait HydrawiseCommonLib
 {
     protected function SetValue($Ident, $Value)
     {

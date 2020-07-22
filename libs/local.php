@@ -16,7 +16,7 @@ if (!defined('RELAY_TYPE_PROGRAMMED')) {
     define('RELAY_TYPE_SUSPENDED', 110);
 }
 
-trait HydrawiseLocal
+trait HydrawiseLocalLib
 {
     public static $IS_INVALIDCONFIG = IS_EBASE + 1;
     public static $IS_UNAUTHORIZED = IS_EBASE + 1;

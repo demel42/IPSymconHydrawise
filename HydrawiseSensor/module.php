@@ -7,8 +7,8 @@ require_once __DIR__ . '/../libs/local.php';   // lokale Funktionen
 
 class HydrawiseSensor extends IPSModule
 {
-    use HydrawiseCommon;
-    use HydrawiseLocal;
+    use HydrawiseCommonLib;
+    use HydrawiseLocalLib;
 
     public function Create()
     {

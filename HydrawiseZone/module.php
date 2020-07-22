@@ -50,8 +50,8 @@ if (!defined('FLOW_RATE_NONE')) {
 
 class HydrawiseZone extends IPSModule
 {
-    use HydrawiseCommon;
-    use HydrawiseLocal;
+    use HydrawiseCommonLib;
+    use HydrawiseLocalLib;
 
     public function Create()
     {

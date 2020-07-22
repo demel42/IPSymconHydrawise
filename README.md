@@ -336,6 +336,7 @@ GUIDs
   - interne Funktionen sind nun "private"
   - library.php in local.php umbenannt
   - lokale Funktionen aus common.php in locale.php verlagert
+  - Traits des Moduls haben nun Postfix "Lib"
 
 - 1.23 @ 24.06.2020 12:47
   - Anpassungen an IPS 5.4<br>
