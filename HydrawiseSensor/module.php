@@ -293,7 +293,7 @@ class HydrawiseSensor extends IPSModule
                             $relays = $sensor['relays'];
 
                             $ret = $this->CollectZoneValues();
-                            $responses = json_decode($ret, true);
+                            $responses = $ret == false ? [] : json_decode($ret, true);
 
                             foreach ($relays as $relay) {
                                 $relay_id = $relay['id'];
@@ -367,12 +367,12 @@ class HydrawiseSensor extends IPSModule
     {
         if ($this->GetStatus() == IS_INACTIVE) {
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
-            return;
+            return false;
         }
         if ($this->HasActiveParent() == false) {
             $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
             $this->LogMessage('has no active parent instance', KL_WARNING);
-            return;
+            return false;
         }
 
         // an HydrawiseIO
