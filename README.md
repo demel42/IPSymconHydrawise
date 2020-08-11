@@ -329,7 +329,7 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.24 @ 23.07.2020 09:43 (beta)
+- 1.24 @ 11.08.2020 18:42 (beta)
   - LICENSE.md hinzugefügt
   - Properties der Basiskonfiguration sind nicht mehr editierbar
   - Nutzung von HasActiveParent(): Anzeige im Konfigurationsformular sowie entsprechende Absicherung von SendDataToParent()

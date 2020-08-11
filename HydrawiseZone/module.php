@@ -488,7 +488,7 @@ class HydrawiseZone extends IPSModule
             $waterMeterFactor = 0.0;
 
             $ret = $this->CollectControllerValues();
-            $responses = json_decode($ret, true);
+            $responses = $ret != false ? json_decode($ret, true) : [];
             foreach ($responses as $response) {
                 $values = json_decode($response, true);
                 if ($values['controller_id'] == $controller_id) {
@@ -604,7 +604,7 @@ class HydrawiseZone extends IPSModule
                 $waterMeterFactor = 0.0;
 
                 $ret = $this->CollectControllerValues();
-                $responses = json_decode($ret, true);
+                $responses = $ret != false ? json_decode($ret, true) : [];
                 foreach ($responses as $response) {
                     $values = json_decode($response, true);
                     if ($values['controller_id'] == $controller_id) {
