@@ -329,7 +329,7 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.24 @ 11.08.2020 18:42 (beta)
+- 1.24 @ 05.09.2020 11:12 (beta)
   - LICENSE.md hinzugefügt
   - Properties der Basiskonfiguration sind nicht mehr editierbar
   - Nutzung von HasActiveParent(): Anzeige im Konfigurationsformular sowie entsprechende Absicherung von SendDataToParent()
@@ -337,6 +337,7 @@ GUIDs
   - library.php in local.php umbenannt
   - lokale Funktionen aus common.php in locale.php verlagert
   - Traits des Moduls haben nun Postfix "Lib"
+  - define's durch statische Klassen-Variablen ersetzt
 
 - 1.23 @ 24.06.2020 12:47
   - Anpassungen an IPS 5.4<br>

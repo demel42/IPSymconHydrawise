@@ -44,14 +44,14 @@ class HydrawiseSensor extends IPSModule
         $vpos = 1;
 
         switch ($model) {
-            case SENSOR_FLOW_METER:
+            case self::$SENSOR_FLOW_METER:
                 $this->MaintainVariable('WaterFlowrate', $this->Translate('Water flow rate (current)'), VARIABLETYPE_FLOAT, 'Hydrawise.WaterFlowrate', $vpos++, $with_flowrate);
                 $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value);
                 break;
-            case SENSOR_NORMALLY_CLOSE_START:
-            case SENSOR_NORMALLY_OPEN_STOP:
-            case SENSOR_NORMALLY_CLOSE_STOP:
-            case SENSOR_NORMALLY_OPEN_START:
+            case self::$SENSOR_NORMALLY_CLOSE_START:
+            case self::$SENSOR_NORMALLY_OPEN_STOP:
+            case self::$SENSOR_NORMALLY_CLOSE_STOP:
+            case self::$SENSOR_NORMALLY_OPEN_START:
                 $this->MaintainVariable('State', $this->Translate('State'), VARIABLETYPE_BOOLEAN, 'Hydrawise.RainSensor', $vpos++, true);
                 break;
             default:
@@ -63,19 +63,19 @@ class HydrawiseSensor extends IPSModule
         $this->UnregisterVariable('Flow');
 
         switch ($model) {
-            case SENSOR_FLOW_METER:
+            case self::$SENSOR_FLOW_METER:
                 $mode_txt = 'flow meter';
                 break;
-            case SENSOR_NORMALLY_CLOSE_START:
+            case self::$SENSOR_NORMALLY_CLOSE_START:
                 $mode_txt = 'normally close, start zone';
                 break;
-            case SENSOR_NORMALLY_OPEN_STOP:
+            case self::$SENSOR_NORMALLY_OPEN_STOP:
                 $mode_txt = 'normally open, stop zone';
                 break;
-            case SENSOR_NORMALLY_CLOSE_STOP:
+            case self::$SENSOR_NORMALLY_CLOSE_STOP:
                 $mode_txt = 'normally close, stop zone';
                 break;
-            case SENSOR_NORMALLY_OPEN_START:
+            case self::$SENSOR_NORMALLY_OPEN_START:
                 $mode_txt = 'normally open, start zone';
                 break;
             default:
@@ -117,23 +117,23 @@ class HydrawiseSensor extends IPSModule
             ],
             [
                 'caption' => 'normally close, action start',
-                'value'   => SENSOR_NORMALLY_CLOSE_START
+                'value'   => self::$SENSOR_NORMALLY_CLOSE_START
             ],
             [
                 'caption' => 'normally open, action stop',
-                'value'   => SENSOR_NORMALLY_OPEN_STOP
+                'value'   => self::$SENSOR_NORMALLY_OPEN_STOP
             ],
             [
                 'caption' => 'normally close, action stop',
-                'value'   => SENSOR_NORMALLY_CLOSE_STOP
+                'value'   => self::$SENSOR_NORMALLY_CLOSE_STOP
             ],
             [
                 'caption' => 'normally open, action start',
-                'value'   => SENSOR_NORMALLY_CLOSE_START
+                'value'   => self::$SENSOR_NORMALLY_CLOSE_START
             ],
             [
                 'caption' => 'flow meter',
-                'value'   => SENSOR_FLOW_METER
+                'value'   => self::$SENSOR_FLOW_METER
             ],
         ];
 
@@ -178,7 +178,7 @@ class HydrawiseSensor extends IPSModule
             'caption' => 'Basic configuration (don\'t change)'
         ];
 
-        if ($model == SENSOR_FLOW_METER) {
+        if ($model == self::$SENSOR_FLOW_METER) {
             $items = [];
             $items[] = [
                 'type'    => 'CheckBox',
@@ -286,7 +286,7 @@ class HydrawiseSensor extends IPSModule
                 }
                 $this->SendDebug(__FUNCTION__, 'sensor=' . print_r($sensor, true), 0);
                 switch ($model) {
-                    case SENSOR_FLOW_METER:
+                    case self::$SENSOR_FLOW_METER:
                         $water_flowrate = 0;
                         $daily_waterusage = 0;
                         if (isset($sensor['relays'])) {
@@ -331,10 +331,10 @@ class HydrawiseSensor extends IPSModule
                             }
                         }
                         break;
-                    case SENSOR_NORMALLY_CLOSE_START:
-                    case SENSOR_NORMALLY_OPEN_STOP:
-                    case SENSOR_NORMALLY_CLOSE_STOP:
-                    case SENSOR_NORMALLY_OPEN_START:
+                    case self::$SENSOR_NORMALLY_CLOSE_START:
+                    case self::$SENSOR_NORMALLY_OPEN_STOP:
+                    case self::$SENSOR_NORMALLY_CLOSE_STOP:
+                    case self::$SENSOR_NORMALLY_OPEN_START:
                         $mode = $sensor['mode'];
                         $active = $sensor['active'];
                         $timer = $sensor['timer'];

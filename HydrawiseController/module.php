@@ -189,19 +189,19 @@ class HydrawiseController extends IPSModule
                     $mode = $sensor['mode'];
 
                     if ($type == 1 && $mode == 1) {
-                        $model = SENSOR_NORMALLY_CLOSE_START;
+                        $model = self::$SENSOR_NORMALLY_CLOSE_START;
                         $mode_txt = 'sensor';
                     } elseif ($type == 1 && $mode == 2) {
-                        $model = SENSOR_NORMALLY_OPEN_STOP;
+                        $model = self::$SENSOR_NORMALLY_OPEN_STOP;
                         $mode_txt = 'sensor';
                     } elseif ($type == 1 && $mode == 3) {
-                        $model = SENSOR_NORMALLY_CLOSE_STOP;
+                        $model = self::$SENSOR_NORMALLY_CLOSE_STOP;
                         $mode_txt = 'sensor';
                     } elseif ($type == 1 && $mode == 4) {
-                        $model = SENSOR_NORMALLY_OPEN_START;
+                        $model = self::$SENSOR_NORMALLY_OPEN_START;
                         $mode_txt = 'sensor';
                     } elseif ($type == 3 && $mode == 0) {
-                        $model = SENSOR_FLOW_METER;
+                        $model = self::$SENSOR_FLOW_METER;
                         $mode_txt = 'flow meter';
                     } else {
                         continue;

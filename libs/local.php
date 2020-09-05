@@ -2,20 +2,6 @@
 
 declare(strict_types=1);
 
-if (!defined('SENSOR_NORMALLY_CLOSE_START')) {
-    define('SENSOR_NORMALLY_CLOSE_START', 11);
-    define('SENSOR_NORMALLY_OPEN_STOP', 12);
-    define('SENSOR_NORMALLY_CLOSE_STOP', 13);
-    define('SENSOR_NORMALLY_OPEN_START', 14);
-    define('SENSOR_FLOW_METER', 30);
-}
-
-if (!defined('RELAY_TYPE_PROGRAMMED')) {
-    define('RELAY_TYPE_PROGRAMMED', 1);
-    define('RELAY_TYPE_RUNNING', 106);
-    define('RELAY_TYPE_SUSPENDED', 110);
-}
-
 trait HydrawiseLocalLib
 {
     public static $IS_INVALIDCONFIG = IS_EBASE + 1;
@@ -29,6 +15,47 @@ trait HydrawiseLocalLib
     public static $IS_ZONE_MISSING = IS_EBASE + 9;
     public static $IS_USEDWEBHOOK = IS_EBASE + 10;
     public static $IS_TOOMANYREQUESTS = IS_EBASE + 11;
+
+    // Sensor-Type
+    public static $SENSOR_NORMALLY_CLOSE_START = 11;
+    public static $SENSOR_NORMALLY_OPEN_STOP = 12;
+    public static $SENSOR_NORMALLY_CLOSE_STOP = 13;
+    public static $SENSOR_NORMALLY_OPEN_START = 14;
+    public static $SENSOR_FLOW_METER = 30;
+
+    // Zone-Action
+    public static $ZONE_ACTION_STOP = -1;
+    public static $ZONE_ACTION_DEFAULT = 0;
+    public static $ZONE_ACTION_1MIN = 1;
+    public static $ZONE_ACTION_2MIN = 2;
+    public static $ZONE_ACTION_5MIN = 5;
+    public static $ZONE_ACTION_10MIN = 10;
+    public static $ZONE_ACTION_15MIN = 15;
+    public static $ZONE_ACTION_20MIN = 20;
+
+    public static $ZONE_SUSPEND_CLEAR = -1;
+    public static $ZONE_SUSPEND_1DAY = 1;
+    public static $ZONE_SUSPEND_2DAY = 2;
+    public static $ZONE_SUSPEND_7DAY = 7;
+
+    // aktuelle Zonen-Aktivität
+    public static $ZONE_WORKFLOW_SUSPENDED = -1;
+    public static $ZONE_WORKFLOW_MANUAL = 0;
+    public static $ZONE_WORKFLOW_SOON = 1;
+    public static $ZONE_WORKFLOW_SCHEDULED = 2;
+    public static $ZONE_WORKFLOW_WATERING = 3;
+    public static $ZONE_WORKFLOW_DONE = 4;
+    public static $ZONE_WORKFLOW_PARTIALLY = 5;
+
+    // aktueller Zonen-Status
+    public static $ZONE_STATUS_SUSPENDED = -1;
+    public static $ZONE_STATUS_IDLE = 0;
+    public static $ZONE_STATUS_WATERING = 1;
+
+    // Typ der Durchflussmessung
+    public static $FLOW_RATE_NONE = 0;
+    public static $FLOW_RATE_AVERAGE = 1;
+    public static $FLOW_RATE_CURRENT = 2;
 
     private function GetFormStatus()
     {
