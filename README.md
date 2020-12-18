@@ -329,7 +329,8 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.24 @ 12.09.2020 12:14 (beta)
+- 1.24 @ 18.12.2020 14:57 (beta)
+  - PHP_CS_FIXER_IGNORE_ENV=1 in github/workflows/style.yml eingefügt
   - LICENSE.md hinzugefügt
   - Properties der Basiskonfiguration sind nicht mehr editierbar
   - Nutzung von HasActiveParent(): Anzeige im Konfigurationsformular sowie entsprechende Absicherung von SendDataToParent()
