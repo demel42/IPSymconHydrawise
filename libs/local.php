@@ -5,7 +5,7 @@ declare(strict_types=1);
 trait HydrawiseLocalLib
 {
     public static $IS_INVALIDCONFIG = IS_EBASE + 1;
-    public static $IS_UNAUTHORIZED = IS_EBASE + 1;
+    public static $IS_UNAUTHORIZED = IS_EBASE + 2;
     public static $IS_SERVERERROR = IS_EBASE + 3;
     public static $IS_HTTPERROR = IS_EBASE + 4;
     public static $IS_INVALIDDATA = IS_EBASE + 5;

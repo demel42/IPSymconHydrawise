@@ -147,4 +147,26 @@ trait HydrawiseCommonLib
         }
         return $form;
     }
+
+    public function HasActiveParent()
+    {
+        $result = parent::HasActiveParent();
+        if ($result == false) {
+            $inst = IPS_GetInstance($this->InstanceID);
+            $status = $inst['InstanceStatus'];
+            $s = 'own status=' . $status;
+            while (true) {
+                $id = $inst['ConnectionID'];
+                if ($id == 0) {
+                    break;
+                }
+                $inst = IPS_GetInstance($id);
+                $status = $inst['InstanceStatus'];
+                $name = IPS_GetName($id);
+                $s .= ' => ' . $id . '(' . $name . '): status=' . $status;
+            }
+            $this->SendDebug(__FUNCTION__, $s, 0);
+        }
+        return $result;
+    }
 }

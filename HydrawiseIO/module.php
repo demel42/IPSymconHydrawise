@@ -122,8 +122,7 @@ class HydrawiseIO extends IPSModule
 
     public function ForwardData($data)
     {
-        $inst = IPS_GetInstance($this->InstanceID);
-        if ($inst['InstanceStatus'] == IS_INACTIVE) {
+        if ($this->GetStatus() == IS_INACTIVE) {
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
             return;
         }
@@ -205,7 +204,7 @@ class HydrawiseIO extends IPSModule
         $url = 'https://app.hydrawise.com/api/v1/customerdetails.php?api_key=' . $api_key . '&type=controllers';
         $data = $this->do_HttpRequest($url);
         if ($data == '') {
-            $txt .= $this->translate('invalid account-data') . PHP_EOL;
+            $txt = $this->translate('invalid account-data') . PHP_EOL;
             $txt .= PHP_EOL;
         } else {
             $txt = $this->translate('valid account-data') . PHP_EOL;
@@ -224,8 +223,7 @@ class HydrawiseIO extends IPSModule
 
     private function SendCommand(string $cmd_url)
     {
-        $inst = IPS_GetInstance($this->InstanceID);
-        if ($inst['InstanceStatus'] == IS_INACTIVE) {
+        if ($this->GetStatus() == IS_INACTIVE) {
             $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
             return false;
         }

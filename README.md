@@ -329,8 +329,10 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.25 @ 18.12.2020 14:57 (beta)
+- 1.25 @ 25.05.2021 13:48 (beta)
   - PHP_CS_FIXER_IGNORE_ENV=1 in github/workflows/style.yml eingefügt
+  - Bugfix in der IO-Instanz, TestAccount(): undefinierte Variable 'txt'
+  - Konstatenten-Definition fehlerhaft (doppelter Wert)
 
 - 1.24 @ 12.09.2020 12:14
   - LICENSE.md hinzugefügt
