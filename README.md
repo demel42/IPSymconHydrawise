@@ -333,6 +333,7 @@ GUIDs
   - PHP_CS_FIXER_IGNORE_ENV=1 in github/workflows/style.yml eingefügt
   - Bugfix in der IO-Instanz, TestAccount(): undefinierte Variable 'txt'
   - Konstatenten-Definition fehlerhaft (doppelter Wert)
+  - Schalter "Instanz ist deaktiviert" umbenannt in "Instanz deaktivieren"
 
 - 1.24 @ 12.09.2020 12:14
   - LICENSE.md hinzugefügt
