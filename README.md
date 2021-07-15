@@ -81,7 +81,7 @@ Hierüber findet die http-Kommunikation statt.
 
 | Eigenschaft                  | Typ     | Standardwert | Beschreibung |
 | :--------------------------- | :------ | :----------- | :----------- |
-| Instanz ist deaktiviert      | boolean | false        | Instanz temporär deaktivieren |
+| Instanz deaktivieren         | boolean | false        | Instanz temporär deaktivieren |
 |                              |         |              | |
 | Hydrawise-Zugangsdaten       |         |              | Benutzername und Passwort von https://app.hydrawise.com/config/login |
 | API-Key                      | string  |              | API-Key aus Hydrawiese-App (_Kontoinformationen_) |
