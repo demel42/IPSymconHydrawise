@@ -329,6 +329,9 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.26 @ 21.11.2021 10:20
+  - Fix: Abbruch bei fehlendem "relay" (Zone)
+
 - 1.25 @ 14.07.2021 18:37
   - PHP_CS_FIXER_IGNORE_ENV=1 in github/workflows/style.yml eingefügt
   - Bugfix in der IO-Instanz, TestAccount(): undefinierte Variable 'txt'

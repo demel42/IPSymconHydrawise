@@ -325,7 +325,7 @@ class HydrawiseZone extends IPSModule
         }
         if ($relay_found == false) {
             $err = 'relay_id "' . $relay_id . '" not found';
-            $statuscode = self::$IS_self::$ZONE_MISSING;
+            $statuscode = self::$IS_ZONE_MISSING;
             $do_abort = true;
         }
 
