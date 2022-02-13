@@ -329,6 +329,9 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.27 @ 13.02.2022 12:15
+  - Konfigurations-Element IntervalBox -> NumberSpinner
+
 - 1.26 @ 21.11.2021 10:20
   - Fix: Abbruch bei fehlendem "relay" (Zone)
 
