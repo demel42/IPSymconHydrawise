@@ -421,7 +421,7 @@ class HydrawiseController extends IPSModule
             'caption' => 'Duration until the connection to hydrawise is marked disturbed'
         ];
         $items[] = [
-            'type'    => 'IntervalBox',
+            'type'    => 'NumberSpinner',
             'name'    => 'minutes2fail',
             'caption' => 'Minutes'
         ];
