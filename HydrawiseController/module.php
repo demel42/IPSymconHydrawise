@@ -522,13 +522,9 @@ class HydrawiseController extends IPSModule
             'type'    => 'ExpansionPanel',
             'items'   => [
                 [
-                    'type'    => 'Label',
-                    'caption' => 'category for components to be created'
-                ],
-                [
                     'type'    => 'SelectCategory',
                     'name'    => 'ImportCategoryID',
-                    'caption' => 'category'
+                    'caption' => 'category for components to be created'
                 ],
                 [
                     'type'    => 'Configurator',

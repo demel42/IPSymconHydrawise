@@ -200,7 +200,7 @@ class HydrawiseConfig extends IPSModule
         $formElements[] = [
             'type'    => 'SelectCategory',
             'name'    => 'ImportCategoryID',
-            'caption' => 'category'
+            'caption' => 'category for controller to be created'
         ];
 
         $entries = $this->getConfiguratorValues();

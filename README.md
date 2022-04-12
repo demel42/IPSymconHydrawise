@@ -329,7 +329,7 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.28 @ 12.04.2022 17:02
+- 1.28 @ 12.04.2022 17:53
   - Anpassungen an IPS 6.2 (Prüfung auf ungültige ID's)
   - Konfigurator zeigt nun auch Instanzen an, die nicht mehr zu den vorhandenen Geräten passen
   - Anzeige der Referenzen der Instanz incl. Statusvariablen und Instanz-Timer
