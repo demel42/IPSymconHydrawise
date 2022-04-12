@@ -3,10 +3,19 @@
 	"name": "HydrawiseIO",
 	"type": 1,
 	"vendor": "Hunter",
-	"aliases": ["Hydrawise I/O"],
+	"aliases": [
+		"Hydrawise I/O"
+	],
 	"parentRequirements": [],
-	"childRequirements": ["{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}", "{A800ED12-C177-80A3-A15C-0B6E0052640D}", "{D957666E-B6E3-A44F-2515-9B5F009ACC2D}", "{C424E279-1362-96A6-7D22-B879926BF95F}"],
-	"implemented": ["{B54B579C-3992-4C1D-B7A8-4A129A78ED03}"],
+	"childRequirements": [
+		"{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}",
+		"{A800ED12-C177-80A3-A15C-0B6E0052640D}",
+		"{D957666E-B6E3-A44F-2515-9B5F009ACC2D}",
+		"{C424E279-1362-96A6-7D22-B879926BF95F}"
+	],
+	"implemented": [
+		"{B54B579C-3992-4C1D-B7A8-4A129A78ED03}"
+	],
 	"prefix": "Hydrawise",
 	"url": "https://github.com/demel42/IPSymconHydrawise/blob/master/README.md"
 }
