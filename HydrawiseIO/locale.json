@@ -6,7 +6,7 @@
 			"The following points of the configuration are incorrect":
                 "Die folgenden Punkte der Konfiguration sind fehlerhaft",
 			"API-Key must be specified": "API-Key muss angegeben sein",
-			"Password must be specified if host ist given": "Passwort muss angegeben werden, wenn der Host angegeben ist"
+			"Password must be specified if host ist given": "Passwort muss angegeben werden, wenn der Host angegeben ist",
 
 			"Hydrawise Access-Details": "Hydrawise Zugangsdaten",
 			"API-Key from https://app.hydrawise.com/config/account":
