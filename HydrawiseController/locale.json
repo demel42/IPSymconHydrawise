@@ -5,6 +5,10 @@
 
 			"Disable instance": "Instanz deaktivieren",
 
+			"The following points of the configuration are incorrect":
+                "Die folgenden Punkte der Konfiguration sind fehlerhaft",
+			"WebHook is already used": "WebHook wird bereits verwendet",
+
 			"Hydrawise Controller": "Hydrawise Controller",
 
 			"Basic configuration (don't change)": "Basis-Konfiguration (nicht ändern)",
@@ -30,13 +34,13 @@
 
 			"Controller": "Controller",
 			"Sensor": "Sensor",
-            "Zone": "Zone",
-            "Expander": "Expander",
+			"Zone": "Zone",
+			"Expander": "Expander",
 			"Components": "Komponenten",
 
 			"Sensors and zones": "Sensoren und Zonen",
 			"category for components to be created": "Kategorie für anzulegende Komponente",
-            "category": "Kategorie",
+			"category": "Kategorie",
 
 			"Name": "Name",
 			"Ident": "Ident",
@@ -44,6 +48,7 @@
 
 			"sensor": "Messfühler",
 			"flow meter": "Durchflussmesser",
+			"unknown": "unbekannt",
 
 			"Communication": "Kommunikation",
 			"Update data every X seconds": "Aktualisiere Daten alle X Sekunden",
@@ -62,6 +67,40 @@
 			"Watering time (today)": "Bewässerungszeit (heute)",
 			"Water usage (today)": "Wasserverbrauch (heute)",
 			"State of irrigation": "Status der Bewässerung",
+
+			"Test area": "Test-Bereich",
+
+			"Expert area": "Experten-Bereich",
+			"Re-install variable-profiles": "Variablenprofile erneut einrichten",
+
+			"Information": "Information",
+
+			"Category": "Kategorie",
+			"Instance": "Instanz",
+			"Variable": "Variable",
+			"Script": "Skript",
+			"Event": "Ereignis",
+			"Medium": "Medium",
+			"Link": "Verknüpfung",
+			"PHP script": "PHP-Skript",
+			"Flow plan": "Ablaufplan",
+			"Triggered event": "Ausgelöstes Ereignis",
+			"Cyclic event": "Zyklisches Ereignis",
+			"Scheduled event": "Geplantes Ereignis",
+			"References": "Referenzen",
+			"by instance used objects": "durch die Instanz verwendete Objekte",
+			"Objects using the instance": "Objekte, die die Instanz verwenden",
+			"Referenced statusvariables": "referenzierte Statusvariablen",
+			"Ident": "Ident",
+			"Object": "Objekt",
+			"Area": "Bereich",
+			"Name": "Bezeichnung",
+			"Open object": "Objekt öffnen",
+			"Timer": "Timer",
+			"Interval": "Intervall",
+			"Next run": "nächste Ausführung",
+			"Last run": "letzte Ausführung",
+			"Timer information": "Timer-Information",
 
 			"Instance getting created": "Instanz wird erstellt",
 			"Instance is active": "Instanz ist aktiv",

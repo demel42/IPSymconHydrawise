@@ -5,9 +5,14 @@
 
 			"Hydrawise Zone": "Hydrawise Zone",
 
+			"The following points of the configuration are incorrect":
+                "Die folgenden Punkte der Konfiguration sind fehlerhaft",
+			"Determination of the water consumption is not possible without measuring the flow rate":
+				"Ermittlung des Wasserverbrauchs ist ohne Messung der Durchflussmenge ist nicht möglich",
+
 			"Basic configuration (don't change)": "Basis-Konfiguration (nicht ändern)",
 			"Controller-ID": "Controller-ID",
-            "Zone-ID": "Zone-ID",
+			"Zone-ID": "Zone-ID",
 			"Connector": "Anschluss",
 
 			"optional zone data": "optionale Daten zur Zone",
@@ -61,6 +66,40 @@
 			"partially": "teilweise",
 			"suspended": "ausgesetzt",
 			"idle": "inaktiv",
+
+			"Test area": "Test-Bereich",
+
+			"Expert area": "Experten-Bereich",
+			"Re-install variable-profiles": "Variablenprofile erneut einrichten",
+
+			"Information": "Information",
+
+			"Category": "Kategorie",
+			"Instance": "Instanz",
+			"Variable": "Variable",
+			"Script": "Skript",
+			"Event": "Ereignis",
+			"Medium": "Medium",
+			"Link": "Verknüpfung",
+			"PHP script": "PHP-Skript",
+			"Flow plan": "Ablaufplan",
+			"Triggered event": "Ausgelöstes Ereignis",
+			"Cyclic event": "Zyklisches Ereignis",
+			"Scheduled event": "Geplantes Ereignis",
+			"References": "Referenzen",
+			"by instance used objects": "durch die Instanz verwendete Objekte",
+			"Objects using the instance": "Objekte, die die Instanz verwenden",
+			"Referenced statusvariables": "referenzierte Statusvariablen",
+			"Ident": "Ident",
+			"Object": "Objekt",
+			"Area": "Bereich",
+			"Name": "Bezeichnung",
+			"Open object": "Objekt öffnen",
+			"Timer": "Timer",
+			"Interval": "Intervall",
+			"Next run": "nächste Ausführung",
+			"Last run": "letzte Ausführung",
+			"Timer information": "Timer-Information",
 
 			"Instance getting created": "Instanz wird erstellt",
 			"Instance is active": "Instanz ist aktiv",

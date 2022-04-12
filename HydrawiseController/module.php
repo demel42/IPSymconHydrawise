@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
+require_once __DIR__ . '/../libs/CommonStubs/common.php'; // globale Funktionen
 require_once __DIR__ . '/../libs/local.php';   // lokale Funktionen
 
 class HydrawiseController extends IPSModule
 {
-    use HydrawiseCommonLib;
+    use StubsCommonLib;
     use HydrawiseLocalLib;
 
     public function Create()
@@ -37,8 +37,7 @@ class HydrawiseController extends IPSModule
 
         $this->RegisterPropertyInteger('ImportCategoryID', 0);
 
-        $this->CreateVarProfile('Hydrawise.Duration', VARIABLETYPE_INTEGER, ' min', 0, 0, 0, 0, 'Hourglass');
-        $this->CreateVarProfile('Hydrawise.Flowmeter', VARIABLETYPE_FLOAT, ' l', 0, 0, 0, 0, 'Gauge');
+        $this->InstallVarProfiles(false);
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
 
@@ -64,11 +63,32 @@ class HydrawiseController extends IPSModule
         }
     }
 
+    private function CheckConfiguration()
+    {
+        $s = '';
+        $r = [];
+
+        $hook = $this->ReadPropertyString('hook');
+        if ($hook != '' && $this->HookIsUsed($hook)) {
+            $this->SendDebug(__FUNCTION__, '"hook" is already used', 0);
+            $r[] = $this->Translate('WebHook is already used');
+        }
+
+        if ($r != []) {
+            $s = $this->Translate('The following points of the configuration are incorrect') . ':' . PHP_EOL;
+            foreach ($r as $p) {
+                $s .= '- ' . $p . PHP_EOL;
+            }
+        }
+
+        return $s;
+    }
+
     protected function SetUpdateInterval()
     {
         $sec = $this->ReadPropertyInteger('update_interval');
         $msec = $sec > 0 ? $sec * 1000 : 0;
-        $this->SetTimerInterval('UpdateController', $msec);
+        $this->MaintainTimer('UpdateController', $msec);
     }
 
     public function ApplyChanges()
@@ -91,46 +111,7 @@ class HydrawiseController extends IPSModule
         $this->MaintainVariable('DailyDuration', $this->Translate('Watering time (today)'), VARIABLETYPE_INTEGER, 'Hydrawise.Duration', $vpos++, $with_daily_value);
         $this->MaintainVariable('DailyWaterUsage', $this->Translate('Water usage (today)'), VARIABLETYPE_FLOAT, 'Hydrawise.Flowmeter', $vpos++, $with_daily_value && $with_waterusage);
 
-        $this->UnregisterVariable('WateringTime');
-        $this->UnregisterVariable('WaterSaving');
-
-        $this->UnregisterVariable('ObsRainDay');
-        $this->UnregisterVariable('ObsRainWeek');
-        $this->UnregisterVariable('ObsCurTemp');
-        $this->UnregisterVariable('ObsMaxTemp');
-
-        for ($i = 0; $i < 3; $i++) {
-            $this->UnregisterVariable('Forecast' . $i . 'Conditions');
-            $this->UnregisterVariable('Forecast' . $i . 'TempMax');
-            $this->UnregisterVariable('Forecast' . $i . 'TempMin');
-            $this->UnregisterVariable('Forecast' . $i . 'ProbabilityOfRain');
-            $this->UnregisterVariable('Forecast' . $i . 'WindSpeed');
-            $this->UnregisterVariable('Forecast' . $i . 'Humidity');
-        }
-
         $this->MaintainVariable('StatusBox', $this->Translate('State of irrigation'), VARIABLETYPE_STRING, '~HTMLBox', $vpos++, $with_status_box);
-
-        $module_disable = $this->ReadPropertyBoolean('module_disable');
-        if ($module_disable) {
-            $this->SetTimerInterval('UpdateController', 0);
-            $this->SetStatus(IS_INACTIVE);
-            return;
-        }
-
-        if (IPS_GetKernelRunlevel() == KR_READY) {
-            $hook = $this->ReadPropertyString('hook');
-            if ($hook != '') {
-                if ($this->HookIsUsed($hook)) {
-                    $this->SetStatus(self::$IS_USEDWEBHOOK);
-                    return;
-                }
-                $this->RegisterHook($hook);
-            }
-            $this->SetUpdateInterval();
-        }
-
-        $info = 'Controller (#' . $controller_id . ')';
-        $this->SetSummary($info);
 
         $refs = $this->GetReferenceList();
         foreach ($refs as $ref) {
@@ -139,14 +120,38 @@ class HydrawiseController extends IPSModule
         $propertyNames = ['ImportCategoryID', 'statusbox_script', 'webhook_script', 'WaterMeterID'];
         foreach ($propertyNames as $name) {
             $oid = $this->ReadPropertyInteger($name);
-            if ($oid > 0) {
+            if ($oid >= 10000) {
                 $this->RegisterReference($oid);
             }
         }
 
+        $module_disable = $this->ReadPropertyBoolean('module_disable');
+        if ($module_disable) {
+            $this->MaintainTimer('UpdateController', 0);
+            $this->SetStatus(IS_INACTIVE);
+            return;
+        }
+
+        if ($this->CheckConfiguration() != false) {
+            $this->MaintainTimer('UpdateController', 0);
+            $this->SetStatus(self::$IS_INVALIDCONFIG);
+            return;
+        }
+
+        $info = 'Controller (#' . $controller_id . ')';
+        $this->SetSummary($info);
+
         $dataFilter = '.*' . $controller_id . '.*';
         $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
         $this->SetReceiveDataFilter($dataFilter);
+
+        if (IPS_GetKernelRunlevel() == KR_READY) {
+            $hook = $this->ReadPropertyString('hook');
+            if ($hook != '') {
+                $this->RegisterHook($hook);
+            }
+            $this->SetUpdateInterval();
+        }
 
         $this->SetStatus(IS_ACTIVE);
     }
@@ -155,9 +160,13 @@ class HydrawiseController extends IPSModule
     {
         $entries = [];
 
+        if ($this->CheckStatus() == self::$STATUS_INVALID) {
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
+            return $entries;
+        }
+
         if ($this->HasActiveParent() == false) {
             $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
-            $this->LogMessage('has no active parent instance', KL_WARNING);
             return $entries;
         }
 
@@ -171,10 +180,10 @@ class HydrawiseController extends IPSModule
         $this->SendDebug(__FUNCTION__, 'SendDataToParent(' . print_r($sdata, true) . ')', 0);
         $data = $this->SendDataToParent(json_encode($sdata));
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-        $controller = $data != false ? json_decode($data, true) : [];
+        $controller = json_decode($data, true);
         $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
 
-        if ($controller != '') {
+        if (is_array($controller) && count($controller)) {
             $controller_name = $this->GetArrayElem($controller, 'name', '');
 
             $sensors = $this->GetArrayElem($controller, 'sensors', '');
@@ -217,24 +226,21 @@ class HydrawiseController extends IPSModule
                     }
 
                     $ident = $this->Translate('Sensor') . ' ' . $connector;
-
-                    $create = [
-                        'moduleID'      => $guid,
-                        'location'      => $this->SetLocation(),
-                        'configuration' => [
-                            'controller_id' => "$controller_id",
-                            'connector'     => $connector,
-                            'model'         => $model,
-                        ]
-                    ];
-                    $create['info'] = $ident . ' (' . $controller_name . '\\' . $sensor_name . ')';
-
                     $entry = [
                         'instanceID'  => $instanceID,
                         'type'        => $this->Translate($mode_txt),
                         'ident'       => $ident,
                         'name'        => $sensor_name,
-                        'create'      => $create
+                        'create'      => [
+                            'moduleID'      => $guid,
+                            'location'      => $this->SetLocation(),
+                            'info'          => $ident . ' (' . $controller_name . '\\' . $sensor_name . ')',
+                            'configuration' => [
+                                'controller_id' => "$controller_id",
+                                'connector'     => $connector,
+                                'model'         => $model,
+                            ]
+                        ],
                     ];
 
                     $entries[] = $entry;
@@ -267,28 +273,104 @@ class HydrawiseController extends IPSModule
                         $ident = $this->Translate('Expander') . ' ' . floor($connector / 100) . ' Zone ' . ($connector % 100);
                     }
 
-                    $create = [
-                        'moduleID'      => $guid,
-                        'location'      => $this->SetLocation(),
-                        'configuration' => [
-                            'controller_id' => "$controller_id",
-                            'relay_id'      => "$relay_id",
-                            'connector'     => $connector,
-                        ]
-                    ];
-                    $create['info'] = $ident . ' (' . $controller_name . '\\' . $zone_name . ')';
-
                     $entry = [
                         'instanceID'  => $instanceID,
                         'type'        => $this->Translate('Zone'),
                         'ident'       => $ident,
                         'name'        => $zone_name,
-                        'create'      => $create
+                        'create'      => [
+                            'moduleID'      => $guid,
+                            'location'      => $this->SetLocation(),
+                            'info'          => $ident . ' (' . $controller_name . '\\' . $zone_name . ')',
+                            'configuration' => [
+                                'controller_id' => (string) $controller_id,
+                                'relay_id'      => (string) $relay_id,
+                                'connector'     => $connector,
+                            ]
+                        ],
                     ];
 
                     $entries[] = $entry;
                 }
             }
+        }
+
+        $guid = '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}';
+        $instIDs = IPS_GetInstanceListByModuleID($guid);
+        foreach ($instIDs as $instID) {
+            $fnd = false;
+            foreach ($entries as $entry) {
+                if ($entry['instanceID'] == $instID) {
+                    $fnd = true;
+                    break;
+                }
+            }
+            if ($fnd) {
+                continue;
+            }
+
+            $name = IPS_GetName($instID);
+            $connector = IPS_GetProperty($instID, 'connector');
+            $model = IPS_GetProperty($instID, 'model');
+            switch ($model) {
+                case self::$SENSOR_NORMALLY_CLOSE_START:
+                case self::$SENSOR_NORMALLY_OPEN_STOP:
+                case self::$SENSOR_NORMALLY_CLOSE_STOP:
+                case  self::$SENSOR_NORMALLY_OPEN_START:
+                    $mode_txt = 'sensor';
+                    break;
+                case self::$SENSOR_FLOW_METER:
+                    $mode_txt = 'flow meter';
+                    break;
+                default:
+                    $mode_txt = 'unknown';
+                    break;
+            }
+            $ident = $this->Translate('Sensor') . ' ' . $connector;
+            $entry = [
+                'instanceID'  => $instanceID,
+                'type'        => $this->Translate($mode_txt),
+                'ident'       => $ident,
+                'name'        => $name,
+            ];
+
+            $entries[] = $entry;
+            $this->SendDebug(__FUNCTION__, 'missing entry=' . print_r($entry, true), 0);
+        }
+
+        $guid = '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}';
+        $instIDs = IPS_GetInstanceListByModuleID($guid);
+
+        foreach ($instIDs as $instID) {
+            $fnd = false;
+            foreach ($entries as $entry) {
+                if ($entry['instanceID'] == $instID) {
+                    $fnd = true;
+                    break;
+                }
+            }
+            if ($fnd) {
+                continue;
+            }
+
+            $name = IPS_GetName($instID);
+            $connector = IPS_GetProperty($instID, 'connector');
+
+            if ($connector < 100) {
+                $ident = $this->Translate('Zone') . ' ' . $connector;
+            } else {
+                $ident = $this->Translate('Expander') . ' ' . floor($connector / 100) . ' Zone ' . ($connector % 100);
+            }
+
+            $entry = [
+                'instanceID'  => $instanceID,
+                'type'        => $this->Translate('Zone'),
+                'ident'       => $ident,
+                'name'        => $name,
+            ];
+
+            $entries[] = $entry;
+            $this->SendDebug(__FUNCTION__, 'missing entry=' . print_r($entry, true), 0);
         }
 
         return $entries;
@@ -298,10 +380,26 @@ class HydrawiseController extends IPSModule
     {
         $formElements = [];
 
+        $formElements[] = [
+            'type'    => 'Label',
+            'caption' => 'Hydrawise Controller'
+        ];
+
         if ($this->HasActiveParent() == false) {
             $formElements[] = [
                 'type'    => 'Label',
                 'caption' => 'Instance has no active parent instance',
+            ];
+        }
+
+        @$s = $this->CheckConfiguration();
+        if ($s != '') {
+            $formElements[] = [
+                'type'    => 'Label',
+                'caption' => $s,
+            ];
+            $formElements[] = [
+                'type'    => 'Label',
             ];
         }
 
@@ -312,168 +410,155 @@ class HydrawiseController extends IPSModule
         ];
 
         $formElements[] = [
-            'type'    => 'Label',
-            'caption' => 'Hydrawise Controller'
-        ];
-
-        $items = [];
-        $items[] = [
-            'type'    => 'ValidationTextBox',
-            'name'    => 'controller_id',
-            'caption' => 'Controller-ID',
-            'enabled' => false
-        ];
-        $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => $items,
+            'items'   => [
+                [
+                    'type'    => 'ValidationTextBox',
+                    'name'    => 'controller_id',
+                    'caption' => 'Controller-ID',
+                    'enabled' => false
+                ],
+            ],
             'caption' => 'Basic configuration (don\'t change)'
         ];
 
-        $items = [];
-        $items[] = [
-            'type'    => 'CheckBox',
-            'name'    => 'with_last_contact',
-            'caption' => 'last contact to Hydrawise'
-        ];
-        $items[] = [
-            'type'    => 'CheckBox',
-            'name'    => 'with_last_message',
-            'caption' => 'last message'
-        ];
-        $items[] = [
-            'type'    => 'CheckBox',
-            'name'    => 'with_status_box',
-            'caption' => 'html-box with state of irrigation'
-        ];
-        $items[] = [
-            'type'    => 'SelectScript',
-            'name'    => 'statusbox_script',
-            'caption' => 'alternate script to use for the "StatusBox"'
-        ];
-        $items[] = [
-            'type'    => 'CheckBox',
-            'name'    => 'with_waterusage',
-            'caption' => 'water usage'
-        ];
-        $items[] = [
-            'type'    => 'CheckBox',
-            'name'    => 'with_daily_value',
-            'caption' => 'daily sum'
-        ];
         $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => $items,
+            'items'   => [
+                [
+                    'type'    => 'CheckBox',
+                    'name'    => 'with_last_contact',
+                    'caption' => 'last contact to Hydrawise'
+                ],
+                [
+                    'type'    => 'CheckBox',
+                    'name'    => 'with_last_message',
+                    'caption' => 'last message'
+                ],
+                [
+                    'type'    => 'CheckBox',
+                    'name'    => 'with_status_box',
+                    'caption' => 'html-box with state of irrigation'
+                ],
+                [
+                    'type'    => 'SelectScript',
+                    'name'    => 'statusbox_script',
+                    'caption' => 'alternate script to use for the "StatusBox"'
+                ],
+                [
+                    'type'    => 'CheckBox',
+                    'name'    => 'with_waterusage',
+                    'caption' => 'water usage'
+                ],
+                [
+                    'type'    => 'CheckBox',
+                    'name'    => 'with_daily_value',
+                    'caption' => 'daily sum'
+                ],
+            ],
             'caption' => 'optional controller data'
         ];
 
-        $items = [];
-        $items[] = [
-            'type'    => 'Label',
-            'caption' => 'using instead the Hydrawise-intern information of waterflow'
-        ];
-        $items[] = [
-            'type'    => 'SelectVariable',
-            'name'    => 'WaterMeterID',
-            'caption' => 'Counter-variable'
-        ];
-        $items[] = [
-            'type'    => 'NumberSpinner',
-            'digits'  => 4,
-            'name'    => 'WaterMeterFactor',
-            'caption' => ' ... conversion factor to liter'
-        ];
         $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => $items,
+            'items'   => [
+                [
+                    'type'    => 'Label',
+                    'caption' => 'using instead the Hydrawise-intern information of waterflow'
+                ],
+                [
+                    'type'    => 'SelectVariable',
+                    'name'    => 'WaterMeterID',
+                    'caption' => 'Counter-variable'
+                ],
+                [
+                    'type'    => 'NumberSpinner',
+                    'digits'  => 4,
+                    'name'    => 'WaterMeterFactor',
+                    'caption' => ' ... conversion factor to liter'
+                ],
+            ],
             'caption' => 'optional wexternal water meter'
         ];
 
-        $items = [];
-        $items[] = [
-            'type'    => 'ValidationTextBox',
-            'name'    => 'hook',
-            'caption' => 'Webhook'
-        ];
-        $items[] = [
-            'type'    => 'SelectScript',
-            'name'    => 'webhook_script',
-            'caption' => 'alternate script to use for Webhook'
-        ];
         $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => $items,
+            'items'   => [
+                [
+                    'type'    => 'ValidationTextBox',
+                    'name'    => 'hook',
+                    'caption' => 'Webhook'
+                ],
+                [
+                    'type'    => 'SelectScript',
+                    'name'    => 'webhook_script',
+                    'caption' => 'alternate script to use for Webhook'
+                ],
+            ],
             'caption' => 'Webhook'
         ];
 
-        $items = [];
-        $items[] = [
-            'type'    => 'Label',
-            'caption' => 'Update data every X seconds'
-        ];
-        $items[] = [
-            'type'    => 'NumberSpinner',
-            'name'    => 'update_interval',
-            'caption' => 'Interval',
-            'suffix'  => 'Seconds'
-        ];
-        $items[] = [
-            'type'    => 'Label',
-            'caption' => 'Duration until the connection to hydrawise is marked disturbed'
-        ];
-        $items[] = [
-            'type'    => 'NumberSpinner',
-            'name'    => 'minutes2fail',
-            'caption' => 'Minutes'
-        ];
         $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => $items,
+            'items'   => [
+                [
+                    'type'    => 'NumberSpinner',
+                    'name'    => 'update_interval',
+                    'caption' => 'Update interval',
+                    'suffix'  => 'Seconds'
+                ],
+                $items[] = [
+                    'type'    => 'NumberSpinner',
+                    'name'    => 'minutes2fail',
+                    'caption' => 'Duration until the connection to hydrawise is marked disturbed',
+                    'suffix'  => 'Minutes'
+                ],
+            ],
             'caption' => 'Communication'
         ];
 
-        $items = [];
-        $items[] = [
-            'type'    => 'Label',
-            'caption' => 'category for components to be created'
-        ];
-        $items[] = [
-            'type'    => 'SelectCategory',
-            'name'    => 'ImportCategoryID',
-            'caption' => 'category'
-        ];
-
         $entries = $this->getConfiguratorValues();
-        $items[] = [
-            'type'    => 'Configurator',
-            'name'    => 'components',
-            'caption' => 'Components',
-
-            'rowCount' => count($entries),
-
-            'add'     => false,
-            'delete'  => false,
-            'columns' => [
-                [
-                    'caption' => 'Name',
-                    'name'    => 'name',
-                    'width'   => 'auto'
-                ],
-                [
-                    'caption' => 'Ident',
-                    'name'    => 'ident',
-                    'width'   => '200px'
-                ],
-                [
-                    'caption' => 'Type',
-                    'name'    => 'type',
-                    'width'   => '250px'
-                ],
-            ],
-            'values' => $entries
-        ];
         $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => $items,
+            'items'   => [
+                [
+                    'type'    => 'Label',
+                    'caption' => 'category for components to be created'
+                ],
+                [
+                    'type'    => 'SelectCategory',
+                    'name'    => 'ImportCategoryID',
+                    'caption' => 'category'
+                ],
+                [
+                    'type'    => 'Configurator',
+                    'name'    => 'components',
+                    'caption' => 'Components',
+
+                    'rowCount' => count($entries),
+
+                    'add'     => false,
+                    'delete'  => false,
+                    'columns' => [
+                        [
+                            'caption' => 'Name',
+                            'name'    => 'name',
+                            'width'   => 'auto'
+                        ],
+                        [
+                            'caption' => 'Ident',
+                            'name'    => 'ident',
+                            'width'   => '200px'
+                        ],
+                        [
+                            'caption' => 'Type',
+                            'name'    => 'type',
+                            'width'   => '250px'
+                        ],
+                    ],
+                    'values' => $entries
+                ],
+            ],
             'caption' => 'Sensors and zones'
         ];
 
@@ -490,7 +575,35 @@ class HydrawiseController extends IPSModule
             'onClick' => 'Hydrawise_UpdateController($id);'
         ];
 
+        $formActions[] = [
+            'type'      => 'ExpansionPanel',
+            'caption'   => 'Expert area',
+            'expanded ' => false,
+            'items'     => [
+                [
+                    'type'    => 'Button',
+                    'caption' => 'Re-install variable-profiles',
+                    'onClick' => 'Hydrawise_InstallVarProfiles($id, true);'
+                ],
+            ],
+        ];
+
+        $formActions[] = $this->GetInformationForm();
+        $formActions[] = $this->GetReferencesForm();
+
         return $formActions;
+    }
+
+    public function RequestAction($ident, $value)
+    {
+        if ($this->CommonRequestAction($ident, $value)) {
+            return;
+        }
+        switch ($ident) {
+            default:
+                $this->SendDebug(__FUNCTION__, 'invalid ident ' . $ident, 0);
+                break;
+        }
     }
 
     public function UpdateController()
@@ -887,7 +1000,7 @@ class HydrawiseController extends IPSModule
 
         if ($with_status_box) {
             $statusbox_script = $this->ReadPropertyInteger('statusbox_script');
-            if ($statusbox_script > 0) {
+            if ($statusbox_script >= 10000) {
                 $html = IPS_RunScriptWaitEx($statusbox_script, ['InstanceID' => $this->InstanceID]);
             } else {
                 $html = $this->Build_StatusBox($controller_data);
@@ -895,8 +1008,9 @@ class HydrawiseController extends IPSModule
             $this->SetValue('StatusBox', $html);
         }
 
-        $this->SetUpdateInterval();
         $this->SetStatus(IS_ACTIVE);
+
+        $this->SetUpdateInterval();
     }
 
     protected function ClearDailyValue()
@@ -1409,7 +1523,7 @@ class HydrawiseController extends IPSModule
         $this->SendDebug(__FUNCTION__, 'basename=' . $basename, 0);
         if ($basename == 'status') {
             $webhook_script = $this->ReadPropertyInteger('webhook_script');
-            if ($webhook_script > 0) {
+            if ($webhook_script >= 10000) {
                 $html = IPS_RunScriptWaitEx($webhook_script, ['InstanceID' => $this->InstanceID]);
                 echo $html;
             } else {
@@ -1472,19 +1586,20 @@ class HydrawiseController extends IPSModule
 
     private function SetLocation()
     {
-        $category = $this->ReadPropertyInteger('ImportCategoryID');
+        $catID = $this->ReadPropertyInteger('ImportCategoryID');
         $tree_position = [];
-        if ($category > 0 && IPS_ObjectExists($category)) {
-            $tree_position[] = IPS_GetName($category);
-            $parent = IPS_GetObject($category)['ParentID'];
-            while ($parent > 0) {
-                if ($parent > 0) {
-                    $tree_position[] = IPS_GetName($parent);
+        if ($catID >= 10000 && IPS_ObjectExists($catID)) {
+            $tree_position[] = IPS_GetName($catID);
+            $parID = IPS_GetObject($catID)['ParentID'];
+            while ($parID > 0) {
+                if ($parID > 0) {
+                    $tree_position[] = IPS_GetName($parID);
                 }
-                $parent = IPS_GetObject($parent)['ParentID'];
+                $parID = IPS_GetObject($parID)['ParentID'];
             }
             $tree_position = array_reverse($tree_position);
         }
+        $this->SendDebug(__FUNCTION__, 'tree_position=' . print_r($tree_position, true), 0);
         return $tree_position;
     }
 }

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
+require_once __DIR__ . '/../libs/CommonStubs/common.php'; // globale Funktionen
 require_once __DIR__ . '/../libs/local.php';   // lokale Funktionen
 
 class HydrawiseIO extends IPSModule
 {
-    use HydrawiseCommonLib;
+    use StubsCommonLib;
     use HydrawiseLocalLib;
 
     public function Create()
@@ -24,6 +24,34 @@ class HydrawiseIO extends IPSModule
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
 
+    private function CheckConfiguration()
+    {
+        $s = '';
+        $r = [];
+
+        $api_key = $this->ReadPropertyString('api_key');
+        if ($api_key == '') {
+            $this->SendDebug(__FUNCTION__, '"api_key" is needed', 0);
+            $r[] = $this->Translate('API-Key must be specified');
+        }
+
+        $host = $this->ReadPropertyString('host');
+        $password = $this->ReadPropertyString('password');
+        if ($host != '' && $password == '') {
+            $this->SendDebug(__FUNCTION__, '"password" is needed', 0);
+            $r[] = $this->Translate('Password must be specified if host ist given');
+        }
+
+        if ($r != []) {
+            $s = $this->Translate('The following points of the configuration are incorrect') . ':' . PHP_EOL;
+            foreach ($r as $p) {
+                $s .= '- ' . $p . PHP_EOL;
+            }
+        }
+
+        return $s;
+    }
+
     public function ApplyChanges()
     {
         parent::ApplyChanges();
@@ -34,15 +62,7 @@ class HydrawiseIO extends IPSModule
             return;
         }
 
-        $api_key = $this->ReadPropertyString('api_key');
-        if ($api_key == '') {
-            $this->SetStatus(self::$IS_INVALIDCONFIG);
-            return;
-        }
-
-        $host = $this->ReadPropertyString('host');
-        $password = $this->ReadPropertyString('password');
-        if ($host != '' && $password == '') {
+        if ($this->CheckConfiguration() != false) {
             $this->SetStatus(self::$IS_INVALIDCONFIG);
             return;
         }
@@ -50,74 +70,107 @@ class HydrawiseIO extends IPSModule
         $this->SetStatus(IS_ACTIVE);
     }
 
-    private function GetFormActions()
-    {
-        $formActions = [];
-        $formActions[] = [
-            'type'    => 'Button',
-            'caption' => 'Test account',
-            'onClick' => 'Hydrawise_TestAccount($id);'
-        ];
-
-        return $formActions;
-    }
-
     private function GetFormElements()
     {
         $formElements = [];
+
+        $formElements[] = [
+            'type'    => 'Label',
+            'caption' => 'Hydrawise I/O'
+        ];
+
+        @$s = $this->CheckConfiguration();
+        if ($s != '') {
+            $formElements[] = [
+                'type'    => 'Label',
+                'caption' => $s,
+            ];
+            $formElements[] = [
+                'type'    => 'Label',
+            ];
+        }
+
         $formElements[] = [
             'type'    => 'CheckBox',
             'name'    => 'module_disable',
             'caption' => 'Disable instance'
         ];
 
-        $items = [];
-        $items[] = [
-            'type'    => 'Label',
-            'caption' => 'API-Key from https://app.hydrawise.com/config/account'
-        ];
-        $items[] = [
-            'type'    => 'ValidationTextBox',
-            'name'    => 'api_key',
-            'caption' => 'API-Key'
-        ];
         $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => $items,
+            'items'   => [
+                [
+                    'type'    => 'Label',
+                    'caption' => 'API-Key from https://app.hydrawise.com/config/account'
+                ],
+                [
+                    'type'    => 'ValidationTextBox',
+                    'name'    => 'api_key',
+                    'caption' => 'API-Key'
+                ],
+            ],
             'caption' => 'Hydrawise Access-Details'
         ];
 
-        $items = [];
-        $items[] = [
-            'type'    => 'ValidationTextBox',
-            'name'    => 'host',
-            'caption' => 'Hostname'
-        ];
-        $items[] = [
-            'type'    => 'ValidationTextBox',
-            'name'    => 'password',
-            'caption' => 'Password'
-        ];
         $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => $items,
+            'items'   => [
+                [
+                    'type'    => 'ValidationTextBox',
+                    'name'    => 'host',
+                    'caption' => 'Hostname'
+                ],
+                [
+                    'type'    => 'ValidationTextBox',
+                    'name'    => 'password',
+                    'caption' => 'Password'
+                ],
+            ],
             'caption' => 'local Hydrawise-Controller'
         ];
 
-        $items = [];
-        $items[] = [
-            'type'    => 'NumberSpinner',
-            'name'    => 'ignore_http_error',
-            'caption' => 'Ignore HTTP-Error X times',
-            'suffix'  => 'Count'
-        ];
         $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => $items,
+            'items'   => [
+                [
+                    'type'    => 'NumberSpinner',
+                    'name'    => 'ignore_http_error',
+                    'caption' => 'Ignore HTTP-Error X times',
+                    'suffix'  => 'Count'
+                ],
+            ],
             'caption' => 'Communication'
         ];
 
         return $formElements;
+    }
+
+    private function GetFormActions()
+    {
+        $formActions = [];
+
+        $formActions[] = [
+            'type'    => 'Button',
+            'caption' => 'Test account',
+            'onClick' => 'Hydrawise_TestAccount($id);'
+        ];
+
+        $formActions[] = $this->GetInformationForm();
+        $formActions[] = $this->GetReferencesForm();
+
+        return $formActions;
+    }
+
+    public function RequestAction($ident, $value)
+    {
+        if ($this->CommonRequestAction($ident, $value)) {
+            return;
+        }
+        switch ($ident) {
+            default:
+                $this->SendDebug(__FUNCTION__, 'invalid ident ' . $ident, 0);
+                break;
+        }
     }
 
     public function ForwardData($data)

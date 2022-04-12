@@ -329,6 +329,12 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.28 @ 12.04.2022 17:02
+  - Anpassungen an IPS 6.2 (Prüfung auf ungültige ID's)
+  - Konfigurator zeigt nun auch Instanzen an, die nicht mehr zu den vorhandenen Geräten passen
+  - Anzeige der Referenzen der Instanz incl. Statusvariablen und Instanz-Timer
+  - common.php -> libs/CommonStubs
+
 - 1.27 @ 13.02.2022 12:15
   - Konfigurations-Element IntervalBox -> NumberSpinner
 

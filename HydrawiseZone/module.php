@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
+require_once __DIR__ . '/../libs/CommonStubs/common.php'; // globale Funktionen
 require_once __DIR__ . '/../libs/local.php';   // lokale Funktionen
 
 class HydrawiseZone extends IPSModule
 {
-    use HydrawiseCommonLib;
+    use StubsCommonLib;
     use HydrawiseLocalLib;
 
     public function Create()
@@ -24,42 +24,31 @@ class HydrawiseZone extends IPSModule
         $this->RegisterPropertyInteger('with_flowrate', self::$FLOW_RATE_AVERAGE);
         $this->RegisterPropertyInteger('visibility_script', 0);
 
-        $associations = [];
-        $associations[] = ['Wert' => self::$ZONE_ACTION_STOP, 'Name' => $this->Translate('Stop'), 'Farbe' => 0xEE0000];
-        $associations[] = ['Wert' => self::$ZONE_ACTION_DEFAULT, 'Name' => $this->Translate('Default'), 'Farbe' => 0x32CD32];
-        $associations[] = ['Wert' => self::$ZONE_ACTION_1MIN, 'Name' => $this->Translate('1 min'), 'Farbe' => -1];
-        $associations[] = ['Wert' => self::$ZONE_ACTION_2MIN, 'Name' => $this->Translate('2 min'), 'Farbe' => -1];
-        $associations[] = ['Wert' => self::$ZONE_ACTION_5MIN, 'Name' => $this->Translate('5 min'), 'Farbe' => -1];
-        $associations[] = ['Wert' => self::$ZONE_ACTION_10MIN, 'Name' => $this->Translate('10 min'), 'Farbe' => -1];
-        $associations[] = ['Wert' => self::$ZONE_ACTION_15MIN, 'Name' => $this->Translate('15 min'), 'Farbe' => -1];
-        $associations[] = ['Wert' => self::$ZONE_ACTION_20MIN, 'Name' => $this->Translate('20 min'), 'Farbe' => -1];
-        $this->CreateVarProfile('Hydrawise.ZoneAction', VARIABLETYPE_INTEGER, '', 0, 0, 0, 1, '', $associations);
-
-        $associations = [];
-        $associations[] = ['Wert' => self::$ZONE_SUSPEND_CLEAR, 'Name' => $this->Translate('Clear'), 'Farbe' => 0xEE0000];
-        $associations[] = ['Wert' => self::$ZONE_SUSPEND_1DAY, 'Name' => $this->Translate('1 day'), 'Farbe' => -1];
-        $associations[] = ['Wert' => self::$ZONE_SUSPEND_2DAY, 'Name' => $this->Translate('2 days'), 'Farbe' => -1];
-        $associations[] = ['Wert' => self::$ZONE_SUSPEND_7DAY, 'Name' => $this->Translate('1 week'), 'Farbe' => -1];
-        $this->CreateVarProfile('Hydrawise.ZoneSuspend', VARIABLETYPE_INTEGER, '', 0, 0, 0, 1, '', $associations);
-
-        $associations[] = ['Wert' => self::$ZONE_WORKFLOW_SUSPENDED, 'Name' => $this->Translate('suspended'), 'Farbe' => 0xFF5D5D];
-        $associations[] = ['Wert' => self::$ZONE_WORKFLOW_MANUAL, 'Name' => $this->Translate('manual'), 'Farbe' => 0xC0C0C0];
-        $associations[] = ['Wert' => self::$ZONE_WORKFLOW_SOON, 'Name' => $this->Translate('soon'), 'Farbe' => 0x6CB6FF];
-        $associations[] = ['Wert' => self::$ZONE_WORKFLOW_SCHEDULED, 'Name' => $this->Translate('scheduled'), 'Farbe' => 0x0080C0];
-        $associations[] = ['Wert' => self::$ZONE_WORKFLOW_WATERING, 'Name' => $this->Translate('watering'), 'Farbe' => 0xFFFF00];
-        $associations[] = ['Wert' => self::$ZONE_WORKFLOW_DONE, 'Name' => $this->Translate('done'), 'Farbe' => 0x008000];
-        $associations[] = ['Wert' => self::$ZONE_WORKFLOW_PARTIALLY, 'Name' => $this->Translate('partially'), 'Farbe' => 0x80FF00];
-        $this->CreateVarProfile('Hydrawise.ZoneWorkflow', VARIABLETYPE_INTEGER, '', 0, 0, 0, 1, '', $associations);
-
-        $associations[] = ['Wert' => self::$ZONE_STATUS_SUSPENDED, 'Name' => $this->Translate('suspended'), 'Farbe' => 0xFF5D5D];
-        $associations[] = ['Wert' => self::$ZONE_STATUS_IDLE, 'Name' => $this->Translate('idle'), 'Farbe' => 0xC0C0C0];
-        $associations[] = ['Wert' => self::$ZONE_STATUS_WATERING, 'Name' => $this->Translate('watering'), 'Farbe' => 0xFFFF00];
-        $this->CreateVarProfile('Hydrawise.ZoneStatus', VARIABLETYPE_INTEGER, '', 0, 0, 0, 1, '', $associations);
-
-        $this->CreateVarProfile('Hydrawise.Flowmeter', VARIABLETYPE_FLOAT, ' l', 0, 0, 0, 0, 'Gauge');
-        $this->CreateVarProfile('Hydrawise.WaterFlowrate', VARIABLETYPE_FLOAT, ' l/min', 0, 0, 0, 1, '');
+        $this->InstallVarProfiles(false);
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
+    }
+
+    private function CheckConfiguration()
+    {
+        $s = '';
+        $r = [];
+
+        $with_waterusage = $this->ReadPropertyBoolean('with_waterusage');
+        $with_flowrate = $this->ReadPropertyInteger('with_flowrate');
+        if ($with_waterusage == false && $with_flowrate != self::$FLOW_RATE_NONE) {
+            $this->SendDebug(__FUNCTION__, '"with_waterusage" w/o with_flowrate is not possible', 0);
+            $r[] = $this->Translate('Determination of the water consumption is not possible without measuring the flow rate');
+        }
+
+        if ($r != []) {
+            $s = $this->Translate('The following points of the configuration are incorrect') . ':' . PHP_EOL;
+            foreach ($r as $p) {
+                $s .= '- ' . $p . PHP_EOL;
+            }
+        }
+
+        return $s;
     }
 
     public function ApplyChanges()
@@ -107,6 +96,24 @@ class HydrawiseZone extends IPSModule
         $this->MaintainAction('SuspendUntil', true);
         $this->MaintainAction('SuspendAction', true);
 
+        $refs = $this->GetReferenceList();
+        foreach ($refs as $ref) {
+            $this->UnregisterReference($ref);
+        }
+        $propertyNames = ['visibility_script'];
+        foreach ($propertyNames as $name) {
+            $oid = $this->ReadPropertyInteger($name);
+            if ($oid >= 10000) {
+                $this->RegisterReference($oid);
+            }
+        }
+
+        if ($this->CheckConfiguration() != false) {
+            $this->SetUpdateInterval(0);
+            $this->SetStatus(self::$IS_INVALIDCONFIG);
+            return;
+        }
+
         if ($connector < 100) {
             $info = 'Zone ' . $connector;
         } else {
@@ -115,40 +122,40 @@ class HydrawiseZone extends IPSModule
         $info .= ' (#' . $relay_id . ')';
         $this->SetSummary($info);
 
-        $refs = $this->GetReferenceList();
-        foreach ($refs as $ref) {
-            $this->UnregisterReference($ref);
-        }
-        $propertyNames = ['visibility_script'];
-        foreach ($propertyNames as $name) {
-            $oid = $this->ReadPropertyInteger($name);
-            if ($oid > 0) {
-                $this->RegisterReference($oid);
-            }
-        }
-
         $dataFilter = '.*' . $controller_id . '.*';
         $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
         $this->SetReceiveDataFilter($dataFilter);
 
-        $with_waterusage = $this->ReadPropertyBoolean('with_waterusage');
-        $with_flowrate = $this->ReadPropertyInteger('with_flowrate');
-        if ($with_waterusage == false && $with_flowrate != self::$FLOW_RATE_NONE) {
-            $this->SetStatus(self::$IS_INVALIDCONFIG);
-        }
-
         $this->SetStatus(IS_ACTIVE);
-    }
-
-    private function GetFormActions()
-    {
-        $formActions = [];
-
-        return $formActions;
     }
 
     private function GetFormElements()
     {
+        $formElements = [];
+
+        $formElements[] = [
+            'type'    => 'Label',
+            'caption' => 'Hydrawise Zone'
+        ];
+
+        if ($this->HasActiveParent() == false) {
+            $formElements[] = [
+                'type'    => 'Label',
+                'caption' => 'Instance has no active parent instance',
+            ];
+        }
+
+        @$s = $this->CheckConfiguration();
+        if ($s != '') {
+            $formElements[] = [
+                'type'    => 'Label',
+                'caption' => $s,
+            ];
+            $formElements[] = [
+                'type'    => 'Label',
+            ];
+        }
+
         $opts_connector = [];
         $opts_connector[] = ['caption' => $this->Translate('no'), 'value' => 0];
         for ($u = 0; $u <= 2; $u++) {
@@ -175,83 +182,105 @@ class HydrawiseZone extends IPSModule
             ]
         ];
 
-        $formElements = [];
-
-        if ($this->HasActiveParent() == false) {
-            $formElements[] = [
-                'type'    => 'Label',
-                'caption' => 'Instance has no active parent instance',
-            ];
-        }
-
-        $formElements[] = [
-            'type' => 'Label', 'caption' => 'Hydrawise Zone'
-        ];
-
-        $items = [];
-        $items[] = [
-            'type'    => 'ValidationTextBox',
-            'name'    => 'controller_id',
-            'caption' => 'Controller-ID',
-            'enabled' => false
-        ];
-        $items[] = [
-            'type'    => 'ValidationTextBox',
-            'name'    => 'relay_id',
-            'caption' => 'Zone-ID',
-            'enabled' => false
-        ];
-        $items[] = [
-            'type'    => 'Select',
-            'name'    => 'connector',
-            'caption' => 'Connector',
-            'options' => $opts_connector,
-            'enabled' => false
-        ];
         $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => $items,
+            'items'   => [
+                [
+                    'type'    => 'ValidationTextBox',
+                    'name'    => 'controller_id',
+                    'caption' => 'Controller-ID',
+                    'enabled' => false
+                ],
+                [
+                    'type'    => 'ValidationTextBox',
+                    'name'    => 'relay_id',
+                    'caption' => 'Zone-ID',
+                    'enabled' => false
+                ],
+                [
+                    'type'    => 'Select',
+                    'name'    => 'connector',
+                    'caption' => 'Connector',
+                    'options' => $opts_connector,
+                    'enabled' => false
+                ],
+            ],
             'caption' => 'Basic configuration (don\'t change)'
         ];
 
-        $items = [];
-        $items[] = [
-            'type'    => 'CheckBox',
-            'name'    => 'with_daily_value',
-            'caption' => 'daily sum'
-        ];
-        $items[] = [
-            'type'    => 'CheckBox',
-            'name'    => 'with_workflow',
-            'caption' => 'watering workflow'
-        ];
-        $items[] = [
-            'type'    => 'CheckBox',
-            'name'    => 'with_status',
-            'caption' => 'watering status'
-        ];
-        $items[] = [
-            'type'    => 'CheckBox',
-            'name'    => 'with_waterusage',
-            'caption' => 'water usage'
-        ];
-        $items[] = [
-            'type'    => 'Select',
-            'name'    => 'with_flowrate',
-            'caption' => 'flowrate',
-            'options' => $opts_flowrate];
-        $items[] = [
-            'type'    => 'SelectScript',
-            'name'    => 'visibility_script',
-            'caption' => 'optional script to hide/show variables'
-        ];
         $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => $items,
+            'items'   => [
+                [
+                    'type'    => 'CheckBox',
+                    'name'    => 'with_daily_value',
+                    'caption' => 'daily sum'
+                ],
+                [
+                    'type'    => 'CheckBox',
+                    'name'    => 'with_workflow',
+                    'caption' => 'watering workflow'
+                ],
+                [
+                    'type'    => 'CheckBox',
+                    'name'    => 'with_status',
+                    'caption' => 'watering status'
+                ],
+                [
+                    'type'    => 'CheckBox',
+                    'name'    => 'with_waterusage',
+                    'caption' => 'water usage'
+                ],
+                [
+                    'type'    => 'Select',
+                    'name'    => 'with_flowrate',
+                    'caption' => 'flowrate',
+                    'options' => $opts_flowrate
+                ],
+                [
+                    'type'    => 'SelectScript',
+                    'name'    => 'visibility_script',
+                    'caption' => 'optional script to hide/show variables'
+                ],
+            ],
             'caption' => 'optional zone data'
         ];
 
         return $formElements;
+    }
+
+    private function GetFormActions()
+    {
+        $formActions = [];
+
+        $formActions[] = [
+            'type'      => 'ExpansionPanel',
+            'caption'   => 'Expert area',
+            'expanded ' => false,
+            'items'     => [
+                [
+                    'type'    => 'Button',
+                    'caption' => 'Re-install variable-profiles',
+                    'onClick' => 'Hydrawise_InstallVarProfiles($id, true);'
+                ],
+            ],
+        ];
+
+        $formActions[] = [
+            'type'      => 'ExpansionPanel',
+            'caption'   => 'Test area',
+            'expanded ' => false,
+            'items'     => [
+                [
+                    'type'    => 'TestCenter',
+                ],
+            ]
+        ];
+
+        $formActions[] = $this->GetInformationForm();
+        $formActions[] = $this->GetReferencesForm();
+
+        return $formActions;
     }
 
     public function ReceiveData($data)
@@ -644,7 +673,7 @@ class HydrawiseZone extends IPSModule
             $this->SetValue('Workflow', $workflow);
         }
 
-        if ($visibility_script > 0) {
+        if ($visibility_script >= 10000) {
             $opts = [
                 'InstanceID'       => $this->InstanceID,
                 'suspended_until'  => $suspended_until,
@@ -730,29 +759,33 @@ class HydrawiseZone extends IPSModule
         return $responses;
     }
 
-    public function RequestAction($Ident, $Value)
+    public function RequestAction($ident, $value)
     {
-        switch ($Ident) {
+        if ($this->CommonRequestAction($ident, $value)) {
+            return;
+        }
+
+        switch ($ident) {
             case 'SuspendUntil':
-                $dt = date('d.m.Y H:i:s', $Value);
-                $this->SendDebug(__FUNCTION__, $Ident . '=' . $Value . ' => ' . $dt, 0);
-                $this->Suspend($Value);
+                $dt = date('d.m.Y H:i:s', $value);
+                $this->SendDebug(__FUNCTION__, $ident . '=' . $value . ' => ' . $dt, 0);
+                $this->Suspend($value);
                 break;
             case 'SuspendAction':
-                $this->SendDebug(__FUNCTION__, $Ident . '=' . $Value, 0);
-                if ($Value == self::$ZONE_SUSPEND_CLEAR) {
-                    $this->Resume($Value);
+                $this->SendDebug(__FUNCTION__, $ident . '=' . $value, 0);
+                if ($value == self::$ZONE_SUSPEND_CLEAR) {
+                    $this->Resume($value);
                 } else {
-                    $sec = $Value * 86400;
+                    $sec = $value * 86400;
                     $dt = new DateTime(date('d.m.Y 23:59:59', time() + $sec));
                     $ts = (int) $dt->format('U');
                     $dt = date('d.m.Y H:i:s', $ts);
-                    $this->SendDebug(__FUNCTION__, $Ident . '=' . $Value . ' => ' . $dt, 0);
+                    $this->SendDebug(__FUNCTION__, $ident . '=' . $value . ' => ' . $dt, 0);
                     $this->Suspend($ts);
                 }
                 break;
             case 'ZoneAction':
-                switch ($Value) {
+                switch ($value) {
                     case self::$ZONE_ACTION_STOP:
                         $this->Stop();
                         break;
@@ -760,14 +793,14 @@ class HydrawiseZone extends IPSModule
                         $this->Run();
                         break;
                     default:
-                        $sec = $Value * 60;
+                        $sec = $value * 60;
                         $this->Run($sec);
                         break;
                 }
-                $this->SendDebug(__FUNCTION__, $Ident . '=' . $Value, 0);
+                $this->SendDebug(__FUNCTION__, $ident . '=' . $value, 0);
                 break;
             default:
-                $this->SendDebug(__FUNCTION__, 'invalid ident ' . $Ident, 0);
+                $this->SendDebug(__FUNCTION__, 'invalid ident ' . $ident, 0);
                 break;
         }
     }

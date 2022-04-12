@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../libs/common.php';  // globale Funktionen
+require_once __DIR__ . '/../libs/CommonStubs/common.php'; // globale Funktionen
 require_once __DIR__ . '/../libs/local.php';   // lokale Funktionen
 
 class HydrawiseSensor extends IPSModule
 {
-    use HydrawiseCommonLib;
+    use StubsCommonLib;
     use HydrawiseLocalLib;
 
     public function Create()
@@ -20,15 +20,38 @@ class HydrawiseSensor extends IPSModule
         $this->RegisterPropertyBoolean('with_daily_value', true);
         $this->RegisterPropertyBoolean('with_flowrate', true);
 
-        $this->CreateVarProfile('Hydrawise.Flowmeter', VARIABLETYPE_FLOAT, ' l', 0, 0, 0, 0, 'Gauge');
-        $this->CreateVarProfile('Hydrawise.WaterFlowrate', VARIABLETYPE_FLOAT, ' l/min', 0, 0, 0, 1, '');
-
-        $associations = [];
-        $associations[] = ['Wert' => false, 'Name' => $this->Translate('inactive'), 'Farbe' => -1];
-        $associations[] = ['Wert' => true, 'Name' => $this->Translate('active'), 'Farbe' => 0xFF5D5D];
-        $this->CreateVarProfile('Hydrawise.RainSensor', VARIABLETYPE_BOOLEAN, '', 0, 0, 0, 1, '', $associations);
+        $this->InstallVarProfiles(false);
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
+    }
+
+    private function CheckConfiguration()
+    {
+        $s = '';
+        $r = [];
+
+        $model = $this->ReadPropertyInteger('model');
+        switch ($model) {
+            case self::$SENSOR_FLOW_METER:
+            case self::$SENSOR_NORMALLY_CLOSE_START:
+            case self::$SENSOR_NORMALLY_OPEN_STOP:
+            case self::$SENSOR_NORMALLY_CLOSE_STOP:
+            case self::$SENSOR_NORMALLY_OPEN_START:
+                break;
+            default:
+                $this->SendDebug(__FUNCTION__, '"mode" is unsupported', 0);
+                $r[] = $this->Translate('Model is not supported');
+                break;
+        }
+
+        if ($r != []) {
+            $s = $this->Translate('The following points of the configuration are incorrect') . ':' . PHP_EOL;
+            foreach ($r as $p) {
+                $s .= '- ' . $p . PHP_EOL;
+            }
+        }
+
+        return $s;
     }
 
     public function ApplyChanges()
@@ -55,12 +78,13 @@ class HydrawiseSensor extends IPSModule
                 $this->MaintainVariable('State', $this->Translate('State'), VARIABLETYPE_BOOLEAN, 'Hydrawise.RainSensor', $vpos++, true);
                 break;
             default:
-                $mode_txt = 'unsupported';
                 break;
         }
 
-        $this->UnregisterVariable('DailyFlow');
-        $this->UnregisterVariable('Flow');
+        if ($this->CheckConfiguration() != false) {
+            $this->SetStatus(self::$IS_INVALIDCONFIG);
+            return;
+        }
 
         switch ($model) {
             case self::$SENSOR_FLOW_METER:
@@ -91,13 +115,6 @@ class HydrawiseSensor extends IPSModule
         $this->SetReceiveDataFilter($dataFilter);
 
         $this->SetStatus(IS_ACTIVE);
-    }
-
-    private function GetFormActions()
-    {
-        $formActions = [];
-
-        return $formActions;
     }
 
     private function GetFormElements()
@@ -139,6 +156,11 @@ class HydrawiseSensor extends IPSModule
 
         $formElements = [];
 
+        $formElements[] = [
+            'type'    => 'Label',
+            'caption' => 'Hydrawise Sensor'
+        ];
+
         if ($this->HasActiveParent() == false) {
             $formElements[] = [
                 'type'    => 'Label',
@@ -146,58 +168,99 @@ class HydrawiseSensor extends IPSModule
             ];
         }
 
-        $formElements[] = [
-            'type'    => 'Label',
-            'caption' => 'Hydrawise Sensor'
-        ];
+        @$s = $this->CheckConfiguration();
+        if ($s != '') {
+            $formElements[] = [
+                'type'    => 'Label',
+                'caption' => $s,
+            ];
+            $formElements[] = [
+                'type'    => 'Label',
+            ];
+        }
 
-        $items = [];
-        $items[] = [
-            'type'    => 'ValidationTextBox',
-            'name'    => 'controller_id',
-            'caption' => 'Controller-ID',
-            'enabled' => false
-        ];
-        $items[] = [
-            'type'    => 'Select',
-            'name'    => 'connector',
-            'caption' => 'connector',
-            'options' => $opts_connector,
-            'enabled' => false
-        ];
-        $items[] = [
-            'type'    => 'Select',
-            'name'    => 'model',
-            'caption' => 'model',
-            'options' => $opts_model,
-            'enabled' => false
-        ];
         $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => $items,
+            'items'   => [
+                [
+                    'type'    => 'ValidationTextBox',
+                    'name'    => 'controller_id',
+                    'caption' => 'Controller-ID',
+                    'enabled' => false
+                ],
+                [
+                    'type'    => 'Select',
+                    'name'    => 'connector',
+                    'caption' => 'connector',
+                    'options' => $opts_connector,
+                    'enabled' => false
+                ],
+                [
+                    'type'    => 'Select',
+                    'name'    => 'model',
+                    'caption' => 'model',
+                    'options' => $opts_model,
+                    'enabled' => false
+                ],
+            ],
             'caption' => 'Basic configuration (don\'t change)'
         ];
 
         if ($model == self::$SENSOR_FLOW_METER) {
-            $items = [];
-            $items[] = [
-                'type'    => 'CheckBox',
-                'name'    => 'with_daily_value',
-                'caption' => 'daily sum'
-            ];
-            $items[] = [
-                'type'    => 'CheckBox',
-                'name'    => 'with_flowrate',
-                'caption' => 'flowrate'
-            ];
             $formElements[] = [
                 'type'    => 'ExpansionPanel',
-                'items'   => $items,
+                'items'   => [
+                    [
+                        'type'    => 'CheckBox',
+                        'name'    => 'with_daily_value',
+                        'caption' => 'daily sum'
+                    ],
+                    [
+                        'type'    => 'CheckBox',
+                        'name'    => 'with_flowrate',
+                        'caption' => 'flowrate'
+                    ],
+                ],
                 'caption' => 'optional sensor data'
             ];
         }
 
         return $formElements;
+    }
+
+    private function GetFormActions()
+    {
+        $formActions = [];
+
+        $formActions[] = [
+            'type'      => 'ExpansionPanel',
+            'caption'   => 'Expert area',
+            'expanded ' => false,
+            'items'     => [
+                [
+                    'type'    => 'Button',
+                    'caption' => 'Re-install variable-profiles',
+                    'onClick' => 'Hydrawise_InstallVarProfiles($id, true);'
+                ],
+            ],
+        ];
+
+        $formActions[] = $this->GetInformationForm();
+        $formActions[] = $this->GetReferencesForm();
+
+        return $formActions;
+    }
+
+    public function RequestAction($ident, $value)
+    {
+        if ($this->CommonRequestAction($ident, $value)) {
+            return;
+        }
+        switch ($ident) {
+            default:
+                $this->SendDebug(__FUNCTION__, 'invalid ident ' . $ident, 0);
+                break;
+        }
     }
 
     public function ReceiveData($data)

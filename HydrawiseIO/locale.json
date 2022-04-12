@@ -3,6 +3,11 @@
 		"de": {
 			"Disable instance": "Instanz deaktivieren",
 
+			"The following points of the configuration are incorrect":
+                "Die folgenden Punkte der Konfiguration sind fehlerhaft",
+			"API-Key must be specified": "API-Key muss angegeben sein",
+			"Password must be specified if host ist given": "Passwort muss angegeben werden, wenn der Host angegeben ist"
+
 			"Hydrawise Access-Details": "Hydrawise Zugangsdaten",
 			"API-Key from https://app.hydrawise.com/config/account":
 				"API-Key von https://app.hydrawise.com/config/account",
@@ -12,14 +17,48 @@
 			"Hostname": "Hostname",
 			"Password": "Passwort",
 
-            "Communication": "Kommunikation",
+			"Communication": "Kommunikation",
 			"Ignore HTTP-Error X times": "HTTP-Fehler X-fach ignorieren",
-            "Count": "Anzahl",
+			"Count": "Anzahl",
 
 			"Test account": "Zugangsdaten überprüfen",
 			"invalid account-data": "ungültige Zugangsdaten",
 			"valid account-data": "gültige Zugangsdaten",
-            "registered controller found": "registrierte Controller gefunden",
+			"registered controller found": "registrierte Controller gefunden",
+
+			"Test area": "Test-Bereich",
+
+			"Expert area": "Experten-Bereich",
+			"Re-install variable-profiles": "Variablenprofile erneut einrichten",
+
+			"Information": "Information",
+
+			"Category": "Kategorie",
+			"Instance": "Instanz",
+			"Variable": "Variable",
+			"Script": "Skript",
+			"Event": "Ereignis",
+			"Medium": "Medium",
+			"Link": "Verknüpfung",
+			"PHP script": "PHP-Skript",
+			"Flow plan": "Ablaufplan",
+			"Triggered event": "Ausgelöstes Ereignis",
+			"Cyclic event": "Zyklisches Ereignis",
+			"Scheduled event": "Geplantes Ereignis",
+			"References": "Referenzen",
+			"by instance used objects": "durch die Instanz verwendete Objekte",
+			"Objects using the instance": "Objekte, die die Instanz verwenden",
+			"Referenced statusvariables": "referenzierte Statusvariablen",
+			"Ident": "Ident",
+			"Object": "Objekt",
+			"Area": "Bereich",
+			"Name": "Bezeichnung",
+			"Open object": "Objekt öffnen",
+			"Timer": "Timer",
+			"Interval": "Intervall",
+			"Next run": "nächste Ausführung",
+			"Last run": "letzte Ausführung",
+			"Timer information": "Timer-Information",
 
 			"Instance getting created": "Instanz wird erstellt",
 			"Instance is active": "Instanz ist aktiv",
