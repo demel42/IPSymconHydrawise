@@ -329,6 +329,9 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.28.1 @ 13.04.2022 15:21
+  - potentieller Namenskonflikt behoben (trait CommonStubs)
+
 - 1.28 @ 12.04.2022 17:53
   - Anpassungen an IPS 6.2 (Prüfung auf ungültige ID's)
   - Konfigurator zeigt nun auch Instanzen an, die nicht mehr zu den vorhandenen Geräten passen
