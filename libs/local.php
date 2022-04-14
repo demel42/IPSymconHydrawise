@@ -13,8 +13,7 @@ trait HydrawiseLocalLib
     public static $IS_NOCONROLLER = IS_EBASE + 7;
     public static $IS_CONTROLLER_MISSING = IS_EBASE + 8;
     public static $IS_ZONE_MISSING = IS_EBASE + 9;
-    public static $IS_USEDWEBHOOK = IS_EBASE + 10;
-    public static $IS_TOOMANYREQUESTS = IS_EBASE + 11;
+    public static $IS_TOOMANYREQUESTS = IS_EBASE + 10;
 
     public static $STATUS_INVALID = 0;
     public static $STATUS_VALID = 1;
@@ -80,7 +79,6 @@ trait HydrawiseLocalLib
         $formStatus[] = ['code' => self::$IS_NOCONROLLER, 'icon' => 'error', 'caption' => 'Instance is inactive (no controller)'];
         $formStatus[] = ['code' => self::$IS_CONTROLLER_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (controller missing)'];
         $formStatus[] = ['code' => self::$IS_ZONE_MISSING, 'icon' => 'error', 'caption' => 'Instance is inactive (zone missing)'];
-        $formStatus[] = ['code' => self::$IS_USEDWEBHOOK, 'icon' => 'error', 'caption' => 'Instance is inactive (webhook already in use)'];
         $formStatus[] = ['code' => self::$IS_TOOMANYREQUESTS, 'icon' => 'error', 'caption' => 'Instance is inactive (too many requests)'];
 
         return $formStatus;

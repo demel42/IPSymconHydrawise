@@ -329,6 +329,9 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.28.2 @ 14.04.2022 16:25
+  - Überarbeitung WebHook
+
 - 1.28.1 @ 13.04.2022 15:21
   - potentieller Namenskonflikt behoben (trait CommonStubs)
 

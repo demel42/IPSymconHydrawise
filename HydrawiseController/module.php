@@ -53,10 +53,6 @@ class HydrawiseController extends IPSModule
         if ($Message == IPS_KERNELMESSAGE && $Data[0] == KR_READY) {
             $hook = $this->ReadPropertyString('hook');
             if ($hook != '') {
-                if ($this->HookIsUsed($hook)) {
-                    $this->SetStatus(self::$IS_USEDWEBHOOK);
-                    return;
-                }
                 $this->RegisterHook($hook);
             }
             $this->SetUpdateInterval();
