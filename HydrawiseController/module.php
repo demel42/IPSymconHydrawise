@@ -67,7 +67,7 @@ class HydrawiseController extends IPSModule
         $hook = $this->ReadPropertyString('hook');
         if ($hook != '' && $this->HookIsUsed($hook)) {
             $this->SendDebug(__FUNCTION__, '"hook" is already used', 0);
-            $r[] = $this->Translate('WebHook is already used');
+            $r[] = $this->Translate('Webhook is already used');
         }
 
         if ($r != []) {
