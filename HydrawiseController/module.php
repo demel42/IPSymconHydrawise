@@ -85,17 +85,8 @@ class HydrawiseController extends IPSModule
     {
         parent::ApplyChanges();
 
-        $refs = $this->GetReferenceList();
-        foreach ($refs as $ref) {
-            $this->UnregisterReference($ref);
-        }
         $propertyNames = ['ImportCategoryID', 'statusbox_script', 'webhook_script', 'WaterMeterID'];
-        foreach ($propertyNames as $name) {
-            $oid = $this->ReadPropertyInteger($name);
-            if ($oid >= 10000) {
-                $this->RegisterReference($oid);
-            }
-        }
+		$this->MaintainReferences($propertyNames);
 
         if ($this->CheckPrerequisites() != false) {
             $this->MaintainTimer('UpdateController', 0);
