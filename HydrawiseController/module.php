@@ -37,20 +37,22 @@ class HydrawiseController extends IPSModule
 
         $this->RegisterPropertyInteger('ImportCategoryID', 0);
 
+        $this->RegisterAttributeString('UpdateInfo', '');
+
         $this->InstallVarProfiles(false);
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
 
-        $this->RegisterTimer('UpdateController', 0, 'Hydrawise_UpdateController(' . $this->InstanceID . ');');
+        $this->RegisterTimer('UpdateController', 0, $this->GetModulePrefix() . '_UpdateController(' . $this->InstanceID . ');');
 
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
 
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    public function MessageSink($tstamp, $senderID, $message, $data)
     {
-        parent::MessageSink($TimeStamp, $SenderID, $Message, $Data);
+        parent::MessageSink($tstamp, $senderID, $message, $data);
 
-        if ($Message == IPS_KERNELMESSAGE && $Data[0] == KR_READY) {
+        if ($message == IPS_KERNELMESSAGE && $data[0] == KR_READY) {
             $hook = $this->ReadPropertyString('hook');
             if ($hook != '') {
                 $this->RegisterHook($hook);
@@ -61,7 +63,6 @@ class HydrawiseController extends IPSModule
 
     private function CheckConfiguration()
     {
-        $s = '';
         $r = [];
 
         $hook = $this->ReadPropertyString('hook');
@@ -70,14 +71,7 @@ class HydrawiseController extends IPSModule
             $r[] = $this->Translate('Webhook is already used');
         }
 
-        if ($r != []) {
-            $s = $this->Translate('The following points of the configuration are incorrect') . ':' . PHP_EOL;
-            foreach ($r as $p) {
-                $s .= '- ' . $p . PHP_EOL;
-            }
-        }
-
-        return $s;
+        return $r;
     }
 
     protected function SetUpdateInterval()
@@ -91,7 +85,36 @@ class HydrawiseController extends IPSModule
     {
         parent::ApplyChanges();
 
-        $controller_id = $this->ReadPropertyString('controller_id');
+        $refs = $this->GetReferenceList();
+        foreach ($refs as $ref) {
+            $this->UnregisterReference($ref);
+        }
+        $propertyNames = ['ImportCategoryID', 'statusbox_script', 'webhook_script', 'WaterMeterID'];
+        foreach ($propertyNames as $name) {
+            $oid = $this->ReadPropertyInteger($name);
+            if ($oid >= 10000) {
+                $this->RegisterReference($oid);
+            }
+        }
+
+        if ($this->CheckPrerequisites() != false) {
+            $this->MaintainTimer('UpdateController', 0);
+            $this->SetStatus(self::$IS_INVALIDPREREQUISITES);
+            return;
+        }
+
+        if ($this->CheckUpdate() != false) {
+            $this->MaintainTimer('UpdateController', 0);
+            $this->SetStatus(self::$IS_UPDATEUNCOMPLETED);
+            return;
+        }
+
+        if ($this->CheckConfiguration() != false) {
+            $this->MaintainTimer('UpdateController', 0);
+            $this->SetStatus(self::$IS_INVALIDCONFIG);
+            return;
+        }
+
         $with_last_contact = $this->ReadPropertyBoolean('with_last_contact');
         $with_last_message = $this->ReadPropertyBoolean('with_last_message');
         $with_status_box = $this->ReadPropertyBoolean('with_status_box');
@@ -109,31 +132,14 @@ class HydrawiseController extends IPSModule
 
         $this->MaintainVariable('StatusBox', $this->Translate('State of irrigation'), VARIABLETYPE_STRING, '~HTMLBox', $vpos++, $with_status_box);
 
-        $refs = $this->GetReferenceList();
-        foreach ($refs as $ref) {
-            $this->UnregisterReference($ref);
-        }
-        $propertyNames = ['ImportCategoryID', 'statusbox_script', 'webhook_script', 'WaterMeterID'];
-        foreach ($propertyNames as $name) {
-            $oid = $this->ReadPropertyInteger($name);
-            if ($oid >= 10000) {
-                $this->RegisterReference($oid);
-            }
-        }
-
         $module_disable = $this->ReadPropertyBoolean('module_disable');
         if ($module_disable) {
             $this->MaintainTimer('UpdateController', 0);
-            $this->SetStatus(IS_INACTIVE);
+            $this->SetStatus(self::$IS_DEACTIVATED);
             return;
         }
 
-        if ($this->CheckConfiguration() != false) {
-            $this->MaintainTimer('UpdateController', 0);
-            $this->SetStatus(self::$IS_INVALIDCONFIG);
-            return;
-        }
-
+        $controller_id = $this->ReadPropertyString('controller_id');
         $info = 'Controller (#' . $controller_id . ')';
         $this->SetSummary($info);
 
@@ -374,29 +380,10 @@ class HydrawiseController extends IPSModule
 
     private function GetFormElements()
     {
-        $formElements = [];
+        $formElements = $this->GetCommonFormElements('Hydrawise Controller');
 
-        $formElements[] = [
-            'type'    => 'Label',
-            'caption' => 'Hydrawise Controller'
-        ];
-
-        if ($this->HasActiveParent() == false) {
-            $formElements[] = [
-                'type'    => 'Label',
-                'caption' => 'Instance has no active parent instance',
-            ];
-        }
-
-        @$s = $this->CheckConfiguration();
-        if ($s != '') {
-            $formElements[] = [
-                'type'    => 'Label',
-                'caption' => $s,
-            ];
-            $formElements[] = [
-                'type'    => 'Label',
-            ];
+        if ($this->GetStatus() == self::$IS_UPDATEUNCOMPLETED) {
+            return $formElements;
         }
 
         $formElements[] = [
@@ -561,10 +548,19 @@ class HydrawiseController extends IPSModule
     {
         $formActions = [];
 
+        if ($this->GetStatus() == self::$IS_UPDATEUNCOMPLETED) {
+            $formActions[] = $this->GetCompleteUpdateFormAction();
+
+            $formActions[] = $this->GetInformationFormAction();
+            $formActions[] = $this->GetReferencesFormAction();
+
+            return $formActions;
+        }
+
         $formActions[] = [
             'type'    => 'Button',
             'caption' => 'Update Data',
-            'onClick' => 'Hydrawise_UpdateController($id);'
+            'onClick' => $this->GetModulePrefix() . '_UpdateController($id);'
         ];
 
         $formActions[] = [
@@ -575,13 +571,13 @@ class HydrawiseController extends IPSModule
                 [
                     'type'    => 'Button',
                     'caption' => 'Re-install variable-profiles',
-                    'onClick' => 'Hydrawise_InstallVarProfiles($id, true);'
+                    'onClick' => $this->GetModulePrefix() . '_InstallVarProfiles($id, true);'
                 ],
             ],
         ];
 
-        $formActions[] = $this->GetInformationForm();
-        $formActions[] = $this->GetReferencesForm();
+        $formActions[] = $this->GetInformationFormAction();
+        $formActions[] = $this->GetReferencesFormAction();
 
         return $formActions;
     }

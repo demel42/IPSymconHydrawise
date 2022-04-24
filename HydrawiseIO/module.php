@@ -21,12 +21,13 @@ class HydrawiseIO extends IPSModule
         $this->RegisterPropertyString('host', '');
         $this->RegisterPropertyString('password', '');
 
+        $this->RegisterAttributeString('UpdateInfo', '');
+
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
 
     private function CheckConfiguration()
     {
-        $s = '';
         $r = [];
 
         $api_key = $this->ReadPropertyString('api_key');
@@ -42,23 +43,32 @@ class HydrawiseIO extends IPSModule
             $r[] = $this->Translate('Password must be specified if host ist given');
         }
 
-        if ($r != []) {
-            $s = $this->Translate('The following points of the configuration are incorrect') . ':' . PHP_EOL;
-            foreach ($r as $p) {
-                $s .= '- ' . $p . PHP_EOL;
-            }
-        }
-
-        return $s;
+        return $r;
     }
 
     public function ApplyChanges()
     {
         parent::ApplyChanges();
 
-        $module_disable = $this->ReadPropertyBoolean('module_disable');
-        if ($module_disable) {
-            $this->SetStatus(IS_INACTIVE);
+        $refs = $this->GetReferenceList();
+        foreach ($refs as $ref) {
+            $this->UnregisterReference($ref);
+        }
+        $propertyNames = [];
+        foreach ($propertyNames as $name) {
+            $oid = $this->ReadPropertyInteger($name);
+            if ($oid >= 10000) {
+                $this->RegisterReference($oid);
+            }
+        }
+
+        if ($this->CheckPrerequisites() != false) {
+            $this->SetStatus(self::$IS_INVALIDPREREQUISITES);
+            return;
+        }
+
+        if ($this->CheckUpdate() != false) {
+            $this->SetStatus(self::$IS_UPDATEUNCOMPLETED);
             return;
         }
 
@@ -67,27 +77,21 @@ class HydrawiseIO extends IPSModule
             return;
         }
 
+        $module_disable = $this->ReadPropertyBoolean('module_disable');
+        if ($module_disable) {
+            $this->SetStatus(self::$IS_DEACTIVATED);
+            return;
+        }
+
         $this->SetStatus(IS_ACTIVE);
     }
 
     private function GetFormElements()
     {
-        $formElements = [];
+        $formElements = $this->GetCommonFormElements('Hydrawise I/O');
 
-        $formElements[] = [
-            'type'    => 'Label',
-            'caption' => 'Hydrawise I/O'
-        ];
-
-        @$s = $this->CheckConfiguration();
-        if ($s != '') {
-            $formElements[] = [
-                'type'    => 'Label',
-                'caption' => $s,
-            ];
-            $formElements[] = [
-                'type'    => 'Label',
-            ];
+        if ($this->GetStatus() == self::$IS_UPDATEUNCOMPLETED) {
+            return $formElements;
         }
 
         $formElements[] = [
@@ -149,14 +153,23 @@ class HydrawiseIO extends IPSModule
     {
         $formActions = [];
 
+        if ($this->GetStatus() == self::$IS_UPDATEUNCOMPLETED) {
+            $formActions[] = $this->GetCompleteUpdateFormAction();
+
+            $formActions[] = $this->GetInformationFormAction();
+            $formActions[] = $this->GetReferencesFormAction();
+
+            return $formActions;
+        }
+
         $formActions[] = [
             'type'    => 'Button',
             'caption' => 'Test account',
-            'onClick' => 'Hydrawise_TestAccount($id);'
+            'onClick' => $this->GetModulePrefix() . '_TestAccount($id);'
         ];
 
-        $formActions[] = $this->GetInformationForm();
-        $formActions[] = $this->GetReferencesForm();
+        $formActions[] = $this->GetInformationFormAction();
+        $formActions[] = $this->GetReferencesFormAction();
 
         return $formActions;
     }

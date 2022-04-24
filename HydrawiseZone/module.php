@@ -24,6 +24,8 @@ class HydrawiseZone extends IPSModule
         $this->RegisterPropertyInteger('with_flowrate', self::$FLOW_RATE_AVERAGE);
         $this->RegisterPropertyInteger('visibility_script', 0);
 
+        $this->RegisterAttributeString('UpdateInfo', '');
+
         $this->InstallVarProfiles(false);
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
@@ -31,7 +33,6 @@ class HydrawiseZone extends IPSModule
 
     private function CheckConfiguration()
     {
-        $s = '';
         $r = [];
 
         $with_waterusage = $this->ReadPropertyBoolean('with_waterusage');
@@ -41,23 +42,40 @@ class HydrawiseZone extends IPSModule
             $r[] = $this->Translate('Determination of the water consumption is not possible without measuring the flow rate');
         }
 
-        if ($r != []) {
-            $s = $this->Translate('The following points of the configuration are incorrect') . ':' . PHP_EOL;
-            foreach ($r as $p) {
-                $s .= '- ' . $p . PHP_EOL;
-            }
-        }
-
-        return $s;
+        return $r;
     }
 
     public function ApplyChanges()
     {
         parent::ApplyChanges();
 
-        $controller_id = $this->ReadPropertyString('controller_id');
-        $relay_id = $this->ReadPropertyString('relay_id');
-        $connector = $this->ReadPropertyInteger('connector');
+        $refs = $this->GetReferenceList();
+        foreach ($refs as $ref) {
+            $this->UnregisterReference($ref);
+        }
+        $propertyNames = ['visibility_script'];
+        foreach ($propertyNames as $name) {
+            $oid = $this->ReadPropertyInteger($name);
+            if ($oid >= 10000) {
+                $this->RegisterReference($oid);
+            }
+        }
+
+        if ($this->CheckPrerequisites() != false) {
+            $this->SetStatus(self::$IS_INVALIDPREREQUISITES);
+            return;
+        }
+
+        if ($this->CheckUpdate() != false) {
+            $this->SetStatus(self::$IS_UPDATEUNCOMPLETED);
+            return;
+        }
+
+        if ($this->CheckConfiguration() != false) {
+            $this->SetStatus(self::$IS_INVALIDCONFIG);
+            return;
+        }
+
         $with_daily_value = $this->ReadPropertyBoolean('with_daily_value');
         $with_workflow = $this->ReadPropertyBoolean('with_workflow');
         $with_status = $this->ReadPropertyBoolean('with_status');
@@ -96,24 +114,8 @@ class HydrawiseZone extends IPSModule
         $this->MaintainAction('SuspendUntil', true);
         $this->MaintainAction('SuspendAction', true);
 
-        $refs = $this->GetReferenceList();
-        foreach ($refs as $ref) {
-            $this->UnregisterReference($ref);
-        }
-        $propertyNames = ['visibility_script'];
-        foreach ($propertyNames as $name) {
-            $oid = $this->ReadPropertyInteger($name);
-            if ($oid >= 10000) {
-                $this->RegisterReference($oid);
-            }
-        }
-
-        if ($this->CheckConfiguration() != false) {
-            $this->SetUpdateInterval(0);
-            $this->SetStatus(self::$IS_INVALIDCONFIG);
-            return;
-        }
-
+        $relay_id = $this->ReadPropertyString('relay_id');
+        $connector = $this->ReadPropertyInteger('connector');
         if ($connector < 100) {
             $info = 'Zone ' . $connector;
         } else {
@@ -122,6 +124,7 @@ class HydrawiseZone extends IPSModule
         $info .= ' (#' . $relay_id . ')';
         $this->SetSummary($info);
 
+        $controller_id = $this->ReadPropertyString('controller_id');
         $dataFilter = '.*' . $controller_id . '.*';
         $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
         $this->SetReceiveDataFilter($dataFilter);
@@ -131,33 +134,18 @@ class HydrawiseZone extends IPSModule
 
     private function GetFormElements()
     {
-        $formElements = [];
+        $formElements = $this->GetCommonFormElements('Hydrawise Zone');
 
-        $formElements[] = [
-            'type'    => 'Label',
-            'caption' => 'Hydrawise Zone'
+        if ($this->GetStatus() == self::$IS_UPDATEUNCOMPLETED) {
+            return $formElements;
+        }
+
+        $opts_connector = [
+            [
+                'caption' => 'no',
+                'value'   => 0
+            ],
         ];
-
-        if ($this->HasActiveParent() == false) {
-            $formElements[] = [
-                'type'    => 'Label',
-                'caption' => 'Instance has no active parent instance',
-            ];
-        }
-
-        @$s = $this->CheckConfiguration();
-        if ($s != '') {
-            $formElements[] = [
-                'type'    => 'Label',
-                'caption' => $s,
-            ];
-            $formElements[] = [
-                'type'    => 'Label',
-            ];
-        }
-
-        $opts_connector = [];
-        $opts_connector[] = ['caption' => $this->Translate('no'), 'value' => 0];
         for ($u = 0; $u <= 2; $u++) {
             for ($z = 1; $z <= 16; $z++) {
                 $n = $u * 100 + $z;
@@ -166,21 +154,6 @@ class HydrawiseZone extends IPSModule
                 $opts_connector[] = ['caption' => $l, 'value' => $n];
             }
         }
-
-        $opts_flowrate = [
-            [
-                'caption' => 'no value',
-                'value'   => self::$FLOW_RATE_NONE
-            ],
-            [
-                'caption' => 'average of cycle',
-                'value'   => self::$FLOW_RATE_AVERAGE
-            ],
-            [
-                'caption' => 'current value',
-                'value'   => self::$FLOW_RATE_CURRENT
-            ]
-        ];
 
         $formElements[] = [
             'type'    => 'ExpansionPanel',
@@ -205,7 +178,7 @@ class HydrawiseZone extends IPSModule
                     'enabled' => false
                 ],
             ],
-            'caption' => 'Basic configuration (don\'t change)'
+            'caption' => 'Basic configuration (don\'t change)',
         ];
 
         $formElements[] = [
@@ -235,7 +208,20 @@ class HydrawiseZone extends IPSModule
                     'type'    => 'Select',
                     'name'    => 'with_flowrate',
                     'caption' => 'flowrate',
-                    'options' => $opts_flowrate
+                    'options' => [
+                        [
+                            'caption' => 'no value',
+                            'value'   => self::$FLOW_RATE_NONE
+                        ],
+                        [
+                            'caption' => 'average of cycle',
+                            'value'   => self::$FLOW_RATE_AVERAGE
+                        ],
+                        [
+                            'caption' => 'current value',
+                            'value'   => self::$FLOW_RATE_CURRENT
+                        ]
+                    ],
                 ],
                 [
                     'type'    => 'SelectScript',
@@ -253,6 +239,15 @@ class HydrawiseZone extends IPSModule
     {
         $formActions = [];
 
+        if ($this->GetStatus() == self::$IS_UPDATEUNCOMPLETED) {
+            $formActions[] = $this->GetCompleteUpdateFormAction();
+
+            $formActions[] = $this->GetInformationFormAction();
+            $formActions[] = $this->GetReferencesFormAction();
+
+            return $formActions;
+        }
+
         $formActions[] = [
             'type'      => 'ExpansionPanel',
             'caption'   => 'Expert area',
@@ -261,7 +256,7 @@ class HydrawiseZone extends IPSModule
                 [
                     'type'    => 'Button',
                     'caption' => 'Re-install variable-profiles',
-                    'onClick' => 'Hydrawise_InstallVarProfiles($id, true);'
+                    'onClick' => $this->GetModulePrefix() . '_InstallVarProfiles($id, true);'
                 ],
             ],
         ];
@@ -277,8 +272,8 @@ class HydrawiseZone extends IPSModule
             ]
         ];
 
-        $formActions[] = $this->GetInformationForm();
-        $formActions[] = $this->GetReferencesForm();
+        $formActions[] = $this->GetInformationFormAction();
+        $formActions[] = $this->GetReferencesFormAction();
 
         return $formActions;
     }

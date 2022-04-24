@@ -329,6 +329,11 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.29 @ 24.04.2022 12:50
+  - Implememtierung einer Update-Logik
+  - Übersetzung vervollständigt
+  - diverse interne Änderungen
+
 - 1.28.2 @ 16.04.2022 12:17
   - Überarbeitung WebHook
   - Aktualisierung von submodule CommonStubs
