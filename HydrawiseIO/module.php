@@ -26,7 +26,7 @@ class HydrawiseIO extends IPSModule
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
 
-    private function CheckConfiguration()
+    private function CheckModuleConfiguration()
     {
         $r = [];
 

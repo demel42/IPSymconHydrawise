@@ -61,7 +61,7 @@ class HydrawiseController extends IPSModule
         }
     }
 
-    private function CheckConfiguration()
+    private function CheckModuleConfiguration()
     {
         $r = [];
 

@@ -31,7 +31,7 @@ class HydrawiseZone extends IPSModule
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
     }
 
-    private function CheckConfiguration()
+    private function CheckModuleConfiguration()
     {
         $r = [];
 
