@@ -1,6 +1,6 @@
 # IPSymconHydrawise
 
-[![IPS-Version](https://img.shields.io/badge/Symcon_Version-5.4+-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![IPS-Version](https://img.shields.io/badge/Symcon_Version-6.0+-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 ![Code](https://img.shields.io/badge/Code-PHP-blue.svg)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
@@ -31,7 +31,7 @@ Das Modul besteht aus folgenden Instanzen
 
 ## 2. Voraussetzungen
 
- - IP-Symcon ab Version 5.4<br>
+ - IP-Symcon ab Version 6.0<br>
    Version 5.3 mit Branch _ips_5.3_ (nur noch Fehlerkorrekturen)
    Version 4.4 mit Branch _ips_4.4_ (nur noch Fehlerkorrekturen)
  - Bewässerungscomputer Hydrawise von Fa. Hunter
@@ -328,6 +328,10 @@ GUIDs
   - `{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}`: an HydrawiseController, HydrawiseSensor, HydrawiseZone
 
 ## 7. Versions-Historie
+
+- 1.29.1 @ 26.04.2022 12:35
+  - Korrektur: self::$IS_DEACTIVATED wieder IS_INACTIVE
+  - IPS-Version ist nun minimal 6.0
 
 - 1.29 @ 24.04.2022 12:50
   - Implememtierung einer Update-Logik

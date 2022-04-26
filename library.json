@@ -4,9 +4,9 @@
 	"name": "Hydrawise",
 	"url": "https://github.com/demel42/IPSymconHydrawise",
 	"compatibility": {
-		"version": "5.4"
+		"version": "6.0"
 	},
-	"version": "1.29",
+	"version": "1.29.1",
 	"build": 0,
-	"date": 1650797408
+	"date": 1650969319
 }

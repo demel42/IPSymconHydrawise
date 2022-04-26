@@ -69,7 +69,7 @@ class HydrawiseIO extends IPSModule
 
         $module_disable = $this->ReadPropertyBoolean('module_disable');
         if ($module_disable) {
-            $this->SetStatus(self::$IS_DEACTIVATED);
+            $this->SetStatus(IS_INACTIVE);
             return;
         }
 
@@ -260,10 +260,10 @@ class HydrawiseIO extends IPSModule
         $url = 'https://app.hydrawise.com/api/v1/customerdetails.php?api_key=' . $api_key . '&type=controllers';
         $data = $this->do_HttpRequest($url);
         if ($data == '') {
-            $txt = $this->translate('invalid account-data') . PHP_EOL;
+            $txt = $this->Translate('invalid account-data') . PHP_EOL;
             $txt .= PHP_EOL;
         } else {
-            $txt = $this->translate('valid account-data') . PHP_EOL;
+            $txt = $this->Translate('valid account-data') . PHP_EOL;
             $customer = json_decode($data, true);
             $n_controller = isset($customer['controllers']) ? count($customer['controllers']) : 0;
             $txt .= $n_controller . ' ' . $this->Translate('registered controller found');
