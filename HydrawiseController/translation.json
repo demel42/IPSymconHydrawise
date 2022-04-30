@@ -1,0 +1,73 @@
+{
+	"translations": {
+		"de": {
+			"__function__": "CheckConfiguration",
+			"Webhook is already used": "Webhook wird bereits verwendet",
+
+			"__elements__": "",
+			"Disable instance": "Instanz deaktivieren",
+
+			"Hydrawise Controller": "Hydrawise Controller",
+
+			"Basic configuration (don't change)": "Basis-Konfiguration (nicht ändern)",
+			"Controller-ID": "Controller-ID",
+
+			"optional controller data": "optionale Daten zum Controller",
+			"last contact to Hydrawise": "letze Kommunikation mit Hydrawise",
+			"last message": "letzte Nachricht",
+			"info": "zusammengefasste Daten",
+			"html-box with state of irrigation": "HTML-Box mit dem Status der Bewässerung",
+			"alternate script to use for the \"StatusBox\"": "alternatives Script zur Verwendung für die \"StatusBox\"",
+			"water usage": "Wasserverbrauch",
+			"water meter": "Wasserzähler",
+			"daily sum": "Tageswerte",
+
+			"optional wexternal water meter": "optionaler externer Wasserzähler",
+			"using instead the Hydrawise-intern information of waterflow": "Verwendung anstelle der Hydrawise-internen Informationen über der Wasser-Durchfluß",
+			"Counter-variable": "Zählervarable",
+			" ... conversion factor to liter": " ... Umrechnungsformel in Liter",
+
+			"Webhook": "Webhook",
+			"alternate script to use for Webhook": "alternatives Scripte für den Webhook",
+
+			"Controller": "Controller",
+			"Sensor": "Sensor",
+			"Zone": "Zone",
+			"Expander": "Expander",
+			"Components": "Komponenten",
+
+			"Sensors and zones": "Sensoren und Zonen",
+
+			"category for components to be created": "Kategorie für anzulegende Komponenten",
+
+			"Name": "Name",
+			"Ident": "Ident",
+			"Type": "Typ",
+
+			"Communication": "Kommunikation",
+			"Update interval": "Aktualisierungsintervall",
+			"Seconds": "Sekunden",
+			"Duration until the connection to hydrawise is marked disturbed": "Dauer bis die Verbindung zu Hydrawise als gestört gilt",
+			"Minutes": "Minuten",
+
+			"__options__": "model",
+			"sensor": "Messfühler",
+			"flow meter": "Durchflussmesser",
+			"unknown": "unbekannt",
+
+			"__variables__": "",
+			"State": "Status",
+			"last contact": "letzte Kommunikation",
+			"last message": "letzte Nachricht",
+			"day of cumulation": "Datum zu Tageswerten",
+			"Watering time (today)": "Bewässerungszeit (heute)",
+			"Water usage (today)": "Wasserverbrauch (heute)",
+			"State of irrigation": "Status der Bewässerung",
+
+			"__actions__": "",
+			"Update Data": "Aktualisiere Daten",
+
+			"__end__": ""
+		}
+	}
+}

@@ -10,6 +10,15 @@ class HydrawiseZone extends IPSModule
     use Hydrawise\StubsCommonLib;
     use HydrawiseLocalLib;
 
+    private $ModuleDir;
+
+    public function __construct(string $InstanceID)
+    {
+        parent::__construct($InstanceID);
+
+        $this->ModuleDir = __DIR__;
+    }
+
     public function Create()
     {
         parent::Create();
@@ -50,7 +59,7 @@ class HydrawiseZone extends IPSModule
         parent::ApplyChanges();
 
         $propertyNames = ['visibility_script'];
-		$this->MaintainReferences($propertyNames);
+        $this->MaintainReferences($propertyNames);
 
         if ($this->CheckPrerequisites() != false) {
             $this->SetStatus(self::$IS_INVALIDPREREQUISITES);
@@ -151,22 +160,22 @@ class HydrawiseZone extends IPSModule
             'items'   => [
                 [
                     'type'    => 'ValidationTextBox',
+                    'enabled' => false,
                     'name'    => 'controller_id',
                     'caption' => 'Controller-ID',
-                    'enabled' => false
                 ],
                 [
                     'type'    => 'ValidationTextBox',
+                    'enabled' => false,
                     'name'    => 'relay_id',
                     'caption' => 'Zone-ID',
-                    'enabled' => false
                 ],
                 [
                     'type'    => 'Select',
+                    'enabled' => false,
+                    'options' => $opts_connector,
                     'name'    => 'connector',
                     'caption' => 'Connector',
-                    'options' => $opts_connector,
-                    'enabled' => false
                 ],
             ],
             'caption' => 'Basic configuration (don\'t change)',

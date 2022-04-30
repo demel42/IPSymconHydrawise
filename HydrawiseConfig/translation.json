@@ -1,0 +1,16 @@
+{
+	"translations": {
+		"de": {
+			"Hydrawise Configurator": "Hydrawise Konfigurator",
+
+			"__elements__": "",
+			"category for controller to be created": "Kategorie für anzulegende Controller",
+			"Controller": "Controller",
+			"Name": "Name",
+			"Serial number": "Seriennummer",
+			"Controller-ID": "Controller-ID",
+
+			"__end__": ""
+		}
+	}
+}

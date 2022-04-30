@@ -1,0 +1,40 @@
+{
+	"translations": {
+		"de": {
+			"Hydrawise Sensor": "Hydrawise Sensor",
+
+			"__function__": "CheckConfiguration",
+			"Model is not supported": "Modell wird nicht unterstützt",
+
+			"__elements__": "",
+			"Basic configuration (don't change)": "Basis-Konfiguration (nicht ändern)",
+			"Controller-ID": "Controller-ID",
+			"connector": "Anschluss",
+			"model": "Modell",
+
+			"optional sensor data": "optionale Daten zum Sensor",
+			"daily sum": "Tageswerte",
+			"flowrate": "Durchflussmenge",
+
+			"__options__": "connector",
+			"Sensor 1": "Sensor 1",
+			"Sensor 2": "Sensor 2",
+
+			"__options__": "model",
+			"unknown": "unbekannt",
+			"normally close, start zone": "Ruhezustand geschlossen, Zone starten",
+			"normally open, stop zone": "Ruhezustand offen, Zone stoppen",
+			"normally close, stop zone": "Ruhezustand geschlossen, Zone stoppen",
+			"normally open, start zone": "Ruhezustand offen, Zone starten",
+			"flow meter": "Durchflussmesser",
+
+			"__variables__": "",
+			"State": "Zustand",
+
+			"Water usage (today)": "Wasserverbrauch (heute)",
+			"Water flow rate (current)": "Wasser-Durchflussmenge (aktuell)",
+
+			"__end__": ""
+		}
+	}
+}

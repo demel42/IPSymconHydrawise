@@ -10,6 +10,15 @@ class HydrawiseController extends IPSModule
     use Hydrawise\StubsCommonLib;
     use HydrawiseLocalLib;
 
+    private $ModuleDir;
+
+    public function __construct(string $InstanceID)
+    {
+        parent::__construct($InstanceID);
+
+        $this->ModuleDir = __DIR__;
+    }
+
     public function Create()
     {
         parent::Create();
@@ -86,7 +95,7 @@ class HydrawiseController extends IPSModule
         parent::ApplyChanges();
 
         $propertyNames = ['ImportCategoryID', 'statusbox_script', 'webhook_script', 'WaterMeterID'];
-		$this->MaintainReferences($propertyNames);
+        $this->MaintainReferences($propertyNames);
 
         if ($this->CheckPrerequisites() != false) {
             $this->MaintainTimer('UpdateController', 0);
@@ -212,7 +221,7 @@ class HydrawiseController extends IPSModule
                     $instanceID = 0;
                     foreach ($instIDs as $instID) {
                         if (IPS_GetProperty($instID, 'controller_id') == $controller_id && IPS_GetProperty($instID, 'connector') == $connector) {
-                            $this->SendDebug(__FUNCTION__, 'sensor found: ' . utf8_decode(IPS_GetName($instID)) . ' (' . $instID . ')', 0);
+                            $this->SendDebug(__FUNCTION__, 'sensor found: ' . IPS_GetName($instID) . ' (' . $instID . ')', 0);
                             $instanceID = $instID;
                             break;
                         }
@@ -254,7 +263,7 @@ class HydrawiseController extends IPSModule
                     $instanceID = 0;
                     foreach ($instIDs as $instID) {
                         if (IPS_GetProperty($instID, 'controller_id') == $controller_id && IPS_GetProperty($instID, 'relay_id') == $relay_id) {
-                            $this->SendDebug(__FUNCTION__, 'zone found: ' . utf8_decode(IPS_GetName($instID)) . ' (' . $instID . ')', 0);
+                            $this->SendDebug(__FUNCTION__, 'zone found: ' . IPS_GetName($instID) . ' (' . $instID . ')', 0);
                             $instanceID = $instID;
                             break;
                         }
@@ -388,9 +397,9 @@ class HydrawiseController extends IPSModule
             'items'   => [
                 [
                     'type'    => 'ValidationTextBox',
+                    'enabled' => false,
                     'name'    => 'controller_id',
                     'caption' => 'Controller-ID',
-                    'enabled' => false
                 ],
             ],
             'caption' => 'Basic configuration (don\'t change)'
@@ -477,15 +486,17 @@ class HydrawiseController extends IPSModule
             'items'   => [
                 [
                     'type'    => 'NumberSpinner',
+                    'minimum' => 0,
+                    'suffix'  => 'Seconds',
                     'name'    => 'update_interval',
                     'caption' => 'Update interval',
-                    'suffix'  => 'Seconds'
                 ],
                 $items[] = [
                     'type'    => 'NumberSpinner',
+                    'minimum' => 0,
+                    'suffix'  => 'Minutes',
                     'name'    => 'minutes2fail',
                     'caption' => 'Duration until the connection to hydrawise is marked disturbed',
-                    'suffix'  => 'Minutes'
                 ],
             ],
             'caption' => 'Communication'

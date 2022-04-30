@@ -1,0 +1,53 @@
+{
+	"translations": {
+		"de": {
+			"Hydrawise Zone": "Hydrawise Zone",
+
+            "__function__": "CheckConfiguration",
+			"Determination of the water consumption is not possible without measuring the flow rate":
+				"Ermittlung des Wasserverbrauchs ist ohne Messung der Durchflussmenge ist nicht möglich",
+
+			"__elements__": "",
+			"Basic configuration (don't change)": "Basis-Konfiguration (nicht ändern)",
+			"Controller-ID": "Controller-ID",
+			"Zone-ID": "Zone-ID",
+			"Connector": "Anschluss",
+
+			"__options__": "connector",
+			"no": "nein",
+			"Zone": "Zone",
+			"Expander": "Expander",
+
+			"optional zone data": "optionale Daten zur Zone",
+			"daily sum": "Tageswerte",
+			"watering workflow": "Ablauf der Bewässerung",
+			"watering status": "Status der Bewässerung",
+			"water usage": "Wasserverbrauch",
+			"flowrate": "Durchflussmenge",
+			"optional script to hide/show variables": "optionales Script um die Sichtbarkeit von Variablen zu steuern",
+
+			"__options__": "with_flowrate",
+			"no value": "kein Wert",
+			"average of cycle": "Mittelwert des Zyklus",
+			"current value": "aktueller Wert",
+
+			"__variables__": "",
+			"Current workflow": "aktueller Arbeitsfluss",
+			"Duration of last run": "Dauer der letzten Bewässerung",
+			"Duration of next run": "Dauer der nächsten Bewässerung",
+			"Last run": "letzte Bewässerung",
+			"Next run": "nächste Bewässerung",
+			"Suspended until end of": "Ausgesetzt bis Ende",
+			"Time left": "verbleibende Zeit",
+			"Water flow rate": "Wasser-Durchflussmenge",
+			"Watering time (today)": "Bewässerungsdauer (heute)",
+			"Water usage (today)": "Wasserverbrauch (heute)",
+			"Water usage": "Wasserverbrauch",
+			"Zone operation": "Bewässerung schalten",
+			"Zone status": "Status der Zone",
+			"Zone suspension": "Bewässerung aussetzen",
+
+			"__end__": ""
+		}
+	}
+}

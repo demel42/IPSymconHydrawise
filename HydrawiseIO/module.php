@@ -10,6 +10,15 @@ class HydrawiseIO extends IPSModule
     use Hydrawise\StubsCommonLib;
     use HydrawiseLocalLib;
 
+    private $ModuleDir;
+
+    public function __construct(string $InstanceID)
+    {
+        parent::__construct($InstanceID);
+
+        $this->ModuleDir = __DIR__;
+    }
+
     public function Create()
     {
         parent::Create();
@@ -50,7 +59,7 @@ class HydrawiseIO extends IPSModule
     {
         parent::ApplyChanges();
 
-		$this->MaintainReferences();
+        $this->MaintainReferences();
 
         if ($this->CheckPrerequisites() != false) {
             $this->SetStatus(self::$IS_INVALIDPREREQUISITES);

@@ -10,6 +10,15 @@ class HydrawiseConfig extends IPSModule
     use Hydrawise\StubsCommonLib;
     use HydrawiseLocalLib;
 
+    private $ModuleDir;
+
+    public function __construct(string $InstanceID)
+    {
+        parent::__construct($InstanceID);
+
+        $this->ModuleDir = __DIR__;
+    }
+
     public function Create()
     {
         parent::Create();
@@ -26,7 +35,7 @@ class HydrawiseConfig extends IPSModule
         parent::ApplyChanges();
 
         $propertyNames = ['ImportCategoryID'];
-		$this->MaintainReferences($propertyNames);
+        $this->MaintainReferences($propertyNames);
 
         if ($this->CheckPrerequisites() != false) {
             $this->SetStatus(self::$IS_INVALIDPREREQUISITES);
@@ -103,7 +112,7 @@ class HydrawiseConfig extends IPSModule
                     $instanceID = 0;
                     foreach ($instIDs as $instID) {
                         if (IPS_GetProperty($instID, 'controller_id') == $controller_id) {
-                            $this->SendDebug(__FUNCTION__, 'controller found: ' . utf8_decode(IPS_GetName($instID)) . ' (' . $instID . ')', 0);
+                            $this->SendDebug(__FUNCTION__, 'controller found: ' . IPS_GetName($instID) . ' (' . $instID . ')', 0);
                             $instanceID = $instID;
                             break;
                         }

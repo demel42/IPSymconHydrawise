@@ -10,6 +10,15 @@ class HydrawiseSensor extends IPSModule
     use Hydrawise\StubsCommonLib;
     use HydrawiseLocalLib;
 
+    private $ModuleDir;
+
+    public function __construct(string $InstanceID)
+    {
+        parent::__construct($InstanceID);
+
+        $this->ModuleDir = __DIR__;
+    }
+
     public function Create()
     {
         parent::Create();
@@ -52,7 +61,7 @@ class HydrawiseSensor extends IPSModule
     {
         parent::ApplyChanges();
 
-		$this->MaintainReferences();
+        $this->MaintainReferences();
 
         if ($this->CheckPrerequisites() != false) {
             $this->SetStatus(self::$IS_INVALIDPREREQUISITES);
@@ -136,14 +145,14 @@ class HydrawiseSensor extends IPSModule
             'items'   => [
                 [
                     'type'    => 'ValidationTextBox',
+                    'enabled' => false,
                     'name'    => 'controller_id',
                     'caption' => 'Controller-ID',
-                    'enabled' => false
                 ],
                 [
                     'type'    => 'Select',
                     'name'    => 'connector',
-                    'caption' => 'connector',
+                    'enabled' => false,
                     'options' => [
                         [
                             'caption' => 'no',
@@ -158,12 +167,12 @@ class HydrawiseSensor extends IPSModule
                             'value'   => 2
                         ],
                     ],
-                    'enabled' => false
+                    'caption' => 'connector',
                 ],
                 [
                     'type'    => 'Select',
                     'name'    => 'model',
-                    'caption' => 'model',
+                    'enabled' => false,
                     'options' => [
                         [
                             'caption' => 'unknown',
@@ -190,7 +199,7 @@ class HydrawiseSensor extends IPSModule
                             'value'   => self::$SENSOR_FLOW_METER
                         ],
                     ],
-                    'enabled' => false
+                    'caption' => 'model',
                 ],
             ],
             'caption' => 'Basic configuration (don\'t change)'
