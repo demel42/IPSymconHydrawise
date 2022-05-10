@@ -668,7 +668,7 @@ class HydrawiseZone extends IPSModule
             $this->SetValue('Workflow', $workflow);
         }
 
-        if ($visibility_script >= 10000) {
+        if (IPS_ScriptExists($visibility_script)) {
             $opts = [
                 'InstanceID'       => $this->InstanceID,
                 'suspended_until'  => $suspended_until,

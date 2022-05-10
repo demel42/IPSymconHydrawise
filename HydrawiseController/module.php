@@ -172,6 +172,8 @@ class HydrawiseController extends IPSModule
             return $entries;
         }
 
+        $catID = $this->ReadPropertyInteger('ImportCategoryID');
+
         // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
         $sdata = [
@@ -235,7 +237,7 @@ class HydrawiseController extends IPSModule
                         'name'        => $sensor_name,
                         'create'      => [
                             'moduleID'      => $guid,
-                            'location'      => $this->SetLocation(),
+                            'location'      => $this->GetConfiguratorLocation($catID),
                             'info'          => $ident . ' (' . $controller_name . '\\' . $sensor_name . ')',
                             'configuration' => [
                                 'controller_id' => "$controller_id",
@@ -282,7 +284,7 @@ class HydrawiseController extends IPSModule
                         'name'        => $zone_name,
                         'create'      => [
                             'moduleID'      => $guid,
-                            'location'      => $this->SetLocation(),
+                            'location'      => $this->GetConfiguratorLocation($catID),
                             'info'          => $ident . ' (' . $controller_name . '\\' . $zone_name . ')',
                             'configuration' => [
                                 'controller_id' => (string) $controller_id,
@@ -990,7 +992,7 @@ class HydrawiseController extends IPSModule
 
         if ($with_status_box) {
             $statusbox_script = $this->ReadPropertyInteger('statusbox_script');
-            if ($statusbox_script >= 10000) {
+            if (IPS_ScriptExists($statusbox_script)) {
                 $html = IPS_RunScriptWaitEx($statusbox_script, ['InstanceID' => $this->InstanceID]);
             } else {
                 $html = $this->Build_StatusBox($controller_data);
@@ -1513,7 +1515,7 @@ class HydrawiseController extends IPSModule
         $this->SendDebug(__FUNCTION__, 'basename=' . $basename, 0);
         if ($basename == 'status') {
             $webhook_script = $this->ReadPropertyInteger('webhook_script');
-            if ($webhook_script >= 10000) {
+            if (IPS_ScriptExists($webhook_script)) {
                 $html = IPS_RunScriptWaitEx($webhook_script, ['InstanceID' => $this->InstanceID]);
                 echo $html;
             } else {
@@ -1572,24 +1574,5 @@ class HydrawiseController extends IPSModule
             return 0;
         }
         return ($a_relay < $b_relay) ? -1 : 1;
-    }
-
-    private function SetLocation()
-    {
-        $catID = $this->ReadPropertyInteger('ImportCategoryID');
-        $tree_position = [];
-        if ($catID >= 10000 && IPS_ObjectExists($catID)) {
-            $tree_position[] = IPS_GetName($catID);
-            $parID = IPS_GetObject($catID)['ParentID'];
-            while ($parID > 0) {
-                if ($parID > 0) {
-                    $tree_position[] = IPS_GetName($parID);
-                }
-                $parID = IPS_GetObject($parID)['ParentID'];
-            }
-            $tree_position = array_reverse($tree_position);
-        }
-        $this->SendDebug(__FUNCTION__, 'tree_position=' . print_r($tree_position, true), 0);
-        return $tree_position;
     }
 }
