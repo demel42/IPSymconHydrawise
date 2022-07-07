@@ -243,7 +243,7 @@ Eine Anpassung an eigene Bedürfnisse ist möglich, der Wert der Assoziation ist
 ### Funktionen
 
 `bool Hydrawise_Run(int $InstanzID, int $duration)`<br>
-startet die Bewässerung dieser Zone für eine bestimmte Zeit (in Minuten). Ist _duration_ nicht angegeben bzw. _null_, wird die in Hydrawise für die Zone aktuell ermittelte Dauer verwendet.
+startet die Bewässerung dieser Zone für eine bestimmte Zeit (in Sekunden). Ist _duration_ nicht angegeben bzw. _null_, wird die in Hydrawise für die Zone aktuell ermittelte Dauer verwendet.
 
 `bool Hydrawise_Stop(int $InstanzID)`<br>
 stoppt eine laufende Bewässerung.
@@ -328,6 +328,14 @@ GUIDs
   - `{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}`: an HydrawiseController, HydrawiseSensor, HydrawiseZone
 
 ## 7. Versions-Historie
+
+- 1.40 @ 07.07.2022 15:40
+  - einige Funktionen (GetFormElements, GetFormActions) waren fehlerhafterweise "protected" und nicht "private"
+  - interne Funktionen sind nun private und ggfs nur noch via IPS_RequestAction() erreichbar
+  - Fix: Angabe der Kompatibilität auf 6.2 korrigiert
+  - Verbesserung: IPS-Status wird nur noch gesetzt, wenn er sich ändert
+  - update submodule CommonStubs
+    Fix: Ausgabe des nächsten Timer-Zeitpunkts
 
 - 1.29.4 @ 17.05.2022 15:38
   - update submodule CommonStubs

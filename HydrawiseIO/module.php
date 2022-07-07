@@ -62,27 +62,27 @@ class HydrawiseIO extends IPSModule
         $this->MaintainReferences();
 
         if ($this->CheckPrerequisites() != false) {
-            $this->SetStatus(self::$IS_INVALIDPREREQUISITES);
+            $this->MaintainStatus(self::$IS_INVALIDPREREQUISITES);
             return;
         }
 
         if ($this->CheckUpdate() != false) {
-            $this->SetStatus(self::$IS_UPDATEUNCOMPLETED);
+            $this->MaintainStatus(self::$IS_UPDATEUNCOMPLETED);
             return;
         }
 
         if ($this->CheckConfiguration() != false) {
-            $this->SetStatus(self::$IS_INVALIDCONFIG);
+            $this->MaintainStatus(self::$IS_INVALIDCONFIG);
             return;
         }
 
         $module_disable = $this->ReadPropertyBoolean('module_disable');
         if ($module_disable) {
-            $this->SetStatus(IS_INACTIVE);
+            $this->MaintainStatus(IS_INACTIVE);
             return;
         }
 
-        $this->SetStatus(IS_ACTIVE);
+        $this->MaintainStatus(IS_ACTIVE);
     }
 
     private function GetFormElements()
@@ -164,7 +164,7 @@ class HydrawiseIO extends IPSModule
         $formActions[] = [
             'type'    => 'Button',
             'caption' => 'Test account',
-            'onClick' => $this->GetModulePrefix() . '_TestAccount($id);'
+            'onClick' => 'IPS_RequestAction(' . $this->InstanceID . ', "TestAccount", "");',
         ];
 
         $formActions[] = $this->GetInformationFormAction();
@@ -173,8 +173,25 @@ class HydrawiseIO extends IPSModule
         return $formActions;
     }
 
+    private function LocalRequestAction($ident, $value)
+    {
+        $r = true;
+        switch ($ident) {
+            case 'TestAccount':
+                $this->TestAccount();
+                break;
+            default:
+                $r = false;
+                break;
+        }
+        return $r;
+    }
+
     public function RequestAction($ident, $value)
     {
+        if ($this->LocalRequestAction($ident, $value)) {
+            return;
+        }
         if ($this->CommonRequestAction($ident, $value)) {
             return;
         }
@@ -258,10 +275,12 @@ class HydrawiseIO extends IPSModule
         return $ret;
     }
 
-    public function TestAccount()
+    private function TestAccount()
     {
         if ($this->GetStatus() == IS_INACTIVE) {
-            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
+            $msg = $this->GetStatusText();
+            $this->PopupMessage($msg);
             return;
         }
 
@@ -278,18 +297,13 @@ class HydrawiseIO extends IPSModule
             $txt .= $n_controller . ' ' . $this->Translate('registered controller found');
         }
 
-        $host = $this->ReadPropertyString('host');
-        $password = $this->ReadPropertyString('password');
-        if ($host != '') {
-        }
-
-        echo $txt;
+        $this->PopupMessage($txt);
     }
 
     private function SendCommand(string $cmd_url)
     {
         if ($this->GetStatus() == IS_INACTIVE) {
-            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
             return false;
         }
 
@@ -322,7 +336,7 @@ class HydrawiseIO extends IPSModule
     private function UpdateControllerData(string $controller_id)
     {
         if ($this->GetStatus() == IS_INACTIVE) {
-            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
             return false;
         }
 
@@ -367,7 +381,7 @@ class HydrawiseIO extends IPSModule
             ];
             $this->SendDebug(__FUNCTION__, 'SendDataToChildren(' . print_r($sdata, true) . ')', 0);
             $this->SendDataToChildren(json_encode($sdata));
-            $this->SetStatus(IS_ACTIVE);
+            $this->MaintainStatus(IS_ACTIVE);
             $status = true;
         } else {
             $status = false;
@@ -397,7 +411,7 @@ class HydrawiseIO extends IPSModule
             ];
             $this->SendDebug(__FUNCTION__, 'SendDataToChildren(' . print_r($sdata, true) . ')', 0);
             $this->SendDataToChildren(json_encode($sdata));
-            $this->SetStatus(IS_ACTIVE);
+            $this->MaintainStatus(IS_ACTIVE);
             $status = true;
         } else {
             $status = false;
@@ -411,7 +425,7 @@ class HydrawiseIO extends IPSModule
     private function CollectZoneValues(string $controller_id)
     {
         if ($this->GetStatus() == IS_INACTIVE) {
-            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
             return false;
         }
 
@@ -430,7 +444,7 @@ class HydrawiseIO extends IPSModule
     private function CollectControllerValues(string $controller_id)
     {
         if ($this->GetStatus() == IS_INACTIVE) {
-            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
             return false;
         }
 
@@ -543,7 +557,7 @@ class HydrawiseIO extends IPSModule
             $this->LogMessage('url=' . $url . ' => statuscode=' . $statuscode . ', err=' . $err . ', status #' . $n_stat, KL_WARNING);
 
             if ($n_stat >= $ignore_http_error) {
-                $this->SetStatus($statuscode);
+                $this->MaintainStatus($statuscode);
                 $cstat = '';
             }
             $this->SendDebug(__FUNCTION__, ' => statuscode=' . $statuscode . ', err=' . $err . ', status #' . $n_stat, 0);
@@ -618,7 +632,7 @@ class HydrawiseIO extends IPSModule
 
         if ($statuscode) {
             $this->SendDebug(__FUNCTION__, ' => statuscode=' . $statuscode . ', err=' . $err, 0);
-            $this->SetStatus($statuscode);
+            $this->MaintainStatus($statuscode);
         }
         $this->SendDebug(__FUNCTION__, ' => data=' . $data, 0);
 

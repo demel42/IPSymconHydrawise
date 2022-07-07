@@ -64,17 +64,17 @@ class HydrawiseSensor extends IPSModule
         $this->MaintainReferences();
 
         if ($this->CheckPrerequisites() != false) {
-            $this->SetStatus(self::$IS_INVALIDPREREQUISITES);
+            $this->MaintainStatus(self::$IS_INVALIDPREREQUISITES);
             return;
         }
 
         if ($this->CheckUpdate() != false) {
-            $this->SetStatus(self::$IS_UPDATEUNCOMPLETED);
+            $this->MaintainStatus(self::$IS_UPDATEUNCOMPLETED);
             return;
         }
 
         if ($this->CheckConfiguration() != false) {
-            $this->SetStatus(self::$IS_INVALIDCONFIG);
+            $this->MaintainStatus(self::$IS_INVALIDCONFIG);
             return;
         }
 
@@ -129,7 +129,7 @@ class HydrawiseSensor extends IPSModule
         $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
         $this->SetReceiveDataFilter($dataFilter);
 
-        $this->SetStatus(IS_ACTIVE);
+        $this->MaintainStatus(IS_ACTIVE);
     }
 
     private function GetFormElements()
@@ -246,11 +246,7 @@ class HydrawiseSensor extends IPSModule
             'caption'   => 'Expert area',
             'expanded ' => false,
             'items'     => [
-                [
-                    'type'    => 'Button',
-                    'caption' => 'Re-install variable-profiles',
-                    'onClick' => $this->GetModulePrefix() . '_InstallVarProfiles($id, true);'
-                ],
+                $this->GetInstallVarProfilesFormItem(),
             ],
         ];
 
@@ -298,7 +294,7 @@ class HydrawiseSensor extends IPSModule
         }
     }
 
-    protected function DecodeData($buf)
+    private function DecodeData($buf)
     {
         $controller_id = $this->ReadPropertyString('controller_id');
         $connector = $this->ReadPropertyInteger('connector');
@@ -327,7 +323,7 @@ class HydrawiseSensor extends IPSModule
         if ($do_abort) {
             $this->LogMessage('statuscode=' . $statuscode . ', err=' . $err, KL_WARNING);
             $this->SendDebug(__FUNCTION__, $err, 0);
-            $this->SetStatus($statuscode);
+            $this->MaintainStatus($statuscode);
             return -1;
         }
 
@@ -406,10 +402,10 @@ class HydrawiseSensor extends IPSModule
             }
         }
 
-        $this->SetStatus(IS_ACTIVE);
+        $this->MaintainStatus(IS_ACTIVE);
     }
 
-    protected function ClearDailyValue()
+    private function ClearDailyValue()
     {
         $this->SendDebug(__FUNCTION__, '', 0);
 
@@ -419,10 +415,10 @@ class HydrawiseSensor extends IPSModule
         }
     }
 
-    public function CollectZoneValues()
+    private function CollectZoneValues()
     {
         if ($this->GetStatus() == IS_INACTIVE) {
-            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
             return false;
         }
         if ($this->HasActiveParent() == false) {

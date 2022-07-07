@@ -97,7 +97,7 @@ trait HydrawiseLocalLib
     public static $FLOW_RATE_AVERAGE = 1;
     public static $FLOW_RATE_CURRENT = 2;
 
-    public function InstallVarProfiles(bool $reInstall = false)
+    private function InstallVarProfiles(bool $reInstall = false)
     {
         if ($reInstall) {
             $this->SendDebug(__FUNCTION__, 'reInstall=' . $this->bool2str($reInstall), 0);

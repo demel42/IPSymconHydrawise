@@ -62,17 +62,17 @@ class HydrawiseZone extends IPSModule
         $this->MaintainReferences($propertyNames);
 
         if ($this->CheckPrerequisites() != false) {
-            $this->SetStatus(self::$IS_INVALIDPREREQUISITES);
+            $this->MaintainStatus(self::$IS_INVALIDPREREQUISITES);
             return;
         }
 
         if ($this->CheckUpdate() != false) {
-            $this->SetStatus(self::$IS_UPDATEUNCOMPLETED);
+            $this->MaintainStatus(self::$IS_UPDATEUNCOMPLETED);
             return;
         }
 
         if ($this->CheckConfiguration() != false) {
-            $this->SetStatus(self::$IS_INVALIDCONFIG);
+            $this->MaintainStatus(self::$IS_INVALIDCONFIG);
             return;
         }
 
@@ -129,7 +129,7 @@ class HydrawiseZone extends IPSModule
         $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
         $this->SetReceiveDataFilter($dataFilter);
 
-        $this->SetStatus(IS_ACTIVE);
+        $this->MaintainStatus(IS_ACTIVE);
     }
 
     private function GetFormElements()
@@ -253,11 +253,7 @@ class HydrawiseZone extends IPSModule
             'caption'   => 'Expert area',
             'expanded ' => false,
             'items'     => [
-                [
-                    'type'    => 'Button',
-                    'caption' => 'Re-install variable-profiles',
-                    'onClick' => $this->GetModulePrefix() . '_InstallVarProfiles($id, true);'
-                ],
+                $this->GetInstallVarProfilesFormItem(),
             ],
         ];
 
@@ -308,7 +304,7 @@ class HydrawiseZone extends IPSModule
         }
     }
 
-    protected function DecodeData($buf)
+    private function DecodeData($buf)
     {
         $controller_id = $this->ReadPropertyString('controller_id');
         $relay_id = $this->ReadPropertyString('relay_id');
@@ -356,7 +352,7 @@ class HydrawiseZone extends IPSModule
         if ($do_abort) {
             $this->LogMessage('statuscode=' . $statuscode . ', err=' . $err, KL_WARNING);
             $this->SendDebug(__FUNCTION__, $err, 0);
-            $this->SetStatus($statuscode);
+            $this->MaintainStatus($statuscode);
             return -1;
         }
 
@@ -679,10 +675,10 @@ class HydrawiseZone extends IPSModule
             $this->SendDebug(__FUNCTION__, 'visibility_script: ' . $ret, 0);
         }
 
-        $this->SetStatus(IS_ACTIVE);
+        $this->MaintainStatus(IS_ACTIVE);
     }
 
-    protected function ClearDailyValue()
+    private function ClearDailyValue()
     {
         $this->SendDebug(__FUNCTION__, '', 0);
 
@@ -696,7 +692,7 @@ class HydrawiseZone extends IPSModule
         }
     }
 
-    protected function CollectZoneValues()
+    private function CollectZoneValues()
     {
         $relay_id = $this->ReadPropertyString('relay_id');
 
@@ -729,10 +725,10 @@ class HydrawiseZone extends IPSModule
         return $data;
     }
 
-    protected function CollectControllerValues()
+    private function CollectControllerValues()
     {
         if ($this->GetStatus() == IS_INACTIVE) {
-            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
             return;
         }
         if ($this->HasActiveParent() == false) {

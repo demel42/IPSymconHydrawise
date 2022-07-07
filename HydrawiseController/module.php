@@ -52,7 +52,7 @@ class HydrawiseController extends IPSModule
 
         $this->ConnectParent('{5927E05C-82D0-4D78-B8E0-A973470A9CD3}');
 
-        $this->RegisterTimer('UpdateController', 0, $this->GetModulePrefix() . '_UpdateController(' . $this->InstanceID . ');');
+        $this->RegisterTimer('UpdateController', 0, 'IPS_RequestAction(' . $this->InstanceID . ', "UpdateController", "");');
 
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
@@ -83,7 +83,7 @@ class HydrawiseController extends IPSModule
         return $r;
     }
 
-    protected function SetUpdateInterval()
+    private function SetUpdateInterval()
     {
         $sec = $this->ReadPropertyInteger('update_interval');
         $msec = $sec > 0 ? $sec * 1000 : 0;
@@ -99,19 +99,19 @@ class HydrawiseController extends IPSModule
 
         if ($this->CheckPrerequisites() != false) {
             $this->MaintainTimer('UpdateController', 0);
-            $this->SetStatus(self::$IS_INVALIDPREREQUISITES);
+            $this->MaintainStatus(self::$IS_INVALIDPREREQUISITES);
             return;
         }
 
         if ($this->CheckUpdate() != false) {
             $this->MaintainTimer('UpdateController', 0);
-            $this->SetStatus(self::$IS_UPDATEUNCOMPLETED);
+            $this->MaintainStatus(self::$IS_UPDATEUNCOMPLETED);
             return;
         }
 
         if ($this->CheckConfiguration() != false) {
             $this->MaintainTimer('UpdateController', 0);
-            $this->SetStatus(self::$IS_INVALIDCONFIG);
+            $this->MaintainStatus(self::$IS_INVALIDCONFIG);
             return;
         }
 
@@ -135,7 +135,7 @@ class HydrawiseController extends IPSModule
         $module_disable = $this->ReadPropertyBoolean('module_disable');
         if ($module_disable) {
             $this->MaintainTimer('UpdateController', 0);
-            $this->SetStatus(IS_INACTIVE);
+            $this->MaintainStatus(IS_INACTIVE);
             return;
         }
 
@@ -147,6 +147,8 @@ class HydrawiseController extends IPSModule
         $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
         $this->SetReceiveDataFilter($dataFilter);
 
+        $this->MaintainStatus(IS_ACTIVE);
+
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $hook = $this->ReadPropertyString('hook');
             if ($hook != '') {
@@ -154,8 +156,6 @@ class HydrawiseController extends IPSModule
             }
             $this->SetUpdateInterval();
         }
-
-        $this->SetStatus(IS_ACTIVE);
     }
 
     public function getConfiguratorValues()
@@ -564,7 +564,7 @@ class HydrawiseController extends IPSModule
         $formActions[] = [
             'type'    => 'Button',
             'caption' => 'Update Data',
-            'onClick' => $this->GetModulePrefix() . '_UpdateController($id);'
+            'onClick' => 'IPS_RequestAction(' . $this->InstanceID . ', "UpdateController", "");',
         ];
 
         $formActions[] = [
@@ -572,11 +572,7 @@ class HydrawiseController extends IPSModule
             'caption'   => 'Expert area',
             'expanded ' => false,
             'items'     => [
-                [
-                    'type'    => 'Button',
-                    'caption' => 'Re-install variable-profiles',
-                    'onClick' => $this->GetModulePrefix() . '_InstallVarProfiles($id, true);'
-                ],
+                $this->GetInstallVarProfilesFormItem(),
             ],
         ];
 
@@ -586,8 +582,25 @@ class HydrawiseController extends IPSModule
         return $formActions;
     }
 
+    private function LocalRequestAction($ident, $value)
+    {
+        $r = true;
+        switch ($ident) {
+            case 'UpdateController':
+                $this->UpdateController();
+                break;
+            default:
+                $r = false;
+                break;
+        }
+        return $r;
+    }
+
     public function RequestAction($ident, $value)
     {
+        if ($this->LocalRequestAction($ident, $value)) {
+            return;
+        }
         if ($this->CommonRequestAction($ident, $value)) {
             return;
         }
@@ -598,12 +611,13 @@ class HydrawiseController extends IPSModule
         }
     }
 
-    public function UpdateController()
+    private function UpdateController()
     {
-        if ($this->GetStatus() == IS_INACTIVE) {
-            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
+        if ($this->CheckStatus() == self::$STATUS_INVALID) {
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
             return;
         }
+
         if ($this->HasActiveParent() == false) {
             $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
             $this->LogMessage('has no active parent instance', KL_WARNING);
@@ -621,12 +635,13 @@ class HydrawiseController extends IPSModule
         $this->SendDataToParent(json_encode($sdata));
     }
 
-    public function CollectZoneValues()
+    private function CollectZoneValues()
     {
-        if ($this->GetStatus() == IS_INACTIVE) {
-            $this->SendDebug(__FUNCTION__, 'instance is inactive, skip', 0);
-            return false;
+        if ($this->CheckStatus() == self::$STATUS_INVALID) {
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
+            return;
         }
+
         if ($this->HasActiveParent() == false) {
             $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
             $this->LogMessage('has no active parent instance', KL_WARNING);
@@ -646,7 +661,7 @@ class HydrawiseController extends IPSModule
         return $responses;
     }
 
-    protected function CollectControllerValues()
+    private function CollectControllerValues()
     {
         $controller_id = $this->ReadPropertyString('controller_id');
         $WaterMeterID = $this->ReadPropertyInteger('WaterMeterID');
@@ -696,7 +711,7 @@ class HydrawiseController extends IPSModule
         }
     }
 
-    protected function DecodeData($buf)
+    private function DecodeData($buf)
     {
         $controller_id = $this->ReadPropertyString('controller_id');
         $with_last_contact = $this->ReadPropertyBoolean('with_last_contact');
@@ -729,7 +744,7 @@ class HydrawiseController extends IPSModule
             $this->LogMessage('statuscode=' . $statuscode . ', err=' . $err, KL_WARNING);
             $this->SendDebug(__FUNCTION__, $err, 0);
             $this->SetValue('Status', false);
-            $this->SetStatus($statuscode);
+            $this->MaintainStatus($statuscode);
             $this->SetUpdateInterval();
             return -1;
         }
@@ -1000,12 +1015,12 @@ class HydrawiseController extends IPSModule
             $this->SetValue('StatusBox', $html);
         }
 
-        $this->SetStatus(IS_ACTIVE);
+        $this->MaintainStatus(IS_ACTIVE);
 
         $this->SetUpdateInterval();
     }
 
-    protected function ClearDailyValue()
+    private function ClearDailyValue()
     {
         if ($this->HasActiveParent() == false) {
             $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
