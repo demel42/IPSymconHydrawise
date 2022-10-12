@@ -101,6 +101,10 @@ class HydrawiseConfig extends IPSModule
                         }
                     }
 
+                    if ($instanceID && IPS_GetInstance($instanceID)['ConnectionID'] != IPS_GetInstance($this->InstanceID)['ConnectionID']) {
+                        continue;
+                    }
+
                     $entry = [
                         'instanceID'    => $instanceID,
                         'name'          => $controller_name,
@@ -130,6 +134,10 @@ class HydrawiseConfig extends IPSModule
                 }
             }
             if ($fnd) {
+                continue;
+            }
+
+            if (IPS_GetInstance($instID)['ConnectionID'] != IPS_GetInstance($this->InstanceID)['ConnectionID']) {
                 continue;
             }
 

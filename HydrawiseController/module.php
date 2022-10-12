@@ -229,6 +229,10 @@ class HydrawiseController extends IPSModule
                         }
                     }
 
+                    if ($instanceID && IPS_GetInstance($instanceID)['ConnectionID'] != IPS_GetInstance($this->InstanceID)['ConnectionID']) {
+                        continue;
+                    }
+
                     $ident = $this->Translate('Sensor') . ' ' . $connector;
                     $entry = [
                         'instanceID'  => $instanceID,
@@ -271,6 +275,10 @@ class HydrawiseController extends IPSModule
                         }
                     }
 
+                    if ($instanceID && IPS_GetInstance($instanceID)['ConnectionID'] != IPS_GetInstance($this->InstanceID)['ConnectionID']) {
+                        continue;
+                    }
+
                     if ($connector < 100) {
                         $ident = $this->Translate('Zone') . ' ' . $connector;
                     } else {
@@ -310,6 +318,10 @@ class HydrawiseController extends IPSModule
                 }
             }
             if ($fnd) {
+                continue;
+            }
+
+            if (IPS_GetInstance($instID)['ConnectionID'] != IPS_GetInstance($this->InstanceID)['ConnectionID']) {
                 continue;
             }
 
