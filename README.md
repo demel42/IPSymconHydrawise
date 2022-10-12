@@ -330,7 +330,7 @@ GUIDs
 ## 7. Versions-Historie
 
 - 1.30.3 @ 12.10.2022 14:44
-  - Konfigurators betrachtet nun nur noch Geräte, die entweder noch nicht angelegt wurden oder mit dem gleichen I/O verbunden sind
+  - Konfigurator betrachtet nun nur noch Geräte, die entweder noch nicht angelegt wurden oder mit dem gleichen I/O verbunden sind
   - update submodule CommonStubs
 
 - 1.30.2 @ 07.10.2022 13:59
