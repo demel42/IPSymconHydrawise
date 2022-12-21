@@ -737,10 +737,10 @@ class HydrawiseZone extends IPSModule
             return;
         }
 
-        // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
         $sdata = [
-            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', // an HydrawiseIO
+            'CallerID'      => $this->InstanceID,
             'Function'      => 'CollectControllerValues',
             'controller_id' => $controller_id
         ];
@@ -804,9 +804,9 @@ class HydrawiseZone extends IPSModule
             return;
         }
 
-        // an HydrawiseIO
         $sdata = [
-            'DataID'   => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+            'DataID'   => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', // an HydrawiseIO
+            'CallerID' => $this->InstanceID,
             'Function' => 'CmdUrl',
             'Url'      => $url
         ];
@@ -817,10 +817,10 @@ class HydrawiseZone extends IPSModule
         $this->SendDebug(__FUNCTION__, 'url=' . $url . ', got data=' . print_r($jdata, true), 0);
 
         if (isset($jdata['msg'])) {
-            // an HydrawiseIO
             $controller_id = $this->ReadPropertyString('controller_id');
             $sdata = [
-                'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+                'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', // an HydrawiseIO
+                'CallerID'      => $this->InstanceID,
                 'Function'      => 'SetMessage',
                 'msg'           => $jdata['msg'],
                 'controller_id' => $controller_id
@@ -829,10 +829,10 @@ class HydrawiseZone extends IPSModule
             $data = $this->SendDataToParent(json_encode($sdata));
         }
 
-        // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
         $sdata = [
-            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', // an HydrawiseIO
+            'CallerID'      => $this->InstanceID,
             'Function'      => 'UpdateController',
             'controller_id' => $controller_id
         ];

@@ -427,10 +427,10 @@ class HydrawiseSensor extends IPSModule
             return false;
         }
 
-        // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
         $sdata = [
-            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', // an HydrawiseIO
+            'CallerID'      => $this->InstanceID,
             'Function'      => 'CollectZoneValues',
             'controller_id' => $controller_id
         ];

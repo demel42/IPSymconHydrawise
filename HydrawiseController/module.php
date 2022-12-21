@@ -47,6 +47,7 @@ class HydrawiseController extends IPSModule
         $this->RegisterPropertyInteger('ImportCategoryID', 0);
 
         $this->RegisterAttributeString('UpdateInfo', '');
+        $this->RegisterAttributeString('DataCache', '');
 
         $this->InstallVarProfiles(false);
 
@@ -83,9 +84,11 @@ class HydrawiseController extends IPSModule
         return $r;
     }
 
-    private function SetUpdateInterval()
+    private function SetUpdateInterval($sec = null)
     {
-        $sec = $this->ReadPropertyInteger('update_interval');
+        if ($sec == null) {
+            $sec = $this->ReadPropertyInteger('update_interval');
+        }
         $msec = $sec > 0 ? $sec * 1000 : 0;
         $this->MaintainTimer('UpdateController', $msec);
     }
@@ -147,6 +150,8 @@ class HydrawiseController extends IPSModule
         $this->SendDebug(__FUNCTION__, 'set ReceiveDataFilter=' . $dataFilter, 0);
         $this->SetReceiveDataFilter($dataFilter);
 
+        $this->SetupDataCache(24 * 60 * 60);
+
         $this->MaintainStatus(IS_ACTIVE);
 
         if (IPS_GetKernelRunlevel() == KR_READY) {
@@ -174,25 +179,35 @@ class HydrawiseController extends IPSModule
 
         $catID = $this->ReadPropertyInteger('ImportCategoryID');
 
-        // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
-        $sdata = [
-            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
-            'Function'      => 'ControllerDetails',
-            'controller_id' => $controller_id
-        ];
-        $this->SendDebug(__FUNCTION__, 'SendDataToParent(' . print_r($sdata, true) . ')', 0);
-        $data = $this->SendDataToParent(json_encode($sdata));
-        $this->SendDebug(__FUNCTION__, 'data=' . print_r($data, true), 0);
-        $controller = json_decode($data, true);
-        $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
 
-        if (is_array($controller) && count($controller)) {
+        $dataCache = $this->ReadDataCache();
+        if (isset($dataCache['data']['controller'])) {
+            $controller = $dataCache['data']['controller'];
+            $this->SendDebug(__FUNCTION__, 'controller (from cache)=' . print_r($controller, true), 0);
+        } else {
+            $sdata = [
+                'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', // an HydrawiseIO
+                'CallerID'      => $this->InstanceID,
+                'Function'      => 'ControllerDetails',
+                'controller_id' => $controller_id
+            ];
+            $this->SendDebug(__FUNCTION__, 'SendDataToParent(' . print_r($sdata, true) . ')', 0);
+            $data = $this->SendDataToParent(json_encode($sdata));
+            $controller = @json_decode($data, true);
+            $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
+            if (is_array($controller)) {
+                $dataCache['data']['controller'] = $controller;
+            }
+            $this->WriteDataCache($dataCache, time());
+        }
+
+        if (is_array($controller)) {
             $controller_name = $this->GetArrayElem($controller, 'name', '');
 
             $sensors = $this->GetArrayElem($controller, 'sensors', '');
             if ($sensors != '') {
-                $guid = '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}';
+                $guid = '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}'; // HydrawiseSensor
                 $instIDs = IPS_GetInstanceListByModuleID($guid);
 
                 foreach ($sensors as $sensor) {
@@ -223,7 +238,7 @@ class HydrawiseController extends IPSModule
                     $instanceID = 0;
                     foreach ($instIDs as $instID) {
                         if (IPS_GetProperty($instID, 'controller_id') == $controller_id && IPS_GetProperty($instID, 'connector') == $connector) {
-                            $this->SendDebug(__FUNCTION__, 'sensor found: ' . IPS_GetName($instID) . ' (' . $instID . ')', 0);
+                            $this->SendDebug(__FUNCTION__, 'instance found: ' . IPS_GetName($instID) . ' (' . $instID . ')', 0);
                             $instanceID = $instID;
                             break;
                         }
@@ -258,7 +273,7 @@ class HydrawiseController extends IPSModule
 
             $relays = $this->GetArrayElem($controller, 'relays', '');
             if ($relays != '') {
-                $guid = '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}';
+                $guid = '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}'; // HydrawiseZone
                 $instIDs = IPS_GetInstanceListByModuleID($guid);
 
                 foreach ($relays as $relay) {
@@ -269,7 +284,7 @@ class HydrawiseController extends IPSModule
                     $instanceID = 0;
                     foreach ($instIDs as $instID) {
                         if (IPS_GetProperty($instID, 'controller_id') == $controller_id && IPS_GetProperty($instID, 'relay_id') == $relay_id) {
-                            $this->SendDebug(__FUNCTION__, 'zone found: ' . IPS_GetName($instID) . ' (' . $instID . ')', 0);
+                            $this->SendDebug(__FUNCTION__, 'instance found: ' . IPS_GetName($instID) . ' (' . $instID . ')', 0);
                             $instanceID = $instID;
                             break;
                         }
@@ -307,7 +322,7 @@ class HydrawiseController extends IPSModule
             }
         }
 
-        $guid = '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}';
+        $guid = '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}'; // HydrawiseSensor
         $instIDs = IPS_GetInstanceListByModuleID($guid);
         foreach ($instIDs as $instID) {
             $fnd = false;
@@ -354,7 +369,7 @@ class HydrawiseController extends IPSModule
             $this->SendDebug(__FUNCTION__, 'missing entry=' . print_r($entry, true), 0);
         }
 
-        $guid = '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}';
+        $guid = '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}'; // HydrawiseZone
         $instIDs = IPS_GetInstanceListByModuleID($guid);
 
         foreach ($instIDs as $instID) {
@@ -526,15 +541,13 @@ class HydrawiseController extends IPSModule
                     'caption' => 'category for components to be created'
                 ],
                 [
-                    'type'    => 'Configurator',
-                    'name'    => 'components',
-                    'caption' => 'Components',
-
+                    'type'     => 'Configurator',
+                    'name'     => 'components',
+                    'caption'  => 'Components',
                     'rowCount' => count($entries),
-
-                    'add'     => false,
-                    'delete'  => false,
-                    'columns' => [
+                    'add'      => false,
+                    'delete'   => false,
+                    'columns'  => [
                         [
                             'caption' => 'Name',
                             'name'    => 'name',
@@ -551,8 +564,10 @@ class HydrawiseController extends IPSModule
                             'width'   => '250px'
                         ],
                     ],
-                    'values' => $entries
+                    'values'            => $entries,
+                    'discoveryInterval' => 60 * 60 * 24,
                 ],
+				$this->GetRefreshDataCacheFormAction(),
             ],
             'caption' => 'Sensors and zones'
         ];
@@ -616,6 +631,12 @@ class HydrawiseController extends IPSModule
         if ($this->CommonRequestAction($ident, $value)) {
             return;
         }
+
+        if ($this->GetStatus() == IS_INACTIVE) {
+            $this->SendDebug(__FUNCTION__, $this->GetStatusText() . ' => skip', 0);
+            return;
+        }
+
         switch ($ident) {
             default:
                 $this->SendDebug(__FUNCTION__, 'invalid ident ' . $ident, 0);
@@ -636,10 +657,10 @@ class HydrawiseController extends IPSModule
             return;
         }
 
-        // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
         $sdata = [
-            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', // an HydrawiseIO
+            'CallerID'      => $this->InstanceID,
             'Function'      => 'UpdateController',
             'controller_id' => $controller_id
         ];
@@ -660,10 +681,10 @@ class HydrawiseController extends IPSModule
             return false;
         }
 
-        // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
         $sdata = [
-            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', // an HydrawiseIO
+            'CallerID'      => $this->InstanceID,
             'Function'      => 'CollectZoneValues',
             'controller_id' => $controller_id
         ];
@@ -1029,7 +1050,11 @@ class HydrawiseController extends IPSModule
 
         $this->MaintainStatus(IS_ACTIVE);
 
-        $this->SetUpdateInterval();
+        $nextpoll = $controller['nextpoll'];
+        $this->SendDebug(__FUNCTION__, 'nextpoll=' . $nextpoll, 0);
+		$sec = $this->ReadPropertyInteger('update_interval');
+		$msec = max($sec, $nextpoll) * 1000;
+        $this->MaintainTimer('UpdateController', $msec);
     }
 
     private function ClearDailyValue()
@@ -1049,10 +1074,10 @@ class HydrawiseController extends IPSModule
             }
         }
 
-        // an HydrawiseIO
         $controller_id = $this->ReadPropertyString('controller_id');
         $sdata = [
-            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}',
+            'DataID'        => '{B54B579C-3992-4C1D-B7A8-4A129A78ED03}', // an HydrawiseIO
+            'CallerID'      => $this->InstanceID,
             'Function'      => 'ClearDailyValue',
             'controller_id' => $controller_id
         ];

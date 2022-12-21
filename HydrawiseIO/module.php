@@ -11,12 +11,16 @@ class HydrawiseIO extends IPSModule
     use HydrawiseLocalLib;
 
     private $ModuleDir;
+    private $SemaphoreID;
+
+    private static $semaphoreTM = 5 * 1000;
 
     public function __construct(string $InstanceID)
     {
         parent::__construct($InstanceID);
 
         $this->ModuleDir = __DIR__;
+        $this->SemaphoreID = __CLASS__ . '_' . $InstanceID;
     }
 
     public function Create()
@@ -31,6 +35,7 @@ class HydrawiseIO extends IPSModule
         $this->RegisterPropertyString('password', '');
 
         $this->RegisterAttributeString('UpdateInfo', '');
+        $this->RegisterAttributeString('ApiCallStats', json_encode([]));
 
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
@@ -167,6 +172,15 @@ class HydrawiseIO extends IPSModule
             'onClick' => 'IPS_RequestAction(' . $this->InstanceID . ', "TestAccount", "");',
         ];
 
+        $formActions[] = [
+            'type'      => 'ExpansionPanel',
+            'caption'   => 'Expert area',
+            'expanded'  => false,
+            'items'     => [
+                $this->GetApiCallStatsFormItem(),
+            ]
+        ];
+
         $formActions[] = $this->GetInformationFormAction();
         $formActions[] = $this->GetReferencesFormAction();
 
@@ -212,6 +226,10 @@ class HydrawiseIO extends IPSModule
         $jdata = json_decode($data, true);
         $this->SendDebug(__FUNCTION__, 'data=' . print_r($jdata, true), 0);
 
+        $callerID = $jdata['CallerID'];
+        $this->SendDebug(__FUNCTION__, 'caller=' . $callerID . '(' . IPS_GetName($callerID) . ')', 0);
+        $_IPS['CallerID'] = $callerID;
+
         $ret = '';
 
         if (isset($jdata['Function'])) {
@@ -220,9 +238,8 @@ class HydrawiseIO extends IPSModule
                     $ret = $this->SendCommand($jdata['Url']);
                     break;
                 case 'ClearDailyValue':
-                    // an HydrawiseSensor, HydrawiseZone
                     $sdata = [
-                        'DataID'        => '{D957666E-B6E3-A44F-2515-9B5F009ACC2D}',
+                        'DataID'        => '{D957666E-B6E3-A44F-2515-9B5F009ACC2D}', // an HydrawiseSensor, HydrawiseZone
                         'Function'      => $jdata['Function'],
                         'controller_id' => $jdata['controller_id']
                     ];
@@ -253,9 +270,8 @@ class HydrawiseIO extends IPSModule
                     $ret = $this->CollectControllerValues($controller_id);
                     break;
                 case 'SetMessage':
-                    // an HydrawiseController
                     $sdata = [
-                        'DataID'        => '{A800ED12-C177-80A3-A15C-0B6E0052640D}',
+                        'DataID'        => '{A800ED12-C177-80A3-A15C-0B6E0052640D}', // an HydrawiseController
                         'Function'      => $jdata['Function'],
                         'msg'           => $jdata['msg'],
                         'controller_id' => $jdata['controller_id']
@@ -374,9 +390,8 @@ class HydrawiseIO extends IPSModule
             $jdata['status'] = $status;
             $jdata['local'] = $local_data;
             $data = json_encode($jdata);
-            // an HydrawiseSensor, HydrawiseZone
             $sdata = [
-                'DataID'  => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}',
+                'DataID'  => '{A717FCDD-287E-44BF-A1D2-E2489A4C30B2}', // an HydrawiseSensor, HydrawiseZone
                 'AllData' => $data
             ];
             $this->SendDebug(__FUNCTION__, 'SendDataToChildren(' . print_r($sdata, true) . ')', 0);
@@ -404,9 +419,8 @@ class HydrawiseIO extends IPSModule
             $jdata = json_decode($data, true);
             $jdata['controller_id'] = $controller_id;
             $data = json_encode($jdata);
-            // an HydrawiseController
             $sdata = [
-                'DataID'    => '{A800ED12-C177-80A3-A15C-0B6E0052640D}',
+                'DataID'    => '{A800ED12-C177-80A3-A15C-0B6E0052640D}', // an HydrawiseController
                 'LocalData' => $data
             ];
             $this->SendDebug(__FUNCTION__, 'SendDataToChildren(' . print_r($sdata, true) . ')', 0);
@@ -429,9 +443,8 @@ class HydrawiseIO extends IPSModule
             return false;
         }
 
-        // an HydrawiseZone
         $sdata = [
-            'DataID'        => '{C424E279-1362-96A6-7D22-B879926BF95F}',
+            'DataID'        => '{C424E279-1362-96A6-7D22-B879926BF95F}', // an HydrawiseZone
             'Function'      => 'CollectZoneValues',
             'controller_id' => $controller_id
         ];
@@ -448,9 +461,8 @@ class HydrawiseIO extends IPSModule
             return false;
         }
 
-        // an HydrawiseController
         $sdata = [
-            'DataID'        => '{A800ED12-C177-80A3-A15C-0B6E0052640D}',
+            'DataID'        => '{A800ED12-C177-80A3-A15C-0B6E0052640D}', // an HydrawiseController
             'Function'      => 'CollectControllerValues',
             'controller_id' => $controller_id
         ];
@@ -490,6 +502,11 @@ class HydrawiseIO extends IPSModule
     {
         $ignore_http_error = $this->ReadPropertyInteger('ignore_http_error');
 
+        if (IPS_SemaphoreEnter($this->SemaphoreID, self::$semaphoreTM) == false) {
+            $this->SendDebug(__FUNCTION__, 'unable to lock sempahore ' . $this->SemaphoreID, 0);
+            return false;
+        }
+
         $this->SendDebug(__FUNCTION__, 'http-get: url=' . $url, 0);
         $time_start = microtime(true);
 
@@ -507,6 +524,7 @@ class HydrawiseIO extends IPSModule
 
         $duration = round(microtime(true) - $time_start, 2);
         $this->SendDebug(__FUNCTION__, ' => errno=' . $cerrno . ', httpcode=' . $httpcode . ', duration=' . $duration . 's', 0);
+        $this->SendDebug(__FUNCTION__, '    cdata=' . $cdata, 0);
 
         $statuscode = 0;
         $err = '';
@@ -551,7 +569,11 @@ class HydrawiseIO extends IPSModule
             } else {
                 $jstat = [];
             }
-            $jstat[] = ['statuscode' => $statuscode, 'err' => $err, 'tstamp' => time()];
+            $jstat[] = [
+                'statuscode' => $statuscode,
+                'err'        => $err,
+                'tstamp'     => time()
+            ];
             $n_stat = count($jstat);
             $cstat = json_encode($jstat);
             $this->LogMessage('url=' . $url . ' => statuscode=' . $statuscode . ', err=' . $err . ', status #' . $n_stat, KL_WARNING);
@@ -565,6 +587,10 @@ class HydrawiseIO extends IPSModule
             $cstat = '';
         }
         $this->SetBuffer('LastStatus', $cstat);
+
+        IPS_SemaphoreLeave($this->SemaphoreID);
+
+        $this->ApiCallsCollect($url, $err, $statuscode);
 
         return $data;
     }
@@ -599,6 +625,7 @@ class HydrawiseIO extends IPSModule
 
         $duration = round(microtime(true) - $time_start, 2);
         $this->SendDebug(__FUNCTION__, ' => errno=' . $cerrno . ', httpcode=' . $httpcode . ', duration=' . $duration . 's', 0);
+        $this->SendDebug(__FUNCTION__, '    cdata=' . $cdata, 0);
 
         $statuscode = 0;
         $err = '';
