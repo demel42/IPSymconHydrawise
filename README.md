@@ -329,8 +329,15 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.32 @ 18.01.2023 09:21
+  - Verbesserung: weiter Verringerung und Absicherung der API-Abrufe
+
+- 1.31.1 @ 11.01.2023 15:44
+  - Fix: Handling des Datencache abgesichert
+  - update submodule CommonStubs
+
 - 1.31 @ 21.12.2022 09:17
-  - Verbesserung: Absicherung vor mehruviel Status-Abfragen als von der APi zugelassen (Feld "nextpoll")
+  - Verbesserung: Absicherung vor mehr Status-Abfragen als von der APi zugelassen (Feld "nextpoll")
   - Neu: Führen einer Statistik der API-Calls im IO-Modul, Anzeige als Popup im Experten-Bereich
   - Neu: Verwendung der Option 'discoveryInterval' im Konfigurator (ab 6.3) zur Reduzierung der API-Calls: nur noch ein Discovery/Tag
   - Neu: Daten-Cache für Daten in den Konfiguratoren zur Reduzierung der API-Aufrufe, wird automatisch 1/Tag oder manuell aktualisiert

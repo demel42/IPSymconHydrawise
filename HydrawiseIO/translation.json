@@ -18,10 +18,6 @@
 			"Hostname": "Hostname",
 			"Password": "Passwort",
 
-			"Communication": "Kommunikation",
-			"Ignore HTTP-Error X times": "HTTP-Fehler X-fach ignorieren",
-			"Count": "Anzahl",
-
 			"__actions__": "",
 			"Test account": "Zugangsdaten überprüfen",
 

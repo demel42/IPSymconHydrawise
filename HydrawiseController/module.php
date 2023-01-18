@@ -567,7 +567,7 @@ class HydrawiseController extends IPSModule
                     'values'            => $entries,
                     'discoveryInterval' => 60 * 60 * 24,
                 ],
-				$this->GetRefreshDataCacheFormAction(),
+                $this->GetRefreshDataCacheFormAction(),
             ],
             'caption' => 'Sensors and zones'
         ];
@@ -1052,8 +1052,8 @@ class HydrawiseController extends IPSModule
 
         $nextpoll = $controller['nextpoll'];
         $this->SendDebug(__FUNCTION__, 'nextpoll=' . $nextpoll, 0);
-		$sec = $this->ReadPropertyInteger('update_interval');
-		$msec = max($sec, $nextpoll) * 1000;
+        $sec = $this->ReadPropertyInteger('update_interval');
+        $msec = max($sec, $nextpoll) * 1000;
         $this->MaintainTimer('UpdateController', $msec);
     }
 

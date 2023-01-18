@@ -29,13 +29,14 @@ class HydrawiseIO extends IPSModule
 
         $this->RegisterPropertyBoolean('module_disable', false);
         $this->RegisterPropertyString('api_key', '');
-        $this->RegisterPropertyInteger('ignore_http_error', '0');
 
         $this->RegisterPropertyString('host', '');
         $this->RegisterPropertyString('password', '');
 
         $this->RegisterAttributeString('UpdateInfo', '');
         $this->RegisterAttributeString('ApiCallStats', json_encode([]));
+
+        $this->SetBuffer('CustomerDetails', '');
 
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
@@ -135,19 +136,6 @@ class HydrawiseIO extends IPSModule
                 ],
             ],
             'caption' => 'local Hydrawise-Controller'
-        ];
-
-        $formElements[] = [
-            'type'    => 'ExpansionPanel',
-            'items'   => [
-                [
-                    'type'    => 'NumberSpinner',
-                    'name'    => 'ignore_http_error',
-                    'caption' => 'Ignore HTTP-Error X times',
-                    'suffix'  => 'Count'
-                ],
-            ],
-            'caption' => 'Communication'
         ];
 
         return $formElements;
@@ -492,16 +480,48 @@ class HydrawiseIO extends IPSModule
             return;
         }
 
-        $api_key = $this->ReadPropertyString('api_key');
-        $url = 'https://app.hydrawise.com/api/v1/customerdetails.php?api_key=' . $api_key . '&type=controllers';
-        $data = $this->do_HttpRequest($url);
+        $customerDetails = json_decode($this->GetBuffer('CustomerDetails'), true);
+        $this->SendDebug(__FUNCTION__, 'old customerDetails=' . print_r($customerDetails, true), 0);
+        if ($customerDetails == false) {
+            $customerDetails = [
+                'data'   => '',
+                'last'   => 0,
+                'next'   => 0,
+            ];
+        }
+        $now = time();
+        $last = $customerDetails['last'];
+        $next = $customerDetails['next'];
+        $this->SendDebug(__FUNCTION__, 'now=' . date('d.m.Y H:i:s', $now) . ', last=' . date('d.m.Y H:i:s', $last) . ', next=' . date('d.m.Y H:i:s', $next), 0);
+
+        if ($now > $next) {
+            $this->SendDebug(__FUNCTION__, 'call api', 0);
+            $api_key = $this->ReadPropertyString('api_key');
+            $url = 'https://app.hydrawise.com/api/v1/customerdetails.php?api_key=' . $api_key . '&type=controllers';
+            $data = $this->do_HttpRequest($url);
+            if ($data != '') {
+                $customerDetails['data'] = $data;
+            }
+            $customerDetails['last'] = $now;
+            if ($this->GetStatus() == self::$IS_TOOMANYREQUESTS) {
+                $customerDetails['next'] = $now + 60 * 5;
+            } else {
+                $customerDetails['next'] = $now + 60;
+            }
+            $this->SendDebug(__FUNCTION__, 'status=' . $this->GetStatusText() . ', next=' . date('d.m.Y H:i:s', $next), 0);
+
+            $this->SendDebug(__FUNCTION__, 'new customerDetails=' . print_r($customerDetails, true), 0);
+            $this->SetBuffer('CustomerDetails', json_encode($customerDetails));
+        } else {
+            $this->SendDebug(__FUNCTION__, 'from cache', 0);
+        }
+        $data = $customerDetails['data'];
+        $this->SendDebug(__FUNCTION__, 'data=' . $data, 0);
         return $data;
     }
 
     private function do_HttpRequest($url)
     {
-        $ignore_http_error = $this->ReadPropertyInteger('ignore_http_error');
-
         if (IPS_SemaphoreEnter($this->SemaphoreID, self::$semaphoreTM) == false) {
             $this->SendDebug(__FUNCTION__, 'unable to lock sempahore ' . $this->SemaphoreID, 0);
             return false;
@@ -563,30 +583,10 @@ class HydrawiseIO extends IPSModule
         }
 
         if ($statuscode) {
-            $cstat = $this->GetBuffer('LastStatus');
-            if ($cstat != '') {
-                $jstat = json_decode($cstat, true);
-            } else {
-                $jstat = [];
-            }
-            $jstat[] = [
-                'statuscode' => $statuscode,
-                'err'        => $err,
-                'tstamp'     => time()
-            ];
-            $n_stat = count($jstat);
-            $cstat = json_encode($jstat);
-            $this->LogMessage('url=' . $url . ' => statuscode=' . $statuscode . ', err=' . $err . ', status #' . $n_stat, KL_WARNING);
-
-            if ($n_stat >= $ignore_http_error) {
-                $this->MaintainStatus($statuscode);
-                $cstat = '';
-            }
-            $this->SendDebug(__FUNCTION__, ' => statuscode=' . $statuscode . ', err=' . $err . ', status #' . $n_stat, 0);
-        } else {
-            $cstat = '';
+            $this->LogMessage('url=' . $url . ' => statuscode=' . $statuscode . ', err=' . $err, KL_WARNING);
+            $this->SendDebug(__FUNCTION__, ' => statuscode=' . $statuscode . ', err=' . $err, 0);
+            $this->MaintainStatus($statuscode);
         }
-        $this->SetBuffer('LastStatus', $cstat);
 
         IPS_SemaphoreLeave($this->SemaphoreID);
 
