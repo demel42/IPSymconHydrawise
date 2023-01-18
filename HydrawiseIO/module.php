@@ -82,6 +82,12 @@ class HydrawiseIO extends IPSModule
             return;
         }
 
+        $apiLimits = [];
+
+        $apiNotes = $this->Translate('30 calls per 5 minutes and not faster than specified in the "nextpoll" field of the response to the "statusschedule" API call');
+
+        $this->ApiCallsSetInfo($apiLimits, $apiNotes);
+
         $module_disable = $this->ReadPropertyBoolean('module_disable');
         if ($module_disable) {
             $this->MaintainStatus(IS_INACTIVE);
@@ -504,9 +510,9 @@ class HydrawiseIO extends IPSModule
             }
             $customerDetails['last'] = $now;
             if ($this->GetStatus() == self::$IS_TOOMANYREQUESTS) {
-                $customerDetails['next'] = $now + 60 * 5;
+                $customerDetails['next'] = $now + 60 * 6;
             } else {
-                $customerDetails['next'] = $now + 60;
+                $customerDetails['next'] = $now + 90;
             }
             $this->SendDebug(__FUNCTION__, 'status=' . $this->GetStatusText() . ', next=' . date('d.m.Y H:i:s', $next), 0);
 

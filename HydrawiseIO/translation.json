@@ -7,6 +7,10 @@
 			"API-Key must be specified": "API-Key muss angegeben sein",
 			"Password must be specified if host ist given": "Passwort muss angegeben werden, wenn der Host angegeben ist",
 
+			"__function__": "ApplyChanges",
+			"30 calls per 5 minutes and not faster than specified in the \"nextpoll\" field of the response to the \"statusschedule\" API call":
+				"30 Aufrufe pro 5 Minuten und nicht schneller als im Feld \"nextpoll\" der Antwort zum API-Aufruf \"statusschedule\" angegeben",
+
 			"__elements__": "",
 			"Disable instance": "Instanz deaktivieren",
 
