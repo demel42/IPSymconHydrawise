@@ -331,8 +331,6 @@ GUIDs
 
 - 1.32 @ 18.01.2023 09:21
   - Verbesserung: weiter Verringerung und Absicherung der API-Abrufe
-
-- 1.31.1 @ 11.01.2023 15:44
   - Fix: Handling des Datencache abgesichert
   - update submodule CommonStubs
 
