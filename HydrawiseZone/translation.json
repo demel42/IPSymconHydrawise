@@ -31,6 +31,11 @@
 			"average of cycle": "Mittelwert des Zyklus",
 			"current value": "aktueller Wert",
 
+			"Generate message when the gateway is inactive": "Meldung erzeugen wenn der Gateway inaktiv ist",
+
+			"__messages__": "",
+			"Instance has no active gateway": "Instanz hat keinen aktiven Gateway",
+
 			"__variables__": "",
 			"Current workflow": "aktueller Arbeitsfluss",
 			"Duration of last run": "Dauer der letzten Bewässerung",

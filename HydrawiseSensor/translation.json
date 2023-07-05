@@ -28,6 +28,11 @@
 			"normally open, start zone": "Ruhezustand offen, Zone starten",
 			"flow meter": "Durchflussmesser",
 
+			"Generate message when the gateway is inactive": "Meldung erzeugen wenn der Gateway inaktiv ist",
+
+			"__messages__": "",
+			"Instance has no active gateway": "Instanz hat keinen aktiven Gateway",
+
 			"__variables__": "",
 			"State": "Zustand",
 

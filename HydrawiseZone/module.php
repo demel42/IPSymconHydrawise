@@ -23,6 +23,8 @@ class HydrawiseZone extends IPSModule
     {
         parent::Create();
 
+        $this->RegisterPropertyBoolean('log_no_parent', true);
+
         $this->RegisterPropertyString('controller_id', '');
         $this->RegisterPropertyString('relay_id', '');
         $this->RegisterPropertyInteger('connector', -1);
@@ -230,6 +232,12 @@ class HydrawiseZone extends IPSModule
                 ],
             ],
             'caption' => 'optional zone data'
+        ];
+
+        $formElements[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'log_no_parent',
+            'caption' => 'Generate message when the gateway is inactive',
         ];
 
         return $formElements;

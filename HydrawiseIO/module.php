@@ -510,9 +510,9 @@ class HydrawiseIO extends IPSModule
             }
             $customerDetails['last'] = $now;
             if ($this->GetStatus() == self::$IS_TOOMANYREQUESTS) {
-                $customerDetails['next'] = $now + 60 * 6;
+                $customerDetails['next'] = $now + 60 * 10;
             } else {
-                $customerDetails['next'] = $now + 90;
+                $customerDetails['next'] = $now + 60 * 2;
             }
             $this->SendDebug(__FUNCTION__, 'status=' . $this->GetStatusText() . ', next=' . date('d.m.Y H:i:s', $next), 0);
 

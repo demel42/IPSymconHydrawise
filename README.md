@@ -329,6 +329,15 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.34 @ 05.07.2023 17:02
+  - Vorbereitung auf IPS 7 / PHP 8.2
+  - Neu: Schalter, um die Meldung eines inaktiven Gateway zu steuern
+  - update submodule CommonStubs
+    - Absicherung bei Zugriff auf Objekte und Inhalte
+
+- 1.33 @ 02.04.2023 17:52
+  - neuer Fehler in der Hydrawise-API: der 'status' hat den Wert "Unknown"
+
 - 1.32 @ 18.01.2023 09:21
   - Verbesserung: weiter Verringerung und Absicherung der API-Abrufe
   - Fix: Handling des Datencache abgesichert

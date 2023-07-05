@@ -23,6 +23,8 @@ class HydrawiseSensor extends IPSModule
     {
         parent::Create();
 
+        $this->RegisterPropertyBoolean('log_no_parent', true);
+
         $this->RegisterPropertyString('controller_id', '');
         $this->RegisterPropertyInteger('connector', -1);
         $this->RegisterPropertyInteger('model', 0);
@@ -225,6 +227,12 @@ class HydrawiseSensor extends IPSModule
             ];
         }
 
+        $formElements[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'log_no_parent',
+            'caption' => 'Generate message when the gateway is inactive',
+        ];
+
         return $formElements;
     }
 
@@ -422,8 +430,11 @@ class HydrawiseSensor extends IPSModule
             return false;
         }
         if ($this->HasActiveParent() == false) {
-            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
-            $this->LogMessage('has no active parent instance', KL_WARNING);
+            $this->SendDebug(__FUNCTION__, 'has no active parent/gateway', 0);
+            $log_no_parent = $this->ReadPropertyBoolean('log_no_parent');
+            if ($log_no_parent) {
+                $this->LogMessage($this->Translate('Instance has no active gateway'), KL_WARNING);
+            }
             return false;
         }
 

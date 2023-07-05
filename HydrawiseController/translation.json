@@ -50,6 +50,11 @@
 			"Duration until the connection to hydrawise is marked disturbed": "Dauer bis die Verbindung zu Hydrawise als gestört gilt",
 			"Minutes": "Minuten",
 
+			"Generate message when the gateway is inactive": "Meldung erzeugen wenn der Gateway inaktiv ist",
+
+			"__messages__": "",
+			"Instance has no active gateway": "Instanz hat keinen aktiven Gateway",
+
 			"__options__": "model",
 			"sensor": "Messfühler",
 			"flow meter": "Durchflussmesser",

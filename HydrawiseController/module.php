@@ -25,6 +25,8 @@ class HydrawiseController extends IPSModule
 
         $this->RegisterPropertyBoolean('module_disable', false);
 
+        $this->RegisterPropertyBoolean('log_no_parent', true);
+
         $this->RegisterPropertyString('controller_id', '');
 
         $this->RegisterPropertyInteger('minutes2fail', 60);
@@ -173,7 +175,7 @@ class HydrawiseController extends IPSModule
         }
 
         if ($this->HasActiveParent() == false) {
-            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
+            $this->SendDebug(__FUNCTION__, 'has no active parent/gateway', 0);
             return $entries;
         }
 
@@ -572,6 +574,12 @@ class HydrawiseController extends IPSModule
             'caption' => 'Sensors and zones'
         ];
 
+        $formElements[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'log_no_parent',
+            'caption' => 'Generate message when the gateway is inactive',
+        ];
+
         return $formElements;
     }
 
@@ -652,8 +660,11 @@ class HydrawiseController extends IPSModule
         }
 
         if ($this->HasActiveParent() == false) {
-            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
-            $this->LogMessage('has no active parent instance', KL_WARNING);
+            $this->SendDebug(__FUNCTION__, 'has no active parent/gateway', 0);
+            $log_no_parent = $this->ReadPropertyBoolean('log_no_parent');
+            if ($log_no_parent) {
+                $this->LogMessage($this->Translate('Instance has no active gateway'), KL_WARNING);
+            }
             return;
         }
 
@@ -676,8 +687,11 @@ class HydrawiseController extends IPSModule
         }
 
         if ($this->HasActiveParent() == false) {
-            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
-            $this->LogMessage('has no active parent instance', KL_WARNING);
+            $this->SendDebug(__FUNCTION__, 'has no active parent/gateway', 0);
+            $log_no_parent = $this->ReadPropertyBoolean('log_no_parent');
+            if ($log_no_parent) {
+                $this->LogMessage($this->Translate('Instance has no active gateway'), KL_WARNING);
+            }
             return false;
         }
 
@@ -794,11 +808,8 @@ class HydrawiseController extends IPSModule
             }
         }
 
-        $controller_status = true;
         $status = $controller['status'];
-        if ($status != 'All good!' && $status != 'Alles in Ordnung!') {
-            $controller_status = false;
-        }
+        $controller_status = in_array($status, ['All good!', 'Alles in Ordnung!', 'Unknown']);
 
         $controller_name = $controller['name'];
 
@@ -809,7 +820,7 @@ class HydrawiseController extends IPSModule
         $message = $controller['message'];
 
         $msg = "controller \"$controller_name\": last_contact=$last_contact_ts";
-        $this->SendDebug(__FUNCTION__, utf8_decode($msg), 0);
+        $this->SendDebug(__FUNCTION__, $msg, 0);
 
         if ($with_last_contact) {
             $this->SetValue('LastContact', $last_contact_ts);
@@ -1060,8 +1071,11 @@ class HydrawiseController extends IPSModule
     private function ClearDailyValue()
     {
         if ($this->HasActiveParent() == false) {
-            $this->SendDebug(__FUNCTION__, 'has no active parent', 0);
-            $this->LogMessage('has no active parent instance', KL_WARNING);
+            $this->SendDebug(__FUNCTION__, 'has no active parent/gateway', 0);
+            $log_no_parent = $this->ReadPropertyBoolean('log_no_parent');
+            if ($log_no_parent) {
+                $this->LogMessage($this->Translate('Instance has no active gateway'), KL_WARNING);
+            }
             return;
         }
 
