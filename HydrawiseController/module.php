@@ -10,13 +10,16 @@ class HydrawiseController extends IPSModule
     use Hydrawise\StubsCommonLib;
     use HydrawiseLocalLib;
 
-    private $ModuleDir;
-
     public function __construct(string $InstanceID)
     {
         parent::__construct($InstanceID);
 
-        $this->ModuleDir = __DIR__;
+        $this->CommonContruct(__DIR__);
+    }
+
+    public function __destruct()
+    {
+        $this->CommonDestruct();
     }
 
     public function Create()
@@ -48,8 +51,9 @@ class HydrawiseController extends IPSModule
 
         $this->RegisterPropertyInteger('ImportCategoryID', 0);
 
-        $this->RegisterAttributeString('UpdateInfo', '');
-        $this->RegisterAttributeString('DataCache', '');
+        $this->RegisterAttributeString('UpdateInfo', json_encode([]));
+        $this->RegisterAttributeString('ModuleStats', json_encode([]));
+        $this->RegisterAttributeString('DataCache', json_encode([]));
 
         $this->InstallVarProfiles(false);
 

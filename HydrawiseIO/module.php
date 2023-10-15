@@ -10,17 +10,21 @@ class HydrawiseIO extends IPSModule
     use Hydrawise\StubsCommonLib;
     use HydrawiseLocalLib;
 
-    private $ModuleDir;
-    private $SemaphoreID;
-
     private static $semaphoreTM = 5 * 1000;
+
+    private $SemaphoreID;
 
     public function __construct(string $InstanceID)
     {
         parent::__construct($InstanceID);
 
-        $this->ModuleDir = __DIR__;
+        $this->CommonContruct(__DIR__);
         $this->SemaphoreID = __CLASS__ . '_' . $InstanceID;
+    }
+
+    public function __destruct()
+    {
+        $this->CommonDestruct();
     }
 
     public function Create()
@@ -33,8 +37,9 @@ class HydrawiseIO extends IPSModule
         $this->RegisterPropertyString('host', '');
         $this->RegisterPropertyString('password', '');
 
-        $this->RegisterAttributeString('UpdateInfo', '');
+        $this->RegisterAttributeString('UpdateInfo', json_encode([]));
         $this->RegisterAttributeString('ApiCallStats', json_encode([]));
+        $this->RegisterAttributeString('ModuleStats', json_encode([]));
 
         $this->SetBuffer('CustomerDetails', '');
 
