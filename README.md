@@ -329,7 +329,9 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.35 @ 15.10.2023 13:51 
+- 1.35 @ 02.11.2023 14:49
+  - Neu: Anpassung an die neue API-Version 1.5 (Feld 'status' ist nun obsolete)
+  - Fix: Verbesserung der Absicherung vor mehr Status-Abfragen als von der API zugelassen (z.T. nur noch eine Abfrage pro Minute)
   - Neu: Ermittlung von Speicherbedarf und Laufzeit (aktuell und für 31 Tage) und Anzeige im Panel "Information"
   - Fix: die Statistik der ApiCalls wird nicht mehr nach uri sondern nur noch host+cmd differenziert
   - update submodule CommonStubs
@@ -349,7 +351,7 @@ GUIDs
   - update submodule CommonStubs
 
 - 1.31 @ 21.12.2022 09:17
-  - Verbesserung: Absicherung vor mehr Status-Abfragen als von der APi zugelassen (Feld "nextpoll")
+  - Verbesserung: Absicherung vor mehr Status-Abfragen als von der API zugelassen (Feld "nextpoll")
   - Neu: Führen einer Statistik der API-Calls im IO-Modul, Anzeige als Popup im Experten-Bereich
   - Neu: Verwendung der Option 'discoveryInterval' im Konfigurator (ab 6.3) zur Reduzierung der API-Calls: nur noch ein Discovery/Tag
   - Neu: Daten-Cache für Daten in den Konfiguratoren zur Reduzierung der API-Aufrufe, wird automatisch 1/Tag oder manuell aktualisiert

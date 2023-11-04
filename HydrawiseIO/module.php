@@ -42,6 +42,7 @@ class HydrawiseIO extends IPSModule
         $this->RegisterAttributeString('ModuleStats', json_encode([]));
 
         $this->SetBuffer('CustomerDetails', '');
+        $this->SetBuffer('ControllerDetails', '');
 
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
@@ -367,7 +368,7 @@ class HydrawiseIO extends IPSModule
                     if ($controller_id == $controller['controller_id']) {
                         $name = $controller['name'];
                         $last_contact = $controller['last_contact'];
-                        $status = $controller['status'];
+                        $status = isset($controller['status']) ? $controller['status'] : 'OK';
                         break;
                     }
                 }
@@ -478,9 +479,46 @@ class HydrawiseIO extends IPSModule
             return false;
         }
 
-        $api_key = $this->ReadPropertyString('api_key');
-        $url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key=' . $api_key . '&controller_id=' . $controller_id;
-        $data = $this->do_HttpRequest($url);
+        $controllerDetails = json_decode($this->GetBuffer('ControllerDetails'), true);
+        $this->SendDebug(__FUNCTION__, 'old controllerDetails=' . print_r($controllerDetails, true), 0);
+        if ($controllerDetails == false) {
+            $controllerDetails = [
+                'data'   => '',
+                'last'   => 0,
+                'next'   => 0,
+            ];
+        }
+        $now = time();
+        $last = $controllerDetails['last'];
+        $next = $controllerDetails['next'];
+        $this->SendDebug(__FUNCTION__, 'now=' . date('d.m.Y H:i:s', $now) . ', last=' . date('d.m.Y H:i:s', $last) . ', next=' . date('d.m.Y H:i:s', $next), 0);
+        if ($now > $next) {
+            $this->SendDebug(__FUNCTION__, 'call api', 0);
+            $api_key = $this->ReadPropertyString('api_key');
+            $url = 'https://app.hydrawise.com/api/v1/statusschedule.php?api_key=' . $api_key . '&controller_id=' . $controller_id;
+            $data = $this->do_HttpRequest($url);
+            if ($this->GetStatus() == self::$IS_TOOMANYREQUESTS) {
+                $next = $now + 60 * 10;
+            } else {
+                $next = $now + 60 * 5;
+            }
+            if ($data != '') {
+                $controllerDetails['data'] = $data;
+                $jdata = json_decode($data, true);
+                if (isset($jdata['nextpoll'])) {
+                    $next = $now + $jdata['nextpoll'] + 1;
+                }
+            }
+            $controllerDetails['last'] = $now;
+            $controllerDetails['next'] = $next;
+            $this->SendDebug(__FUNCTION__, 'status=' . $this->GetStatusText() . ', next=' . date('d.m.Y H:i:s', $next), 0);
+            $this->SendDebug(__FUNCTION__, 'new controllerDetails=' . print_r($controllerDetails, true), 0);
+            $this->SetBuffer('ControllerDetails', json_encode($controllerDetails));
+        } else {
+            $this->SendDebug(__FUNCTION__, 'from cache', 0);
+        }
+        $data = $controllerDetails['data'];
+        $this->SendDebug(__FUNCTION__, 'data=' . $data, 0);
         return $data;
     }
 
@@ -504,7 +542,6 @@ class HydrawiseIO extends IPSModule
         $last = $customerDetails['last'];
         $next = $customerDetails['next'];
         $this->SendDebug(__FUNCTION__, 'now=' . date('d.m.Y H:i:s', $now) . ', last=' . date('d.m.Y H:i:s', $last) . ', next=' . date('d.m.Y H:i:s', $next), 0);
-
         if ($now > $next) {
             $this->SendDebug(__FUNCTION__, 'call api', 0);
             $api_key = $this->ReadPropertyString('api_key');
@@ -515,9 +552,9 @@ class HydrawiseIO extends IPSModule
             }
             $customerDetails['last'] = $now;
             if ($this->GetStatus() == self::$IS_TOOMANYREQUESTS) {
-                $customerDetails['next'] = $now + 60 * 10;
+                $customerDetails['next'] = $now + 60 * 15;
             } else {
-                $customerDetails['next'] = $now + 60 * 2;
+                $customerDetails['next'] = $now + 60 * 10;
             }
             $this->SendDebug(__FUNCTION__, 'status=' . $this->GetStatusText() . ', next=' . date('d.m.Y H:i:s', $next), 0);
 
