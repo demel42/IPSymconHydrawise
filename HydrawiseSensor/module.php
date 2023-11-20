@@ -399,11 +399,10 @@ class HydrawiseSensor extends IPSModule
                     case self::$SENSOR_NORMALLY_OPEN_STOP:
                     case self::$SENSOR_NORMALLY_CLOSE_STOP:
                     case self::$SENSOR_NORMALLY_OPEN_START:
-                        $mode = $sensor['mode'];
-                        $active = $sensor['active'];
-                        $timer = $sensor['timer'];
-                        $offtimer = $sensor['offtimer'];
-                        $offlevel = $sensor['offlevel'];
+                        $active = (bool) $this->GetArrayElem($sensor, 'active', false);
+                        $timer = (int) $this->GetArrayElem($sensor, 'timer', 0);
+                        $offtimer = (int) $this->GetArrayElem($sensor, 'offtimer', 0);
+                        $offlevel = (int) $this->GetArrayElem($sensor, 'offlevel', 0);
                         $this->SendDebug(__FUNCTION__, 'active=' . $this->bool2str($active) . ', timer=' . $timer . ', offtimer=' . $offtimer . ', offlevel=' . $offlevel, 0);
                         $this->SetValue('State', $active);
                         break;

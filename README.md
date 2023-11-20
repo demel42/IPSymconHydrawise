@@ -329,6 +329,9 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.36 @ 20.11.2023 17:38
+  - Fix: die für einen Regensonsors zu übertragenden Felder optional zu sein
+
 - 1.35 @ 02.11.2023 14:49
   - Neu: Anpassung an die neue API-Version 1.5 (Feld 'status' ist nun obsolete)
   - Fix: Verbesserung der Absicherung vor mehr Status-Abfragen als von der API zugelassen (z.T. nur noch eine Abfrage pro Minute)
