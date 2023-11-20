@@ -122,7 +122,7 @@ class HydrawiseIO extends IPSModule
             'items'   => [
                 [
                     'type'    => 'Label',
-                    'caption' => 'API-Key from https://app.hydrawise.com/config/account'
+                    'caption' => 'API-Key from https://app.hydrawise.com/config/account-details'
                 ],
                 [
                     'type'    => 'ValidationTextBox',
