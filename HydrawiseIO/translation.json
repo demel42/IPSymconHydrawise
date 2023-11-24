@@ -22,6 +22,9 @@
 			"Hostname": "Hostname",
 			"Password": "Passwort",
 
+			"__messages__": "",
+			"Instance has no active gateway": "Instanz hat keinen aktiven Gateway",
+
 			"__actions__": "",
 			"Test account": "Zugangsdaten überprüfen",
 

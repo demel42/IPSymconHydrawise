@@ -10,6 +10,9 @@
 			"Serial number": "Seriennummer",
 			"Controller-ID": "Controller-ID",
 
+			"__messages__": "",
+			"Instance has no active gateway": "Instanz hat keinen aktiven Gateway",
+
 			"__end__": ""
 		}
 	}
