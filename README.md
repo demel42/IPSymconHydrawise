@@ -329,8 +329,8 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.36 @ 20.11.2023 17:38
-  - Fix: die für einen Regensonsors zu übertragenden Felder optional zu sein
+- 1.36 @ 24.11.2023 10:59
+  - Fix: die für einen Regensonsors zu übertragenden Felder können bei der Übertragung fehlen
   - Fix: URL zu den Kontodetails hat sich geändert
   - Fix: Übersetzung ergänzt
 
