@@ -49,7 +49,9 @@ class HydrawiseController extends IPSModule
         $this->RegisterPropertyInteger('WaterMeterID', 0);
         $this->RegisterPropertyFloat('WaterMeterFactor', 1);
 
-        $this->RegisterPropertyInteger('ImportCategoryID', 0);
+        if (IPS_GetKernelVersion() < 7.0) {
+            $this->RegisterPropertyInteger('ImportCategoryID', 0);
+        }
 
         $this->RegisterAttributeString('UpdateInfo', json_encode([]));
         $this->RegisterAttributeString('ModuleStats', json_encode([]));
@@ -103,7 +105,10 @@ class HydrawiseController extends IPSModule
     {
         parent::ApplyChanges();
 
-        $propertyNames = ['ImportCategoryID', 'statusbox_script', 'webhook_script', 'WaterMeterID'];
+        $propertyNames = ['statusbox_script', 'webhook_script', 'WaterMeterID'];
+        if (IPS_GetKernelVersion() < 7.0) {
+            $propertyNames[] = 'ImportCategoryID';
+        }
         $this->MaintainReferences($propertyNames);
 
         if ($this->CheckPrerequisites() != false) {
@@ -183,7 +188,12 @@ class HydrawiseController extends IPSModule
             return $entries;
         }
 
-        $catID = $this->ReadPropertyInteger('ImportCategoryID');
+        if (IPS_GetKernelVersion() < 7.0) {
+            $catID = $this->ReadPropertyInteger('ImportCategoryID');
+            $location = $this->GetConfiguratorLocation($catID);
+        } else {
+            $location = '';
+        }
 
         $controller_id = $this->ReadPropertyString('controller_id');
 
@@ -262,7 +272,7 @@ class HydrawiseController extends IPSModule
                         'name'        => $sensor_name,
                         'create'      => [
                             'moduleID'      => $guid,
-                            'location'      => $this->GetConfiguratorLocation($catID),
+                            'location'      => $location,
                             'info'          => $ident . ' (' . $controller_name . '\\' . $sensor_name . ')',
                             'configuration' => [
                                 'controller_id' => "$controller_id",
@@ -313,7 +323,7 @@ class HydrawiseController extends IPSModule
                         'name'        => $zone_name,
                         'create'      => [
                             'moduleID'      => $guid,
-                            'location'      => $this->GetConfiguratorLocation($catID),
+                            'location'      => $location,
                             'info'          => $ident . ' (' . $controller_name . '\\' . $zone_name . ')',
                             'configuration' => [
                                 'controller_id' => (string) $controller_id,
@@ -538,43 +548,46 @@ class HydrawiseController extends IPSModule
         ];
 
         $entries = $this->getConfiguratorValues();
+        $items = [];
+        if (IPS_GetKernelVersion() < 7.0) {
+            $items[] = [
+                'type'    => 'SelectCategory',
+                'name'    => 'ImportCategoryID',
+                'caption' => 'category for components to be created'
+            ];
+        }
+        $items[] = [
+            'type'     => 'Configurator',
+            'name'     => 'components',
+            'caption'  => 'Components',
+            'rowCount' => count($entries),
+            'add'      => false,
+            'delete'   => false,
+            'columns'  => [
+                [
+                    'caption' => 'Name',
+                    'name'    => 'name',
+                    'width'   => 'auto'
+                ],
+                [
+                    'caption' => 'Ident',
+                    'name'    => 'ident',
+                    'width'   => '200px'
+                ],
+                [
+                    'caption' => 'Type',
+                    'name'    => 'type',
+                    'width'   => '250px'
+                ],
+            ],
+            'values'            => $entries,
+            'discoveryInterval' => 60 * 60 * 24,
+        ];
+        $items[] = $this->GetRefreshDataCacheFormAction();
+
         $formElements[] = [
             'type'    => 'ExpansionPanel',
-            'items'   => [
-                [
-                    'type'    => 'SelectCategory',
-                    'name'    => 'ImportCategoryID',
-                    'caption' => 'category for components to be created'
-                ],
-                [
-                    'type'     => 'Configurator',
-                    'name'     => 'components',
-                    'caption'  => 'Components',
-                    'rowCount' => count($entries),
-                    'add'      => false,
-                    'delete'   => false,
-                    'columns'  => [
-                        [
-                            'caption' => 'Name',
-                            'name'    => 'name',
-                            'width'   => 'auto'
-                        ],
-                        [
-                            'caption' => 'Ident',
-                            'name'    => 'ident',
-                            'width'   => '200px'
-                        ],
-                        [
-                            'caption' => 'Type',
-                            'name'    => 'type',
-                            'width'   => '250px'
-                        ],
-                    ],
-                    'values'            => $entries,
-                    'discoveryInterval' => 60 * 60 * 24,
-                ],
-                $this->GetRefreshDataCacheFormAction(),
-            ],
+            'items'   => $items,
             'caption' => 'Sensors and zones'
         ];
 

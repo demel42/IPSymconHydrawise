@@ -26,7 +26,9 @@ class HydrawiseConfig extends IPSModule
     {
         parent::Create();
 
-        $this->RegisterPropertyInteger('ImportCategoryID', 0);
+        if (IPS_GetKernelVersion() < 7.0) {
+            $this->RegisterPropertyInteger('ImportCategoryID', 0);
+        }
 
         $this->RegisterAttributeString('UpdateInfo', json_encode([]));
         $this->RegisterAttributeString('ModuleStats', json_encode([]));
@@ -39,7 +41,10 @@ class HydrawiseConfig extends IPSModule
     {
         parent::ApplyChanges();
 
-        $propertyNames = ['ImportCategoryID'];
+        $propertyNames = [];
+        if (IPS_GetKernelVersion() < 7.0) {
+            $propertyNames[] = 'ImportCategoryID';
+        }
         $this->MaintainReferences($propertyNames);
 
         if ($this->CheckPrerequisites() != false) {
@@ -76,7 +81,12 @@ class HydrawiseConfig extends IPSModule
             return $entries;
         }
 
-        $catID = $this->ReadPropertyInteger('ImportCategoryID');
+        if (IPS_GetKernelVersion() < 7.0) {
+            $catID = $this->ReadPropertyInteger('ImportCategoryID');
+            $location = $this->GetConfiguratorLocation($catID);
+        } else {
+            $location = '';
+        }
 
         $dataCache = $this->ReadDataCache();
         if (isset($dataCache['data']['customer'])) {
@@ -129,7 +139,7 @@ class HydrawiseConfig extends IPSModule
                         'controller_id' => $controller_id,
                         'create'        => [
                             'moduleID'      => $guid,
-                            'location'      => $this->GetConfiguratorLocation($catID),
+                            'location'      => $location,
                             'info'          => $this->Translate('Controller') . ' (' . $controller_name . ')',
                             'configuration' => [
                                 'controller_id' => (string) $controller_id,
@@ -183,11 +193,13 @@ class HydrawiseConfig extends IPSModule
             return $formElements;
         }
 
-        $formElements[] = [
-            'type'    => 'SelectCategory',
-            'name'    => 'ImportCategoryID',
-            'caption' => 'category for controller to be created'
-        ];
+        if (IPS_GetKernelVersion() < 7.0) {
+            $formElements[] = [
+                'type'    => 'SelectCategory',
+                'name'    => 'ImportCategoryID',
+                'caption' => 'category for controller to be created'
+            ];
+        }
 
         $entries = $this->getConfiguratorValues();
         $formElements[] = [

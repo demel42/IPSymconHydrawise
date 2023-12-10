@@ -329,6 +329,9 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.37 @ 09.12.2023 17:33
+  - Neu: ab IPS-Version 7 ist im Konfigurator die Angabe einer Import-Kategorie integriert, daher entfällt die bisher vorhandene separate Einstellmöglichkeit
+
 - 1.36 @ 24.11.2023 10:59
   - Fix: die für einen Regensonsors zu übertragenden Felder können bei der Übertragung fehlen
   - Fix: URL zu den Kontodetails hat sich geändert
