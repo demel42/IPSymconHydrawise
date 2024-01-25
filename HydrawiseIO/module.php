@@ -37,8 +37,9 @@ class HydrawiseIO extends IPSModule
         $this->RegisterPropertyString('host', '');
         $this->RegisterPropertyString('password', '');
 
+        $this->RegisterPropertyBoolean('collectApiCallStats', true);
+
         $this->RegisterAttributeString('UpdateInfo', json_encode([]));
-        $this->RegisterAttributeString('ApiCallStats', json_encode([]));
         $this->RegisterAttributeString('ModuleStats', json_encode([]));
 
         $this->SetBuffer('CustomerDetails', '');
@@ -92,7 +93,7 @@ class HydrawiseIO extends IPSModule
 
         $apiNotes = $this->Translate('30 calls per 5 minutes and not faster than specified in the "nextpoll" field of the response to the "statusschedule" API call');
 
-        $this->ApiCallsSetInfo($apiLimits, $apiNotes);
+        $this->ApiCallSetInfo($apiLimits, $apiNotes);
 
         $module_disable = $this->ReadPropertyBoolean('module_disable');
         if ($module_disable) {
@@ -150,6 +151,12 @@ class HydrawiseIO extends IPSModule
             'caption' => 'local Hydrawise-Controller'
         ];
 
+        $formElements[] = [
+            'type'    => 'CheckBox',
+            'name'    => 'collectApiCallStats',
+            'caption' => 'Collect data of API calls'
+        ];
+
         return $formElements;
     }
 
@@ -172,14 +179,17 @@ class HydrawiseIO extends IPSModule
             'onClick' => 'IPS_RequestAction(' . $this->InstanceID . ', "TestAccount", "");',
         ];
 
-        $formActions[] = [
-            'type'      => 'ExpansionPanel',
-            'caption'   => 'Expert area',
-            'expanded'  => false,
-            'items'     => [
-                $this->GetApiCallStatsFormItem(),
-            ]
-        ];
+        $collectApiCallStats = $this->ReadPropertyBoolean('collectApiCallStats');
+        if ($collectApiCallStats) {
+            $formActions[] = [
+                'type'      => 'ExpansionPanel',
+                'caption'   => 'Expert area',
+                'expanded'  => false,
+                'items'     => [
+                    $this->GetApiCallStatsFormItem(),
+                ]
+            ];
+        }
 
         $formActions[] = $this->GetInformationFormAction();
         $formActions[] = $this->GetReferencesFormAction();
@@ -638,7 +648,10 @@ class HydrawiseIO extends IPSModule
 
         IPS_SemaphoreLeave($this->SemaphoreID);
 
-        $this->ApiCallsCollect($url, $err, $statuscode);
+        $collectApiCallStats = $this->ReadPropertyBoolean('collectApiCallStats');
+        if ($collectApiCallStats) {
+            $this->ApiCallCollect($url, $err, $statuscode);
+        }
 
         return $data;
     }

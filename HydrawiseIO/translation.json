@@ -22,6 +22,8 @@
 			"Hostname": "Hostname",
 			"Password": "Passwort",
 
+			"Collect data of API calls": "Daten von API-Aufrufen sammeln",
+
 			"__messages__": "",
 			"Instance has no active gateway": "Instanz hat keinen aktiven Gateway",
 
