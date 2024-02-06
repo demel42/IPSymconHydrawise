@@ -89,11 +89,15 @@ class HydrawiseIO extends IPSModule
             return;
         }
 
-        $apiLimits = [];
+        $vpos = 1000;
+        $collectApiCallStats = $this->ReadPropertyBoolean('collectApiCallStats');
+        $this->MaintainMedia('ApiCallStats', $this->Translate('API call statistics'), MEDIATYPE_DOCUMENT, '.txt', false, $vpos++, $collectApiCallStats);
 
-        $apiNotes = $this->Translate('30 calls per 5 minutes and not faster than specified in the "nextpoll" field of the response to the "statusschedule" API call');
-
-        $this->ApiCallSetInfo($apiLimits, $apiNotes);
+        if ($collectApiCallStats) {
+            $apiLimits = [];
+            $apiNotes = $this->Translate('30 calls per 5 minutes and not faster than specified in the "nextpoll" field of the response to the "statusschedule" API call');
+            $this->ApiCallSetInfo($apiLimits, $apiNotes);
+        }
 
         $module_disable = $this->ReadPropertyBoolean('module_disable');
         if ($module_disable) {
