@@ -115,13 +115,15 @@ class HydrawiseConfig extends IPSModule
             $controllers = $this->GetArrayElem($customer, 'controllers', '');
             if ($controllers != '') {
                 foreach ($controllers as $controller) {
+                    $this->SendDebug(__FUNCTION__, 'controller=' . print_r($controller, true), 0);
+
                     $controller_name = $controller['name'];
                     $controller_id = $controller['controller_id'];
                     $serial_number = $controller['serial_number'];
 
                     $instanceID = 0;
                     foreach ($instIDs as $instID) {
-                        if (IPS_GetProperty($instID, 'controller_id') == $controller_id) {
+                        if (@IPS_GetProperty($instID, 'controller_id') == $controller_id) {
                             $this->SendDebug(__FUNCTION__, 'instance found: ' . IPS_GetName($instID) . ' (' . $instID . ')', 0);
                             $instanceID = $instID;
                             break;
@@ -146,9 +148,8 @@ class HydrawiseConfig extends IPSModule
                             ]
                         ]
                     ];
-
                     $entries[] = $entry;
-                    $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
+                    $this->SendDebug(__FUNCTION__, 'instanceID=' . $instanceID . ', entry=' . print_r($entry, true), 0);
                 }
             }
         }
@@ -169,7 +170,7 @@ class HydrawiseConfig extends IPSModule
             }
 
             $name = IPS_GetName($instID);
-            $controller_id = IPS_GetProperty($instID, 'controller_id');
+            @$controller_id = IPS_GetProperty($instID, 'controller_id');
 
             $entry = [
                 'instanceID'         => $instID,
@@ -179,7 +180,7 @@ class HydrawiseConfig extends IPSModule
             ];
 
             $entries[] = $entry;
-            $this->SendDebug(__FUNCTION__, 'missing entry=' . print_r($entry, true), 0);
+            $this->SendDebug(__FUNCTION__, 'lost: instanceID=' . $instID . ', entry=' . print_r($entry, true), 0);
         }
 
         return $entries;

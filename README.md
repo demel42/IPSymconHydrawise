@@ -329,6 +329,9 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.39 @ 07.02.2024 18:06
+  - Fix: Absicherung von Zugriffen auf andere Instanzen in Konfiguratoren
+
 - 1.38 @ 29.01.2024 10:26
   - Änderung: Medien-Objekte haben zur eindeutigen Identifizierung jetzt ebenfalls ein Ident
   - Neu: Schalter, um Daten zu API-Aufrufen zu sammeln

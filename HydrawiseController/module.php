@@ -227,6 +227,8 @@ class HydrawiseController extends IPSModule
                 $instIDs = IPS_GetInstanceListByModuleID($guid);
 
                 foreach ($sensors as $sensor) {
+                    $this->SendDebug(__FUNCTION__, 'sensor=' . print_r($sensor, true), 0);
+
                     $connector = $sensor['input'] + 1;
                     $sensor_name = $this->GetArrayElem($sensor, 'name', 'Sensor ' . $connector);
                     $type = $sensor['type'];
@@ -253,7 +255,7 @@ class HydrawiseController extends IPSModule
 
                     $instanceID = 0;
                     foreach ($instIDs as $instID) {
-                        if (IPS_GetProperty($instID, 'controller_id') == $controller_id && IPS_GetProperty($instID, 'connector') == $connector) {
+                        if (@IPS_GetProperty($instID, 'controller_id') == $controller_id && @IPS_GetProperty($instID, 'connector') == $connector) {
                             $this->SendDebug(__FUNCTION__, 'instance found: ' . IPS_GetName($instID) . ' (' . $instID . ')', 0);
                             $instanceID = $instID;
                             break;
@@ -281,9 +283,8 @@ class HydrawiseController extends IPSModule
                             ]
                         ],
                     ];
-
                     $entries[] = $entry;
-                    $this->SendDebug(__FUNCTION__, 'entry=' . print_r($entry, true), 0);
+                    $this->SendDebug(__FUNCTION__, 'instanceID=' . $instanceID . ', entry=' . print_r($entry, true), 0);
                 }
             }
 
@@ -293,13 +294,15 @@ class HydrawiseController extends IPSModule
                 $instIDs = IPS_GetInstanceListByModuleID($guid);
 
                 foreach ($relays as $relay) {
+                    $this->SendDebug(__FUNCTION__, 'relay=' . print_r($relay, true), 0);
+
                     $relay_id = $relay['relay_id'];
                     $connector = $relay['relay'];
                     $zone_name = $relay['name'];
 
                     $instanceID = 0;
                     foreach ($instIDs as $instID) {
-                        if (IPS_GetProperty($instID, 'controller_id') == $controller_id && IPS_GetProperty($instID, 'relay_id') == $relay_id) {
+                        if (@IPS_GetProperty($instID, 'controller_id') == $controller_id && @IPS_GetProperty($instID, 'relay_id') == $relay_id) {
                             $this->SendDebug(__FUNCTION__, 'instance found: ' . IPS_GetName($instID) . ' (' . $instID . ')', 0);
                             $instanceID = $instID;
                             break;
@@ -332,8 +335,8 @@ class HydrawiseController extends IPSModule
                             ]
                         ],
                     ];
-
                     $entries[] = $entry;
+                    $this->SendDebug(__FUNCTION__, 'instanceID=' . $instanceID . ', entry=' . print_r($entry, true), 0);
                 }
             }
         }
@@ -357,8 +360,8 @@ class HydrawiseController extends IPSModule
             }
 
             $name = IPS_GetName($instID);
-            $connector = IPS_GetProperty($instID, 'connector');
-            $model = IPS_GetProperty($instID, 'model');
+            @$connector = IPS_GetProperty($instID, 'connector');
+            @$model = IPS_GetProperty($instID, 'model');
             switch ($model) {
                 case self::$SENSOR_NORMALLY_CLOSE_START:
                 case self::$SENSOR_NORMALLY_OPEN_STOP:
@@ -374,15 +377,15 @@ class HydrawiseController extends IPSModule
                     break;
             }
             $ident = $this->Translate('Sensor') . ' ' . $connector;
+
             $entry = [
                 'instanceID'  => $instanceID,
                 'type'        => $this->Translate($mode_txt),
                 'ident'       => $ident,
                 'name'        => $name,
             ];
-
             $entries[] = $entry;
-            $this->SendDebug(__FUNCTION__, 'missing entry=' . print_r($entry, true), 0);
+            $this->SendDebug(__FUNCTION__, 'lost: instanceID=' . $instID . ', entry=' . print_r($entry, true), 0);
         }
 
         $guid = '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}'; // HydrawiseZone
@@ -401,8 +404,7 @@ class HydrawiseController extends IPSModule
             }
 
             $name = IPS_GetName($instID);
-            $connector = IPS_GetProperty($instID, 'connector');
-
+            @$connector = IPS_GetProperty($instID, 'connector');
             if ($connector < 100) {
                 $ident = $this->Translate('Zone') . ' ' . $connector;
             } else {
@@ -415,9 +417,8 @@ class HydrawiseController extends IPSModule
                 'ident'       => $ident,
                 'name'        => $name,
             ];
-
             $entries[] = $entry;
-            $this->SendDebug(__FUNCTION__, 'missing entry=' . print_r($entry, true), 0);
+            $this->SendDebug(__FUNCTION__, 'lost: instanceID=' . $instID . ', entry=' . print_r($entry, true), 0);
         }
 
         return $entries;
