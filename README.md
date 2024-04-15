@@ -330,7 +330,7 @@ GUIDs
 ## 7. Versions-Historie
 
 - 1.40 @ 14.04.2024 17:17
-  - Fix: Absicherung ungültiger ID's
+  - Fix: Anpassungen an IPS 6.2 (Prüfung auf ungültige ID's)
   - update submodule CommonStubs
 
 - 1.39 @ 07.02.2024 18:06
