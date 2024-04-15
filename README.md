@@ -329,6 +329,10 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.40 @ 14.04.2024 17:17
+  - Fix: Absicherung ungültiger ID's
+  - update submodule CommonStubs
+
 - 1.39 @ 07.02.2024 18:06
   - Fix: Absicherung von Zugriffen auf andere Instanzen in Konfiguratoren
 
