@@ -14,7 +14,7 @@ class HydrawiseZone extends IPSModule
     {
         parent::__construct($InstanceID);
 
-        $this->CommonContruct(__DIR__);
+        $this->CommonConstruct(__DIR__);
     }
 
     public function __destruct()
@@ -466,7 +466,7 @@ class HydrawiseZone extends IPSModule
                 $values = json_decode($response, true);
                 if ($values['controller_id'] == $controller_id) {
                     $waterMeterID = $values['WaterMeterID'];
-                    $waterMeterFactor = $values['waterMeterFactor'];
+                    $waterMeterFactor = $values['WaterMeterFactor'];
                     break;
                 }
             }
@@ -582,7 +582,7 @@ class HydrawiseZone extends IPSModule
                     $values = json_decode($response, true);
                     if ($values['controller_id'] == $controller_id) {
                         $waterMeterID = $values['WaterMeterID'];
-                        $waterMeterFactor = $values['waterMeterFactor'];
+                        $waterMeterFactor = $values['WaterMeterFactor'];
                         break;
                     }
                 }

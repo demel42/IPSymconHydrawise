@@ -14,7 +14,7 @@ class HydrawiseController extends IPSModule
     {
         parent::__construct($InstanceID);
 
-        $this->CommonContruct(__DIR__);
+        $this->CommonConstruct(__DIR__);
     }
 
     public function __destruct()
@@ -733,9 +733,9 @@ class HydrawiseController extends IPSModule
         $WaterMeterFactor = $this->ReadPropertyFloat('WaterMeterFactor');
 
         $jdata = [
-            'controller_id'     => $controller_id,
-            'WaterMeterID'      => $WaterMeterID,
-            'waterMeterFactor'  => $WaterMeterFactor,
+            'controller_id'    => $controller_id,
+            'WaterMeterID'     => $WaterMeterID,
+            'WaterMeterFactor' => $WaterMeterFactor,
         ];
 
         $data = json_encode($jdata);
