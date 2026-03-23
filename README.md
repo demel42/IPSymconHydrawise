@@ -329,7 +329,7 @@ GUIDs
 
 ## 7. Versions-Historie
 
-- 1.41 @ 20.03.2026 06:39
+- 1.41 @ 23.03.2026 19:32
   - Fix: Absicherung der API-Statistiken gegen Zahlenüberlauf
   - interne Änderung
   - update submodule CommonStubs

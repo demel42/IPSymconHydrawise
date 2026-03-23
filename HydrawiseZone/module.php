@@ -476,10 +476,10 @@ class HydrawiseZone extends IPSModule
             $buf = $this->GetBuffer('currentRun');
             if ($buf != '') {
                 $current_run = json_decode($buf, true);
-                $last_water_usage = $current_run['water_usage'];
-                $last_water_counter = $current_run['water_counter'];
-                $time_begin = $current_run['time_begin'];
-                $last_server_time = $current_run['server_time'];
+                $last_water_usage = (int) $this->GetArrayElem($current_run, 'water_usage', 0);
+                $last_water_counter = (int) $this->GetArrayElem($current_run, 'water_counter', 0);
+                $time_begin = (int) $this->GetArrayElem($current_run, 'time_begin', 0);
+                $last_server_time = (int) $this->GetArrayElem($current_run, 'server_time', 0);
             } else {
                 $last_water_usage = 0;
                 $last_water_counter = $water_counter;
@@ -530,14 +530,14 @@ class HydrawiseZone extends IPSModule
 
                 $this->SetValue('WaterUsage', $water_usage);
                 switch ($with_flowrate) {
-                case self::$FLOW_RATE_AVERAGE:
-                    $this->SetValue('WaterFlowrate', $avg_water_flowrate);
-                    break;
-                case self::$FLOW_RATE_CURRENT:
-                    $this->SetValue('WaterFlowrate', $cur_water_flowrate);
-                    break;
-                default:
-                    break;
+                    case self::$FLOW_RATE_AVERAGE:
+                        $this->SetValue('WaterFlowrate', $avg_water_flowrate);
+                        break;
+                    case self::$FLOW_RATE_CURRENT:
+                        $this->SetValue('WaterFlowrate', $cur_water_flowrate);
+                        break;
+                    default:
+                        break;
                 }
 
                 $this->SendDebug(__FUNCTION__, 'save: begin=' . $begin . ', end=' . $end . ', left=' . $time_left . ', water_usage=' . $water_usage, 0);
