@@ -109,7 +109,7 @@ class HydrawiseConfig extends IPSModule
         }
 
         $guid = '{B1B47A68-CE20-4887-B00C-E6412DAD2CFB}'; // HydrawiseController:
-        $instIDs = IPS_GetInstanceListByModuleID($guid);
+        $instIDs = (array) IPS_GetInstanceListByModuleID($guid);
 
         if (is_array($customer)) {
             $controllers = $this->GetArrayElem($customer, 'controllers', '');

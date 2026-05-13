@@ -329,6 +329,10 @@ GUIDs
 
 ## 7. Versions-Historie
 
+- 1.42 @ 13.05.2026 11:22
+  - Fix: Änderung von deprecated php code
+  - update submodule CommonStubs
+
 - 1.41 @ 23.03.2026 19:32
   - Fix: Absicherung der API-Statistiken gegen Zahlenüberlauf
   - interne Änderung

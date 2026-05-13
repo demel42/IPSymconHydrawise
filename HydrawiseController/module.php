@@ -224,7 +224,7 @@ class HydrawiseController extends IPSModule
             $sensors = $this->GetArrayElem($controller, 'sensors', '');
             if ($sensors != '') {
                 $guid = '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}'; // HydrawiseSensor
-                $instIDs = IPS_GetInstanceListByModuleID($guid);
+                $instIDs = (array) IPS_GetInstanceListByModuleID($guid);
 
                 foreach ($sensors as $sensor) {
                     $this->SendDebug(__FUNCTION__, 'sensor=' . print_r($sensor, true), 0);
@@ -291,7 +291,7 @@ class HydrawiseController extends IPSModule
             $relays = $this->GetArrayElem($controller, 'relays', '');
             if ($relays != '') {
                 $guid = '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}'; // HydrawiseZone
-                $instIDs = IPS_GetInstanceListByModuleID($guid);
+                $instIDs = (array) IPS_GetInstanceListByModuleID($guid);
 
                 foreach ($relays as $relay) {
                     $this->SendDebug(__FUNCTION__, 'relay=' . print_r($relay, true), 0);
@@ -342,7 +342,7 @@ class HydrawiseController extends IPSModule
         }
 
         $guid = '{56D9EFA4-8840-4DAE-A6D2-ECE8DC862874}'; // HydrawiseSensor
-        $instIDs = IPS_GetInstanceListByModuleID($guid);
+        $instIDs = (array) IPS_GetInstanceListByModuleID($guid);
         foreach ($instIDs as $instID) {
             $fnd = false;
             foreach ($entries as $entry) {
@@ -389,7 +389,7 @@ class HydrawiseController extends IPSModule
         }
 
         $guid = '{6A0DAE44-B86A-4D50-A76F-532365FD88AE}'; // HydrawiseZone
-        $instIDs = IPS_GetInstanceListByModuleID($guid);
+        $instIDs = (array) IPS_GetInstanceListByModuleID($guid);
 
         foreach ($instIDs as $instID) {
             $fnd = false;
@@ -865,7 +865,7 @@ class HydrawiseController extends IPSModule
         $daily_duration = 0;
         $daily_waterusage = 0;
 
-        $relays = $controller['relays'];
+        $relays = (array) $controller['relays'];
         if (count($relays) > 0) {
             $ret = $this->CollectZoneValues();
             $responses = $ret == false ? [] : json_decode($ret, true);
