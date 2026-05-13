@@ -66,6 +66,14 @@ class HydrawiseController extends IPSModule
         $this->RegisterMessage(0, IPS_KERNELMESSAGE);
     }
 
+    public function Destroy()
+    {
+        if (IPS_InstanceExists($this->InstanceID) == false) {
+            $this->CleanupHook();
+        }
+        parent::Destroy();
+    }
+
     public function MessageSink($tstamp, $senderID, $message, $data)
     {
         parent::MessageSink($tstamp, $senderID, $message, $data);
